@@ -17,7 +17,7 @@
     "type": "git",
     "url": "git+https://github.com/pauldvlp/ample.git"
   },
-  "author": "Paul Barahona",
+  "author": "Paul Barahona <johanpaulbarahona@gmail.com>",
   "license": "MIT",
   "engines": {
     "node": ">=22.13"
