@@ -1,0 +1,62 @@
+name: Bug report
+description: Something in Ample is broken or not working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. Please search existing
+        issues first to avoid duplicates.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug. Screenshots/screen recordings help a lot for UI issues.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: How are you running Ample?
+      options:
+        - npx @pauldvlp/ample
+        - npm install -g @pauldvlp/ample
+        - Docker / Docker Compose
+        - Cloned repo, pnpm dev
+        - Cloned repo, pnpm build && pnpm start
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Ample version
+      description: From Settings, or the npm/Docker tag you're on
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: OS / Node version / browser
+      placeholder: e.g. Ubuntu 24.04, Node 22.14, Chrome 130
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Server console output, browser console errors, etc. (redact anything sensitive)
+      render: shell

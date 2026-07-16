@@ -1,0 +1,24 @@
+services:
+  ample:
+    build:
+      context: .
+      # Bump if you need a different Node major (must have a better-sqlite3 build)
+      args:
+        NODE_VERSION: 22-slim
+    image: ample:latest
+    container_name: ample
+    restart: unless-stopped
+    ports:
+      # Host port is configurable via AMPLE_PORT (default 4211). The container
+      # always listens on 4211 internally.
+      - "${AMPLE_PORT:-4211}:4211"
+    volumes:
+      # Persist the SQLite database (and WAL/SHM sidecars) across rebuilds.
+      - ample-data:/data
+    environment:
+      DB_FILE_NAME: /data/ample.db
+      NODE_ENV: production
+      # AI is opt-in and configured in-app (Settings → AI). No keys needed here.
+
+volumes:
+  ample-data:

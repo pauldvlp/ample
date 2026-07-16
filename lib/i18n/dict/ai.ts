@@ -1,0 +1,262 @@
+import type { Dict } from "./_types";
+
+/** AI assistant: settings, the assistant sheet (chat / summary / tips) and the
+ *  guided product tour. Keys are prefixed with "ai.", "assistant." and "tour.". */
+export const ai: Dict = {
+  es: {
+    // ---- settings ----
+    "ai.title": "Asistente de IA",
+    "ai.description":
+      "Opcional. Activa funciones de IA con tu propio proveedor y clave. La clave se guarda solo en este servidor y nunca se muestra en el navegador.",
+    "ai.enableLabel": "Activar IA",
+    "ai.enabledHint": "La IA está activada.",
+    "ai.disabledHint": "Desactivada — todo funciona sin conexión.",
+    "ai.provider": "Proveedor",
+    "ai.apiKey": "Clave de API",
+    "ai.apiKeyPlaceholder": "Pega tu clave de API",
+    "ai.keySaved": "Clave guardada — deja el campo vacío para conservarla.",
+    "ai.getKey": "Consigue una clave de {provider}",
+    "ai.model": "Modelo",
+    "ai.modelHint": "Elige un modelo o usa el recomendado.",
+    "ai.modelDefault": "Recomendado ({model})",
+    "ai.modelSafeHint":
+      "¿No sabes cuál elegir? Deja el recomendado: es el más económico y el que menos consume.",
+    "ai.loadModels": "Ver todos los modelos (avanzado)",
+    "ai.modelsRefresh": "Actualizar lista · {n} disponibles (avanzado)",
+    "ai.modelsLoaded": "{n} modelos disponibles con tu clave (ordenados: económicos primero)",
+    "ai.modelsError": "No se pudieron cargar los modelos. {error}",
+    "ai.tier.google":
+      "Tiene plan gratuito sin tarjeta — la opción más fácil para empezar.",
+    "ai.tier.openai": "Requiere una cuenta con facturación/créditos (de pago).",
+    "ai.tier.anthropic": "Requiere créditos comprados por adelantado (de pago).",
+    "ai.test": "Probar conexión",
+    "ai.testOk": "Conexión exitosa ✓",
+    "ai.testFail": "Falló la conexión: {error}",
+    "ai.savedOn": "IA activada",
+    "ai.savedOff": "IA desactivada",
+    "ai.saveError": "No se pudo guardar la configuración",
+    "ai.missingKey": "Elige un proveedor e ingresa una clave de API.",
+    "ai.privacyNote":
+      "Tus datos financieros solo se envían al proveedor que elijas al usar una función de IA. La clave nunca sale de este servidor.",
+    "ai.disabledShort": "La IA está desactivada. Actívala en Ajustes.",
+
+    // ---- assistant sheet ----
+    "assistant.title": "Amp",
+    "assistant.subtitle": "Desactivado",
+    "assistant.chat": "Chat",
+    "assistant.summary": "Resumen",
+    "assistant.tips": "Consejos",
+    "assistant.placeholder": "Pregunta sobre tus finanzas…",
+    "assistant.send": "Enviar",
+    "assistant.chatEmpty":
+      "Pregúntame sobre tus finanzas. Respondo con base en tus datos.",
+    "assistant.q1": "¿En qué gasté más este mes?",
+    "assistant.q2": "¿Cómo va mi tasa de ahorro?",
+    "assistant.q3": "¿Voy bien con mis metas?",
+    "assistant.writing": "Escribiendo tu resumen…",
+    "assistant.thinking": "Analizando tus finanzas…",
+    "assistant.summaryHint":
+      "Genera un resumen en lenguaje natural de tu mes.",
+    "assistant.tipsHint":
+      "Recibe consejos de presupuesto y proyección de metas.",
+    "assistant.generate": "Generar",
+    "assistant.regenerate": "Regenerar",
+    "assistant.newChat": "Nueva conversación",
+    "assistant.memoryNote": "Recuerdo esta conversación",
+    // ---- assistant page (full-route experience) ----
+    "assistant.heroSubtitle": "¿En qué puedo ayudarte?",
+    "assistant.greetMorning": "Buenos días",
+    "assistant.greetAfternoon": "Buenas tardes",
+    "assistant.greetEvening": "Buenas noches",
+    "assistant.greetGeneric": "Hola",
+    "assistant.examplesTitle": "Comienza con un ejemplo",
+    "assistant.exSpend": "¿En qué gasté más este mes?",
+    "assistant.exLog": "Registra un gasto de 500 en el súper",
+    "assistant.exSavings": "¿Cómo va mi tasa de ahorro?",
+    "assistant.exDebts": "¿Qué cuotas de deuda tengo pendientes?",
+    "assistant.history": "Historial",
+    "assistant.noHistory": "Aún no hay conversaciones",
+    "assistant.historyHint": "Tus conversaciones se guardan aquí.",
+    "assistant.copy": "Copiar",
+    "assistant.copied": "Copiado",
+    "assistant.rename": "Renombrar",
+    "assistant.deleteTitle": "¿Eliminar esta conversación?",
+    "assistant.deleteBody":
+      "Se eliminará de forma permanente. Esta acción no se puede deshacer.",
+    "assistant.clearAll": "Borrar todo",
+    "assistant.clearAllTitle": "¿Borrar todo el historial?",
+    "assistant.clearAllBody":
+      "Se eliminarán todas tus conversaciones de forma permanente.",
+    "assistant.threadUntitled": "Conversación",
+    "assistant.offTitle": "IA desactivada",
+    "assistant.offBody":
+      "Activa el asistente con tu propio proveedor (Anthropic, OpenAI o Google) para resúmenes, consejos y chat sobre tus finanzas.",
+    "assistant.offBadge": "Desactivada por defecto",
+    "assistant.enable": "Activar en Ajustes",
+
+    // ---- agent (chat que ejecuta acciones) ----
+    "agent.placeholder": "Escribe qué hacer o pregunta algo…",
+    "agent.emptyTitle": "Tu asistente financiero",
+    "agent.empty":
+      "Puedo registrar transacciones, recurrentes, deudas, metas, presupuestos y más — o responder sobre tus finanzas. Descríbelo en lenguaje natural, incluso varias cosas a la vez.",
+    "agent.ex1": "Gasté 350 en el súper y 80 en gasolina ayer",
+    "agent.ex2": "Le debo 2000 a Juan, pagadero el 30",
+    "agent.ex3": "Crea una meta de 15000 para vacaciones",
+    "agent.done": "Hecho ({n})",
+    "agent.failed": "No pude completar la acción.",
+    "agent.nothing": "No encontré ninguna acción para realizar.",
+    "agent.error": "Algo salió mal. Intenta de nuevo.",
+
+    // ---- guided tour ----
+    "tour.welcomeTitle": "Bienvenido a Ample 👋",
+    "tour.welcomeBody":
+      "Un recorrido rápido por lo esencial. Toma 20 segundos.",
+    "tour.navTitle": "Navegación",
+    "tour.navBody":
+      "Cuentas, transacciones, presupuestos, metas, recurrentes, deudas y reportes.",
+    "tour.newTxTitle": "Agregar movimiento",
+    "tour.newTxBody": "Registra ingresos, gastos o transferencias.",
+    "tour.quickAddTitle": "Captura rápida",
+    "tour.quickAddBody":
+      "Escribe en lenguaje natural, ej. «Gasté $50 en el super», y Amp lo registra por ti.",
+    "tour.assistantTitle": "Asistente de IA",
+    "tour.assistantBody":
+      "Resumen mensual, consejos y chat con Amp sobre tus finanzas.",
+    "tour.assistantBodyOff":
+      "Activa a Amp en Ajustes con tu proveedor de IA para resúmenes, consejos y chat.",
+    "tour.doneTitle": "¡Listo!",
+    "tour.doneBody":
+      "Puedes repetir este recorrido cuando quieras desde Ajustes.",
+    "tour.next": "Siguiente",
+    "tour.prev": "Atrás",
+    "tour.done": "Listo",
+    "tour.replay": "Repetir tour",
+    "tour.replayTitle": "Recorrido guiado",
+    "tour.replayHint": "Vuelve a ver el tour de bienvenida.",
+  },
+  en: {
+    // ---- settings ----
+    "ai.title": "AI assistant",
+    "ai.description":
+      "Optional. Turn on AI features with your own provider and key. The key is stored only on this server and never shown in the browser.",
+    "ai.enableLabel": "Enable AI",
+    "ai.enabledHint": "AI is enabled.",
+    "ai.disabledHint": "Off — everything works offline.",
+    "ai.provider": "Provider",
+    "ai.apiKey": "API key",
+    "ai.apiKeyPlaceholder": "Paste your API key",
+    "ai.keySaved": "Key saved — leave blank to keep it.",
+    "ai.getKey": "Get a {provider} key",
+    "ai.model": "Model",
+    "ai.modelHint": "Pick a model or use the recommended one.",
+    "ai.modelDefault": "Recommended ({model})",
+    "ai.modelSafeHint":
+      "Not sure which to pick? Keep the recommended one — it's the cheapest and lightest.",
+    "ai.loadModels": "Show all models (advanced)",
+    "ai.modelsRefresh": "Refresh list · {n} available (advanced)",
+    "ai.modelsLoaded": "{n} models available with your key (cheapest first)",
+    "ai.modelsError": "Couldn't load models. {error}",
+    "ai.tier.google":
+      "Has a free tier with no card — the easiest way to start.",
+    "ai.tier.openai": "Requires an account with billing/credits (paid).",
+    "ai.tier.anthropic": "Requires prepaid credits (paid).",
+    "ai.test": "Test connection",
+    "ai.testOk": "Connection successful ✓",
+    "ai.testFail": "Connection failed: {error}",
+    "ai.savedOn": "AI enabled",
+    "ai.savedOff": "AI disabled",
+    "ai.saveError": "Couldn't save the configuration",
+    "ai.missingKey": "Choose a provider and enter an API key.",
+    "ai.privacyNote":
+      "Your financial data is only sent to the provider you choose when you use an AI feature. The key never leaves this server.",
+    "ai.disabledShort": "AI is off. Enable it in Settings.",
+
+    // ---- assistant sheet ----
+    "assistant.title": "Amp",
+    "assistant.subtitle": "Disabled",
+    "assistant.chat": "Chat",
+    "assistant.summary": "Summary",
+    "assistant.tips": "Tips",
+    "assistant.placeholder": "Ask about your finances…",
+    "assistant.send": "Send",
+    "assistant.chatEmpty":
+      "Ask me about your finances. I answer using your data.",
+    "assistant.q1": "What did I spend most on this month?",
+    "assistant.q2": "How is my savings rate?",
+    "assistant.q3": "Am I on track with my goals?",
+    "assistant.writing": "Writing your summary…",
+    "assistant.thinking": "Analyzing your finances…",
+    "assistant.summaryHint": "Generate a natural-language recap of your month.",
+    "assistant.tipsHint": "Get budget advice and goal projections.",
+    "assistant.generate": "Generate",
+    "assistant.regenerate": "Regenerate",
+    "assistant.newChat": "New chat",
+    "assistant.memoryNote": "I remember this conversation",
+    // ---- assistant page (full-route experience) ----
+    "assistant.heroSubtitle": "What's on your mind?",
+    "assistant.greetMorning": "Good morning",
+    "assistant.greetAfternoon": "Good afternoon",
+    "assistant.greetEvening": "Good evening",
+    "assistant.greetGeneric": "Hello",
+    "assistant.examplesTitle": "Get started with an example",
+    "assistant.exSpend": "What did I spend most on this month?",
+    "assistant.exLog": "Log a 500 expense at the store",
+    "assistant.exSavings": "How is my savings rate?",
+    "assistant.exDebts": "Which debt installments are coming up?",
+    "assistant.history": "History",
+    "assistant.noHistory": "No conversations yet",
+    "assistant.historyHint": "Your conversations are saved here.",
+    "assistant.copy": "Copy",
+    "assistant.copied": "Copied",
+    "assistant.rename": "Rename",
+    "assistant.deleteTitle": "Delete this conversation?",
+    "assistant.deleteBody": "It will be permanently deleted. This can't be undone.",
+    "assistant.clearAll": "Clear all",
+    "assistant.clearAllTitle": "Clear all history?",
+    "assistant.clearAllBody":
+      "All your conversations will be permanently deleted.",
+    "assistant.threadUntitled": "Conversation",
+    "assistant.offTitle": "AI is off",
+    "assistant.offBody":
+      "Turn on the assistant with your own provider (Anthropic, OpenAI or Google) for summaries, tips and chat about your finances.",
+    "assistant.offBadge": "Off by default",
+    "assistant.enable": "Enable in Settings",
+
+    // ---- agent (action chat) ----
+    "agent.placeholder": "Tell me what to do, or ask a question…",
+    "agent.emptyTitle": "Your finance assistant",
+    "agent.empty":
+      "I can log transactions, recurring rules, debts, goals, budgets and more — or answer questions about your finances. Describe it in plain language, even several things at once.",
+    "agent.ex1": "Spent 350 at the store and 80 on gas yesterday",
+    "agent.ex2": "I owe Juan 2000, due on the 30th",
+    "agent.ex3": "Create a 15000 goal for vacation",
+    "agent.done": "Done ({n})",
+    "agent.failed": "Couldn't complete the action.",
+    "agent.nothing": "I didn't find anything to do.",
+    "agent.error": "Something went wrong. Try again.",
+
+    // ---- guided tour ----
+    "tour.welcomeTitle": "Welcome to Ample 👋",
+    "tour.welcomeBody": "A quick tour of the essentials. Takes 20 seconds.",
+    "tour.navTitle": "Navigation",
+    "tour.navBody":
+      "Accounts, transactions, budgets, goals, recurring, debts and reports.",
+    "tour.newTxTitle": "Add a movement",
+    "tour.newTxBody": "Record income, expenses or transfers.",
+    "tour.quickAddTitle": "Quick add",
+    "tour.quickAddBody":
+      "Type in plain language, e.g. “Spent $50 at the store”, and Amp will file it for you.",
+    "tour.assistantTitle": "AI assistant",
+    "tour.assistantBody": "Monthly summary, tips and chat with Amp about your finances.",
+    "tour.assistantBodyOff":
+      "Enable Amp in Settings with your AI provider for summaries, tips and chat.",
+    "tour.doneTitle": "You're all set!",
+    "tour.doneBody": "You can replay this tour anytime from Settings.",
+    "tour.next": "Next",
+    "tour.prev": "Back",
+    "tour.done": "Done",
+    "tour.replay": "Replay tour",
+    "tour.replayTitle": "Guided tour",
+    "tour.replayHint": "Watch the welcome tour again.",
+  },
+};

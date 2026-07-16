@@ -1,0 +1,1 @@
+ALTER TABLE `settings` ADD `language` text DEFAULT 'es' NOT NULL;
