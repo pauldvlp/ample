@@ -47,7 +47,11 @@ is the better fit — see [DEPLOY.md](./DEPLOY.md).
 
 ## Requirements
 
-- **Node ≥ 20** (the dev machine runs Node 24; the Docker image is `node:22-slim`).
+- **Node ≥ 22.13 to develop** — `pnpm@11.12.0` (pinned below) requires it; running
+  `pnpm install` on Node 20 fails outright (`ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite`).
+  CI runs on 22 and 24. The Docker image is `node:22-slim`. This is separate from
+  what an *end user* needs: the published npm package (`npx @pauldvlp/ample`) and the
+  Docker image only need Node ≥ 20 at runtime — they don't use pnpm at all.
 - **pnpm 11.12.0**, pinned by `"packageManager": "pnpm@11.12.0"` in `package.json`.
   Enable it once with corepack — no global install needed:
 

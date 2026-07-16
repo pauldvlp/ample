@@ -22,10 +22,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # README claims Node >= 20; the Docker image and npm Trusted
-        # Publishing step separately pin 22 — this matrix is what actually
-        # backs the ">=20" claim.
-        node-version: [20, 22]
+        # NOT 20: pnpm@11.12.0 itself requires Node >= 22.13 (it uses the
+        # node:sqlite built-in internally) and fails installing anything
+        # before even reaching this repo's own code — confirmed by this
+        # matrix's first real run. The published npm package/Docker image
+        # still support Node >= 20 for *end users*, who never invoke pnpm;
+        # see README's Requirements section.
+        node-version: [22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

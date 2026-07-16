@@ -133,7 +133,12 @@ const distPkg = {
   repository: rootPkg.repository,
   author: rootPkg.author,
   license: rootPkg.license,
-  engines: rootPkg.engines,
+  // NOT rootPkg.engines verbatim: root's requires >=22.13 because pnpm@11
+  // itself needs it — a dev-only constraint. End users installing the
+  // published package use plain npm (no pnpm involved) to run the compiled
+  // standalone server + better-sqlite3, which support Node 20 (matches the
+  // Docker image's node:22-slim floor and better-sqlite3's own engines field).
+  engines: { node: ">=20" },
   publishConfig: { access: "public" },
   bin: { ample: "./bin/ample.mjs" },
   // Mirrors the root's runtime "dependencies" verbatim (not just
