@@ -16,9 +16,7 @@ tokenless CI workflow take over for every release after that.
 
 ## One-time setup
 
-1. **Create the GitHub repo** (if not already) and push this code to
-   `pauldvlp/ample` — or update `package.json`'s `repository`/`homepage`/`bugs`
-   fields and this doc if you used a different name.
+1. ~~Create the GitHub repo and push~~ — done: <https://github.com/pauldvlp/ample>.
 
 2. **Log in to npm locally** (needs an npm account that can publish under the
    `@pauldvlp` scope):
