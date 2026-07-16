@@ -1,0 +1,47 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    # pnpm 11 defaults to minimumReleaseAge: 1440 (24h) and CI enforces it, so a bump
+    # proposed minutes after a release fails `pnpm install --frozen-lockfile` with
+    # ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION. Wait past that window before proposing.
+    cooldown:
+      default-days: 2
+    # Runtime deps ship inside the published package, so a bump there must be able to
+    # reach npm on its own — `fix(deps)` cuts a patch release. devDependencies never
+    # ship, so `chore(deps-dev)` stays hidden and releases nothing.
+    commit-message:
+      prefix: fix
+      prefix-development: chore
+      include: scope
+    ignore:
+      # Major bumps here need the code adapted first and must be done by hand:
+      # next/react are pinned to exact versions, and Tailwind v4 is CSS-first
+      # (a v5 would move the config again). Auto only minor/patch.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      npm:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    # Let a fresh action release be exercised elsewhere first — a same-day major
+    # landed broken in the sibling repo (pnpm/action-setup@v6 crashed self-installing
+    # the pinned pnpm).
+    cooldown:
+      default-days: 2
+    commit-message:
+      prefix: ci
+    ignore:
+      # release-please drives publishing and isn't exercised by PR CI — bump by hand.
+      - dependency-name: "googleapis/release-please-action"
+        update-types: ["version-update:semver-major"]
+    groups:
+      github-actions:
+        patterns: ["*"]

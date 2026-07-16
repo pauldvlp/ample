@@ -5,38 +5,117 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   commitlint:
+    name: Commit messages
+    # main is rebase-only, so every commit on a PR lands verbatim — lint each one.
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: wagoid/commitlint-github-action@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - run: corepack enable
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint the commits this PR adds
+        run: >-
+          pnpm exec commitlint
+          --from ${{ github.event.pull_request.base.sha }}
+          --to ${{ github.event.pull_request.head.sha }}
+          --verbose
 
   test:
+    name: Lint, typecheck, build & test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # NOT 20: pnpm@11.12.0 itself requires Node >= 22.13 (it uses the
-        # node:sqlite built-in internally) and fails installing anything
-        # before even reaching this repo's own code — confirmed by this
-        # matrix's first real run. The published npm package/Docker image
-        # still support Node >= 20 for *end users*, who never invoke pnpm;
-        # see README's Requirements section.
-        node-version: [22, 24]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+
+      # Node 24 runs the toolchain. pnpm@11 itself requires Node >= 22.13 (it uses
+      # the node:sqlite built-in), so this can never be a 20. The published package
+      # still supports Node >= 20 for *end users*, who never invoke pnpm — the smoke
+      # job below proves that floor against the real tarball instead.
+      - uses: actions/setup-node@v7
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24
+
+      # The second setup-node is what wires up the store cache: `cache: pnpm` shells
+      # out to pnpm, so corepack has to have put it on PATH first.
       - run: corepack enable
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
       - run: pnpm test:agent
+
+      # Stage and tar exactly what `npm publish` would upload, so the smoke job
+      # exercises the published artifact rather than the workspace.
+      - name: Pack the published package
+        run: pnpm pack:npm
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v7
+        with:
+          name: ample-tarball
+          path: pauldvlp-ample-*.tgz
+          retention-days: 3
+
+  smoke:
+    name: Smoke — runtime on Node ${{ matrix.node }}
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 20 is the floor the README and dist-npm's engines promise.
+        node: [20, 22, 24]
+    steps:
+      - name: Download tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: ample-tarball
+          path: pkg
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+
+      # Installs the way an end user would: every runtime dependency resolves fresh
+      # and better-sqlite3 compiles against THIS Node. That native build is the whole
+      # reason Node 20 is worth testing.
+      - name: Install the tarball into a clean project and run the CLI
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d)"
+          cd "$workdir"
+          npm init -y >/dev/null
+          npm install "$GITHUB_WORKSPACE"/pkg/pauldvlp-ample-*.tgz
+          echo "— ample --version —"
+          ./node_modules/.bin/ample --version
+          echo "— ample --help —"
+          ./node_modules/.bin/ample --help
