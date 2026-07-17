@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 
 /**
  * Animated number that counts up on mount (and when `value` changes),
@@ -23,8 +23,8 @@ export function CountUp({
 
   React.useEffect(() => {
     const reduce =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const from = fromRef.current;
     const to = value;
     if (reduce || from === to) {

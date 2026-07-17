@@ -1,17 +1,13 @@
-import { type NextRequest } from "next/server";
-import {
-  aiStream,
-  getAiConfig,
-  type AiMessage,
-} from "@/lib/ai/provider";
-import { buildFinanceContext } from "@/lib/ai/context";
-import { buildAppKnowledge } from "@/lib/ai/app-knowledge";
-import { getSettings } from "@/lib/data/settings";
+import { type NextRequest } from 'next/server';
+import { aiStream, getAiConfig, type AiMessage } from '@/lib/ai/provider';
+import { buildFinanceContext } from '@/lib/ai/context';
+import { buildAppKnowledge } from '@/lib/ai/app-knowledge';
+import { getSettings } from '@/lib/data/settings';
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-const LANG_NAME: Record<string, string> = { es: "Spanish", en: "English" };
+const LANG_NAME: Record<string, string> = { es: 'Spanish', en: 'English' };
 
 /**
  * Streaming finance chat. The user's own configured provider answers questions
@@ -21,29 +17,27 @@ const LANG_NAME: Record<string, string> = { es: "Spanish", en: "English" };
 export async function POST(req: NextRequest) {
   const cfg = await getAiConfig();
   if (!cfg.enabled) {
-    return new Response("ai-disabled", { status: 403 });
+    return new Response('ai-disabled', { status: 403 });
   }
 
   let body: { messages?: AiMessage[] };
   try {
     body = await req.json();
   } catch {
-    return new Response("bad-request", { status: 400 });
+    return new Response('bad-request', { status: 400 });
   }
 
   const messages = (body.messages ?? [])
     .filter(
       (m): m is AiMessage =>
-        !!m &&
-        (m.role === "user" || m.role === "assistant") &&
-        typeof m.content === "string"
+        !!m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string',
     )
     .slice(-12);
 
-  if (!messages.length) return new Response("empty", { status: 400 });
+  if (!messages.length) return new Response('empty', { status: 400 });
 
   const s = await getSettings();
-  const lang = LANG_NAME[s.language] ?? "English";
+  const lang = LANG_NAME[s.language] ?? 'English';
   const context = await buildFinanceContext({ recentLimit: 20 });
 
   const system =
@@ -69,7 +63,7 @@ export async function POST(req: NextRequest) {
           controller.enqueue(encoder.encode(delta));
         }
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "error";
+        const msg = e instanceof Error ? e.message : 'error';
         controller.enqueue(encoder.encode(`\n\n⚠️ ${msg}`));
       } finally {
         controller.close();
@@ -79,9 +73,9 @@ export async function POST(req: NextRequest) {
 
   return new Response(stream, {
     headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-store",
-      "X-Accel-Buffering": "no",
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Accel-Buffering': 'no',
     },
   });
 }

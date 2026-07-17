@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { useSettings } from "@/components/providers/settings-provider";
-import { ChartTooltip } from "./chart-tooltip";
-import { CHART_SERIES } from "@/lib/constants";
-import type { CategorySpend } from "@/lib/data/reports";
+import * as React from 'react';
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { useSettings } from '@/components/providers/settings-provider';
+import { ChartTooltip } from './chart-tooltip';
+import { CHART_SERIES } from '@/lib/constants';
+import type { CategorySpend } from '@/lib/data/reports';
 
 export function SpendingDonut({
   data,
@@ -43,7 +43,7 @@ export function SpendingDonut({
       </ResponsiveContainer>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-[0.62rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          {centerLabel ?? t("common.spent")}
+          {centerLabel ?? t('common.spent')}
         </span>
         <span className="sensitive font-display text-xl font-medium tnum">
           {money(total, { compact: total > 1_000_000, cents: false })}

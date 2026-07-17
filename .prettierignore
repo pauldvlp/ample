@@ -1,0 +1,7 @@
+# Build outputs, generated, lockfile — not ours to format.
+.next
+dist-npm
+drizzle
+**/*.tsbuildinfo
+pnpm-lock.yaml
+CHANGELOG.md

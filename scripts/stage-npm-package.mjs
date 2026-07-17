@@ -38,11 +38,11 @@
 // in by bin/ample.mjs at startup, copied from whatever npm actually installed
 // for the machine ample is running on.
 
-import fs from "node:fs";
-import path from "node:path";
+import fs from 'node:fs';
+import path from 'node:path';
 
-const root = path.join(import.meta.dirname, "..");
-const dist = path.join(root, "dist-npm");
+const root = path.join(import.meta.dirname, '..');
+const dist = path.join(root, 'dist-npm');
 
 function copy(from, to, { exclude } = {}) {
   fs.cpSync(from, to, {
@@ -52,20 +52,20 @@ function copy(from, to, { exclude } = {}) {
   });
 }
 
-console.log("[stage] cleaning dist-npm/");
+console.log('[stage] cleaning dist-npm/');
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
 
-const standaloneSrc = path.join(root, ".next", "standalone");
+const standaloneSrc = path.join(root, '.next', 'standalone');
 if (!fs.existsSync(standaloneSrc)) {
   console.error(`[stage] ${standaloneSrc} is missing — run \`pnpm build\` first.`);
   process.exit(1);
 }
 
 console.log(
-  "[stage] copying .next/standalone/ (native binaries + baked-in data/ excluded, see notes above)"
+  '[stage] copying .next/standalone/ (native binaries + baked-in data/ excluded, see notes above)',
 );
-copy(standaloneSrc, path.join(dist, ".next", "standalone"), {
+copy(standaloneSrc, path.join(dist, '.next', 'standalone'), {
   exclude: (src) => {
     const parts = path.relative(standaloneSrc, src).split(path.sep);
 
@@ -75,9 +75,9 @@ copy(standaloneSrc, path.join(dist, ".next", "standalone"), {
     // that means **actual user data** ends up here. Confirmed empirically:
     // it was this developer's real 366-transaction database. Excluded
     // unconditionally — dist-npm must never be able to carry a data/ folder.
-    if (parts[0] === "data") return true;
+    if (parts[0] === 'data') return true;
 
-    const nmIdx = parts.indexOf("node_modules");
+    const nmIdx = parts.indexOf('node_modules');
     if (nmIdx === -1) return false;
 
     // The top-level standalone/node_modules snapshot (and the .pnpm store it
@@ -85,7 +85,7 @@ copy(standaloneSrc, path.join(dist, ".next", "standalone"), {
     // and/or isn't portable across machines — excluded entirely. Only the
     // .next/node_modules/ tree (Turbopack's hash-aliased natives, see the
     // file-level note) gets special handling below.
-    if (parts[nmIdx - 1] !== ".next") return true;
+    if (parts[nmIdx - 1] !== '.next') return true;
 
     // cpSync's filter is also consulted for directories, and returning
     // "exclude" for one skips its whole subtree without recursing — so every
@@ -93,38 +93,32 @@ copy(standaloneSrc, path.join(dist, ".next", "standalone"), {
     // resolve to "keep" here, not just the final build/ check.
     const pkgName = parts[nmIdx + 1];
     if (pkgName === undefined) return false; // .next/node_modules itself
-    if (!pkgName.startsWith("better-sqlite3-")) return true; // unexpected/unneeded package
-    return parts[nmIdx + 2] === "build"; // keep package.json + lib/**, drop the compiled binary
+    if (!pkgName.startsWith('better-sqlite3-')) return true; // unexpected/unneeded package
+    return parts[nmIdx + 2] === 'build'; // keep package.json + lib/**, drop the compiled binary
   },
 });
 
-console.log("[stage] copying .next/static/ -> .next/standalone/.next/static/");
-copy(
-  path.join(root, ".next", "static"),
-  path.join(dist, ".next", "standalone", ".next", "static")
-);
+console.log('[stage] copying .next/static/ -> .next/standalone/.next/static/');
+copy(path.join(root, '.next', 'static'), path.join(dist, '.next', 'standalone', '.next', 'static'));
 
-console.log("[stage] copying public/ -> .next/standalone/public/");
-copy(path.join(root, "public"), path.join(dist, ".next", "standalone", "public"));
+console.log('[stage] copying public/ -> .next/standalone/public/');
+copy(path.join(root, 'public'), path.join(dist, '.next', 'standalone', 'public'));
 
-console.log("[stage] copying drizzle/, bin/, scripts/migrate-lib.mjs, LICENSE");
-copy(path.join(root, "drizzle"), path.join(dist, "drizzle"));
-copy(path.join(root, "bin"), path.join(dist, "bin"));
-fs.mkdirSync(path.join(dist, "scripts"), { recursive: true });
+console.log('[stage] copying drizzle/, bin/, scripts/migrate-lib.mjs, LICENSE');
+copy(path.join(root, 'drizzle'), path.join(dist, 'drizzle'));
+copy(path.join(root, 'bin'), path.join(dist, 'bin'));
+fs.mkdirSync(path.join(dist, 'scripts'), { recursive: true });
 fs.copyFileSync(
-  path.join(root, "scripts", "migrate-lib.mjs"),
-  path.join(dist, "scripts", "migrate-lib.mjs")
+  path.join(root, 'scripts', 'migrate-lib.mjs'),
+  path.join(dist, 'scripts', 'migrate-lib.mjs'),
 );
-fs.copyFileSync(path.join(root, "LICENSE"), path.join(dist, "LICENSE"));
-fs.copyFileSync(
-  path.join(root, "scripts", "npm-package-readme.md"),
-  path.join(dist, "README.md")
-);
+fs.copyFileSync(path.join(root, 'LICENSE'), path.join(dist, 'LICENSE'));
+fs.copyFileSync(path.join(root, 'scripts', 'npm-package-readme.md'), path.join(dist, 'README.md'));
 
-const rootPkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+const rootPkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 
 const distPkg = {
-  name: "@pauldvlp/ample",
+  name: '@pauldvlp/ample',
   version: rootPkg.version,
   description: rootPkg.description,
   keywords: rootPkg.keywords,
@@ -138,16 +132,16 @@ const distPkg = {
   // published package use plain npm (no pnpm involved) to run the compiled
   // standalone server + better-sqlite3, which support Node 20 (matches the
   // Docker image's node:22-slim floor and better-sqlite3's own engines field).
-  engines: { node: ">=20" },
-  publishConfig: { access: "public" },
-  bin: { ample: "./bin/ample.mjs" },
+  engines: { node: '>=22' },
+  publishConfig: { access: 'public' },
+  bin: { ample: './bin/ample.mjs' },
   // Mirrors the root's runtime "dependencies" verbatim (not just
   // better-sqlite3) — see the note atop this file on why node_modules isn't
   // copied from the build. `npm install` resolves every one of these fresh.
   dependencies: rootPkg.dependencies,
 };
 
-fs.writeFileSync(path.join(dist, "package.json"), JSON.stringify(distPkg, null, 2) + "\n");
+fs.writeFileSync(path.join(dist, 'package.json'), JSON.stringify(distPkg, null, 2) + '\n');
 
 // Final guard, independent of the exclude filter above: refuse to leave a
 // database file staged under any name/location. This is what would actually

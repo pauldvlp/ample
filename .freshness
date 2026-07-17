@@ -1,0 +1,6 @@
+# Freshness checkpoint — @pauldvlp/conventions references/freshness.md
+last_reviewed: 2026-07-17
+# open items (updated as they land):
+# - [done] dropped EOL Node 20: smoke matrix [22,24], engines >=22 (stage-npm script), README
+# - [done] added Prettier (formatter) alongside the existing ESLint flat config; format:check gated in CI
+# - tests: the 4 unused __test/*.mts checks, untested engines (budget/debt/recurring)

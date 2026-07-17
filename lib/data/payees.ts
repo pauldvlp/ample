@@ -1,8 +1,8 @@
-import "server-only";
-import { db } from "@/db";
-import { payees, transactions, type Payee } from "@/db/schema";
-import { asc, isNotNull } from "drizzle-orm";
-import type { PayeeOption } from "@/lib/types";
+import 'server-only';
+import { db } from '@/db';
+import { payees, transactions, type Payee } from '@/db/schema';
+import { asc, isNotNull } from 'drizzle-orm';
+import type { PayeeOption } from '@/lib/types';
 
 /**
  * Payee suggestions for the creatable combobox: the saved `payees` table plus
@@ -10,10 +10,7 @@ import type { PayeeOption } from "@/lib/types";
  * suggestable even before a payee is formally saved). Deduped by name.
  */
 export async function getPayeeOptions(): Promise<PayeeOption[]> {
-  const saved: Payee[] = await db
-    .select()
-    .from(payees)
-    .orderBy(asc(payees.name));
+  const saved: Payee[] = await db.select().from(payees).orderBy(asc(payees.name));
 
   const used = await db
     .selectDistinct({ name: transactions.payee })
@@ -31,7 +28,7 @@ export async function getPayeeOptions(): Promise<PayeeOption[]> {
     });
   }
   for (const u of used) {
-    const name = (u.name ?? "").trim();
+    const name = (u.name ?? '').trim();
     if (!name) continue;
     const key = name.toLowerCase();
     if (!byName.has(key)) {

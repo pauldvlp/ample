@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
-import { IconDisc } from "@/components/shared/badges";
-import { Amount } from "@/components/shared/amount";
-import { useSettings } from "@/components/providers/settings-provider";
-import { formatDateSmart } from "@/lib/format";
-import { ArrowLeftRight } from "lucide-react";
-import type { TransactionEnriched } from "@/lib/data/transactions";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
+import { IconDisc } from '@/components/shared/badges';
+import { Amount } from '@/components/shared/amount';
+import { useSettings } from '@/components/providers/settings-provider';
+import { formatDateSmart } from '@/lib/format';
+import { ArrowLeftRight } from 'lucide-react';
+import type { TransactionEnriched } from '@/lib/data/transactions';
 
 export function TransactionRow({
   tx,
@@ -27,39 +27,37 @@ export function TransactionRow({
   selected?: boolean;
 }) {
   const { t, foreign, currency: base } = useSettings();
-  const isTransfer = tx.type === "transfer";
+  const isTransfer = tx.type === 'transfer';
   const hasOriginal =
-    tx.originalAmount != null &&
-    !!tx.originalCurrency &&
-    tx.originalCurrency !== base;
+    tx.originalAmount != null && !!tx.originalCurrency && tx.originalCurrency !== base;
   const title =
     tx.payee ||
     tx.category?.name ||
-    (isTransfer ? t("common.transfer") : t("transactions.transaction"));
+    (isTransfer ? t('common.transfer') : t('transactions.transaction'));
   const meta: string[] = [];
   if (isTransfer) {
-    const acct = tx.transferAccountName ?? t("transactions.accountFallback");
+    const acct = tx.transferAccountName ?? t('transactions.accountFallback');
     meta.push(
       tx.amount < 0
-        ? t("transactions.toAccount", { name: acct })
-        : t("transactions.fromAccount", { name: acct })
+        ? t('transactions.toAccount', { name: acct })
+        : t('transactions.fromAccount', { name: acct }),
     );
   } else {
-    meta.push(tx.category?.name ?? t("common.uncategorized"));
+    meta.push(tx.category?.name ?? t('common.uncategorized'));
   }
   if (showDate) meta.push(formatDateSmart(tx.date));
   if (showAccount && tx.account) meta.push(tx.account.name);
 
-  const Comp = onClick ? "button" : "div";
+  const Comp = onClick ? 'button' : 'div';
 
   return (
     <Comp
       onClick={onClick}
       className={cn(
-        "group flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors",
-        onClick && "hover:bg-muted/60",
-        selected && "bg-primary/8",
-        className
+        'group flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors',
+        onClick && 'hover:bg-muted/60',
+        selected && 'bg-primary/8',
+        className,
       )}
     >
       {isTransfer ? (
@@ -74,9 +72,7 @@ export function TransactionRow({
       )}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">{title}</p>
-        <p className="truncate text-xs text-muted-foreground">
-          {meta.join("  ·  ")}
-        </p>
+        <p className="truncate text-xs text-muted-foreground">{meta.join('  ·  ')}</p>
       </div>
       <div className="flex items-center gap-2">
         <div className="text-right">
@@ -93,7 +89,7 @@ export function TransactionRow({
           )}
           {tx.tags.length > 0 && (
             <p className="truncate text-[0.65rem] text-muted-foreground">
-              {tx.tags.map((t) => `#${t.name}`).join(" ")}
+              {tx.tags.map((t) => `#${t.name}`).join(' ')}
             </p>
           )}
         </div>

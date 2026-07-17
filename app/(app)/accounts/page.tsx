@@ -1,51 +1,51 @@
-import { Plus } from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
-import { StatTile } from "@/components/shared/stat-tile";
-import { EmptyState } from "@/components/shared/empty-state";
-import { Amount } from "@/components/shared/amount";
-import { Button } from "@/components/ui/button";
-import { AccountCard } from "@/components/accounts/account-card";
-import { AccountDialog } from "@/components/accounts/account-dialog";
-import { getNetWorthSummary } from "@/lib/data/accounts";
-import type { AccountWithBalance } from "@/lib/data/accounts";
-import { getT } from "@/lib/i18n/server";
-import type { TFunction } from "@/lib/i18n";
+import { Plus } from 'lucide-react';
+import { PageHeader } from '@/components/shared/page-header';
+import { StatTile } from '@/components/shared/stat-tile';
+import { EmptyState } from '@/components/shared/empty-state';
+import { Amount } from '@/components/shared/amount';
+import { Button } from '@/components/ui/button';
+import { AccountCard } from '@/components/accounts/account-card';
+import { AccountDialog } from '@/components/accounts/account-dialog';
+import { getNetWorthSummary } from '@/lib/data/accounts';
+import type { AccountWithBalance } from '@/lib/data/accounts';
+import { getT } from '@/lib/i18n/server';
+import type { TFunction } from '@/lib/i18n';
 
 export default async function AccountsPage() {
   const t = await getT();
   const summary = await getNetWorthSummary();
   const accounts = summary.accounts;
 
-  const assets = accounts.filter((a) => a.group === "asset");
-  const liabilities = accounts.filter((a) => a.group === "liability");
+  const assets = accounts.filter((a) => a.group === 'asset');
+  const liabilities = accounts.filter((a) => a.group === 'liability');
 
   const addTrigger = (
     <Button data-tour="accounts-add">
       <Plus className="size-4" />
-      {t("accounts.add")}
+      {t('accounts.add')}
     </Button>
   );
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={t("accounts.eyebrow")}
-        title={t("nav.accounts")}
-        description={t("accounts.description")}
+        eyebrow={t('accounts.eyebrow')}
+        title={t('nav.accounts')}
+        description={t('accounts.description')}
         actions={<AccountDialog trigger={addTrigger} />}
       />
 
       {accounts.length === 0 ? (
         <EmptyState
           icon="Wallet"
-          title={t("accounts.emptyTitle")}
-          description={t("accounts.emptyDesc")}
+          title={t('accounts.emptyTitle')}
+          description={t('accounts.emptyDesc')}
           action={
             <AccountDialog
               trigger={
                 <Button>
                   <Plus className="size-4" />
-                  {t("accounts.add")}
+                  {t('accounts.add')}
                 </Button>
               }
             />
@@ -55,30 +55,30 @@ export default async function AccountsPage() {
         <>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" data-tour="accounts-networth">
             <StatTile
-              label={t("common.netWorth")}
+              label={t('common.netWorth')}
               value={summary.netWorth}
               icon="Landmark"
               iconColor="var(--brass)"
-              sub={t("accounts.netWorthSub")}
+              sub={t('accounts.netWorthSub')}
             />
             <StatTile
-              label={t("common.assets")}
+              label={t('common.assets')}
               value={summary.assets}
               icon="TrendingUp"
               iconColor="var(--positive)"
-              sub={t("accounts.assetsSub")}
+              sub={t('accounts.assetsSub')}
             />
             <StatTile
-              label={t("common.liabilities")}
+              label={t('common.liabilities')}
               value={summary.liabilities}
               icon="CreditCard"
               iconColor="var(--negative)"
-              sub={t("accounts.liabilitiesSub")}
+              sub={t('accounts.liabilitiesSub')}
             />
           </div>
 
-          <AccountGroup title={t("common.assets")} accounts={assets} t={t} />
-          <AccountGroup title={t("common.liabilities")} accounts={liabilities} t={t} />
+          <AccountGroup title={t('common.assets')} accounts={assets} t={t} />
+          <AccountGroup title={t('common.liabilities')} accounts={liabilities} t={t} />
         </>
       )}
     </div>
@@ -105,7 +105,7 @@ function AccountGroup({
             {title}
           </h2>
           <span className="text-xs text-muted-foreground">
-            {t(accounts.length === 1 ? "accounts.countOne" : "accounts.countMany", {
+            {t(accounts.length === 1 ? 'accounts.countOne' : 'accounts.countMany', {
               n: accounts.length,
             })}
           </span>

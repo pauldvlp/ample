@@ -24,7 +24,7 @@ See [README.md](./README.md) for the full stack rundown and
 
 [`AGENTS.md`](./AGENTS.md) is the source of truth for project conventions —
 money-as-cents, the `lib/data`/`lib/actions` split, Base UI (not Radix)
-patterns, design tokens, and things this project deliberately does *not* do.
+patterns, design tokens, and things this project deliberately does _not_ do.
 PRs that don't follow it will get bounced back, so it's worth the five-minute
 read first. If you're using an AI coding assistant, point it at that file too.
 
@@ -47,12 +47,12 @@ checked either way). Releases and `CHANGELOG.md` are generated automatically
 from these messages by [release-please](https://github.com/googleapis/release-please),
 so the prefix you pick actually matters:
 
-| Prefix | Use for | Version bump |
-| --- | --- | --- |
-| `fix:` | Bug fixes | patch |
-| `feat:` | New functionality | minor |
-| `feat!:` / `fix!:` (or a `BREAKING CHANGE:` footer) | Breaking changes | minor (pre-1.0) |
-| `docs:`, `chore:`, `refactor:`, `test:`, `ci:`, `style:`, `perf:` | Everything else | none |
+| Prefix                                                            | Use for           | Version bump    |
+| ----------------------------------------------------------------- | ----------------- | --------------- |
+| `fix:`                                                            | Bug fixes         | patch           |
+| `feat:`                                                           | New functionality | minor           |
+| `feat!:` / `fix!:` (or a `BREAKING CHANGE:` footer)               | Breaking changes  | minor (pre-1.0) |
+| `docs:`, `chore:`, `refactor:`, `test:`, `ci:`, `style:`, `perf:` | Everything else   | none            |
 
 Examples:
 

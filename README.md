@@ -50,8 +50,8 @@ is the better fit — see [DEPLOY.md](./DEPLOY.md).
 - **Node ≥ 22.13 to develop** — `pnpm@11.12.0` (pinned below) requires it; running
   `pnpm install` on Node 20 fails outright (`ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite`).
   CI runs on 22 and 24. The Docker image is `node:22-slim`. This is separate from
-  what an *end user* needs: the published npm package (`npx @pauldvlp/ample`) and the
-  Docker image only need Node ≥ 20 at runtime — they don't use pnpm at all.
+  what an _end user_ needs: the published npm package (`npx @pauldvlp/ample`) and the
+  Docker image only need Node ≥ 22 at runtime — they don't use pnpm at all.
 - **pnpm 11.12.0**, pinned by `"packageManager": "pnpm@11.12.0"` in `package.json`.
   Enable it once with corepack — no global install needed:
 
@@ -141,18 +141,18 @@ pnpm start
 
 ## Scripts
 
-| Script | Purpose |
-| --- | --- |
-| `pnpm dev` | Dev server (Turbopack) |
-| `pnpm build` / `pnpm start` | Production build & serve |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm db:generate` | Generate a migration from the schema |
-| `pnpm db:migrate` | Apply migrations |
-| `pnpm db:push` | Push the schema straight to the db (dev only) |
-| `pnpm db:seed` | Seed demo data |
-| `pnpm db:reset` | Drop the db, migrate, and reseed |
-| `pnpm db:studio` | Drizzle Studio |
+| Script                      | Purpose                                       |
+| --------------------------- | --------------------------------------------- |
+| `pnpm dev`                  | Dev server (Turbopack)                        |
+| `pnpm build` / `pnpm start` | Production build & serve                      |
+| `pnpm lint`                 | ESLint                                        |
+| `pnpm typecheck`            | `tsc --noEmit`                                |
+| `pnpm db:generate`          | Generate a migration from the schema          |
+| `pnpm db:migrate`           | Apply migrations                              |
+| `pnpm db:push`              | Push the schema straight to the db (dev only) |
+| `pnpm db:seed`              | Seed demo data                                |
+| `pnpm db:reset`             | Drop the db, migrate, and reseed              |
+| `pnpm db:studio`            | Drizzle Studio                                |
 
 ## Data & persistence
 

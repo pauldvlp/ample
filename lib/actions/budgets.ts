@@ -1,16 +1,16 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
-import { budgets } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
-import { toCents } from "@/lib/money";
-import { format, subMonths, parse } from "date-fns";
-import { revalidateFinance, type ActionResult } from "./shared";
+import { z } from 'zod';
+import { db } from '@/db';
+import { budgets } from '@/db/schema';
+import { and, eq } from 'drizzle-orm';
+import { toCents } from '@/lib/money';
+import { format, subMonths, parse } from 'date-fns';
+import { revalidateFinance, type ActionResult } from './shared';
 
 const budgetSchema = z.object({
   categoryId: z.string().min(1),
-  period: z.string().regex(/^\d{4}-\d{2}$/, "Invalid period"),
+  period: z.string().regex(/^\d{4}-\d{2}$/, 'Invalid period'),
   amount: z.number().min(0),
   rolloverEnabled: z.boolean().default(false),
 });
@@ -20,7 +20,7 @@ export type BudgetInput = z.input<typeof budgetSchema>;
 export async function upsertBudget(input: BudgetInput): Promise<ActionResult> {
   const parsed = budgetSchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   const amountCents = toCents(v.amount);
 
@@ -60,9 +60,9 @@ export async function deleteBudget(id: string): Promise<ActionResult> {
 }
 
 export async function copyBudgetsFromPreviousMonth(
-  period: string
+  period: string,
 ): Promise<ActionResult<{ copied: number }>> {
-  const prev = format(subMonths(parse(period, "yyyy-MM", new Date()), 1), "yyyy-MM");
+  const prev = format(subMonths(parse(period, 'yyyy-MM', new Date()), 1), 'yyyy-MM');
   const prevRows = await db.select().from(budgets).where(eq(budgets.period, prev));
   if (!prevRows.length) return { ok: true, data: { copied: 0 } };
   for (const b of prevRows) {

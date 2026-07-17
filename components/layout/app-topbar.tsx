@@ -1,30 +1,20 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Menu01Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Brand, BrandMark } from "./brand";
-import { SidebarNav } from "./sidebar-nav";
-import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { PrivacyToggle } from "@/components/shared/privacy-toggle";
-import { SimulationToggle } from "./simulation";
-import { AiAssistant } from "@/components/ai/ai-assistant";
-import { ContextHelpButton } from "@/components/onboarding/context-help-button";
-import { TransactionDialog } from "@/components/transactions/transaction-dialog";
-import { useT } from "@/components/providers/settings-provider";
-import type {
-  AccountOption,
-  CategoryOption,
-  TagOption,
-  PayeeOption,
-} from "@/lib/types";
+import * as React from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Menu01Icon, PlusSignIcon } from '@hugeicons/core-free-icons';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Brand, BrandMark } from './brand';
+import { SidebarNav } from './sidebar-nav';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { PrivacyToggle } from '@/components/shared/privacy-toggle';
+import { SimulationToggle } from './simulation';
+import { AiAssistant } from '@/components/ai/ai-assistant';
+import { ContextHelpButton } from '@/components/onboarding/context-help-button';
+import { TransactionDialog } from '@/components/transactions/transaction-dialog';
+import { useT } from '@/components/providers/settings-provider';
+import type { AccountOption, CategoryOption, TagOption, PayeeOption } from '@/lib/types';
 
 export function AppTopbar({
   accounts,
@@ -45,14 +35,12 @@ export function AppTopbar({
       {/* mobile menu */}
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetTrigger
-          render={
-            <Button variant="ghost" size="icon-sm" className="lg:hidden" aria-label="Menu" />
-          }
+          render={<Button variant="ghost" size="icon-sm" className="lg:hidden" aria-label="Menu" />}
         >
           <HugeiconsIcon icon={Menu01Icon} className="hg-icon size-5" />
         </SheetTrigger>
         <SheetContent side="left" className="w-72 gap-0 p-0">
-          <SheetTitle className="sr-only">{t("brand.tagline")}</SheetTitle>
+          <SheetTitle className="sr-only">{t('brand.tagline')}</SheetTitle>
           <div className="flex h-14 items-center px-5">
             <Brand />
           </div>
@@ -81,7 +69,7 @@ export function AppTopbar({
           trigger={
             <Button size="sm" className="gap-1.5" data-tour="new-tx">
               <HugeiconsIcon icon={PlusSignIcon} className="hg-icon size-4" />
-              <span className="hidden sm:inline">{t("action.new")}</span>
+              <span className="hidden sm:inline">{t('action.new')}</span>
             </Button>
           }
         />

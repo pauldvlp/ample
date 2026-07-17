@@ -68,6 +68,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm build
       - run: pnpm test:agent
@@ -91,8 +92,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 20 is the floor the README and dist-npm's engines promise.
-        node: [20, 22, 24]
+        # Non-EOL only. Node 20 is EOL (2026-04-30); test the floor (22) + current (24).
+        node: [22, 24]
     steps:
       - name: Download tarball
         uses: actions/download-artifact@v8

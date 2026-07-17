@@ -1,14 +1,14 @@
-"use server";
+'use server';
 
-import { z } from "zod";
+import { z } from 'zod';
 import {
   deleteThread as removeThread,
   deleteAllThreads,
   getThreadMessages,
   renameThread as setThreadTitle,
   type ThreadMessage,
-} from "@/lib/ai/threads";
-import { fail, type ActionResult } from "./shared";
+} from '@/lib/ai/threads';
+import { fail, type ActionResult } from './shared';
 
 /**
  * Client-facing thread mutations + a read wrapper for switching threads without
@@ -20,18 +20,16 @@ import { fail, type ActionResult } from "./shared";
 const idSchema = z.string().min(1);
 
 /** Load a thread's transcript so the client can switch threads in place. */
-export async function loadThread(
-  id: string
-): Promise<ActionResult<{ messages: ThreadMessage[] }>> {
+export async function loadThread(id: string): Promise<ActionResult<{ messages: ThreadMessage[] }>> {
   const parsed = idSchema.safeParse(id);
-  if (!parsed.success) return fail("Invalid thread");
+  if (!parsed.success) return fail('Invalid thread');
   const messages = await getThreadMessages(parsed.data);
   return { ok: true, data: { messages } };
 }
 
 export async function deleteThread(id: string): Promise<ActionResult> {
   const parsed = idSchema.safeParse(id);
-  if (!parsed.success) return fail("Invalid thread");
+  if (!parsed.success) return fail('Invalid thread');
   await removeThread(parsed.data);
   return { ok: true };
 }
@@ -41,15 +39,11 @@ export async function clearAllThreads(): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function renameThread(
-  id: string,
-  title: string
-): Promise<ActionResult> {
+export async function renameThread(id: string, title: string): Promise<ActionResult> {
   const parsed = z
     .object({ id: z.string().min(1), title: z.string().max(200) })
     .safeParse({ id, title });
-  if (!parsed.success)
-    return fail(parsed.error.issues[0]?.message ?? "Invalid data");
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Invalid data');
   await setThreadTitle(parsed.data.id, parsed.data.title);
   return { ok: true };
 }

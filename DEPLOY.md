@@ -85,12 +85,12 @@ not need to be set as an environment variable. With AI off, everything
 
 ## Environment variables
 
-| Variable         | Default          | Purpose                                  |
-| ---------------- | ---------------- | ---------------------------------------- |
-| `DB_FILE_NAME`   | `/data/ample.db`   | SQLite database path (keep on the volume) |
-| `AMPLE_PORT`       | `4211`           | **Host** port the Compose service publishes (maps to the container's 4211). Read by `docker-compose.yml`. |
-| `PORT`           | `4211`           | HTTP port the server binds **inside** the container |
-| `HOSTNAME`       | `0.0.0.0`        | Bind address                             |
+| Variable       | Default          | Purpose                                                                                                   |
+| -------------- | ---------------- | --------------------------------------------------------------------------------------------------------- |
+| `DB_FILE_NAME` | `/data/ample.db` | SQLite database path (keep on the volume)                                                                 |
+| `AMPLE_PORT`   | `4211`           | **Host** port the Compose service publishes (maps to the container's 4211). Read by `docker-compose.yml`. |
+| `PORT`         | `4211`           | HTTP port the server binds **inside** the container                                                       |
+| `HOSTNAME`     | `0.0.0.0`        | Bind address                                                                                              |
 
 ## Notes
 
@@ -98,7 +98,7 @@ not need to be set as an environment variable. With AI off, everything
   corepack** (`corepack enable` then `pnpm install --frozen-lockfile`) — pnpm is
   pinned by the `packageManager` field in `package.json`. `better-sqlite3` is a
   native module and is compiled during that install (build tools — `python3 make
-  g++` — are present in the deps stage, and the build is allowed via `allowBuilds`
+g++` — are present in the deps stage, and the build is allowed via `allowBuilds`
   in `pnpm-workspace.yaml`). Build and runtime share the same base + arch so the
   binary is compatible. The image builds with `CI=true` so pnpm stays
   non-interactive and never blocks waiting to approve a build script.

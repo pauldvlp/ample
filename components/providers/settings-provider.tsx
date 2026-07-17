@@ -1,28 +1,13 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { es as dfEs, enUS as dfEn } from "date-fns/locale";
-import { setDefaultOptions } from "date-fns";
-import {
-  setHideAmounts as persistHideAmounts,
-  updateSettings,
-} from "@/lib/actions/settings";
-import {
-  enterSimulation,
-  exitSimulation,
-  advanceSimClock,
-} from "@/lib/actions/simulation";
-import {
-  formatMoney as fmtMoney,
-  convertToBase,
-  type FormatMoneyOptions,
-} from "@/lib/money";
-import { iconStrokeVars } from "@/lib/utils";
-import {
-  createTranslator,
-  type Language,
-  type TFunction,
-} from "@/lib/i18n";
+import * as React from 'react';
+import { es as dfEs, enUS as dfEn } from 'date-fns/locale';
+import { setDefaultOptions } from 'date-fns';
+import { setHideAmounts as persistHideAmounts, updateSettings } from '@/lib/actions/settings';
+import { enterSimulation, exitSimulation, advanceSimClock } from '@/lib/actions/simulation';
+import { formatMoney as fmtMoney, convertToBase, type FormatMoneyOptions } from '@/lib/money';
+import { iconStrokeVars } from '@/lib/utils';
+import { createTranslator, type Language, type TFunction } from '@/lib/i18n';
 
 export interface AppSettings {
   currency: string;
@@ -61,7 +46,7 @@ interface SettingsContextValue extends AppSettings {
    *  projected budget spending); returns count posted */
   advanceSim: (
     days: number,
-    includeBudget?: boolean
+    includeBudget?: boolean,
   ) => Promise<{ posted: number; date: number } | null>;
   simPending: boolean;
 }
@@ -69,7 +54,7 @@ interface SettingsContextValue extends AppSettings {
 const SettingsContext = React.createContext<SettingsContextValue | null>(null);
 
 function applyDateLocale(lang: Language) {
-  setDefaultOptions({ locale: lang === "es" ? dfEs : dfEn });
+  setDefaultOptions({ locale: lang === 'es' ? dfEs : dfEn });
 }
 
 export function SettingsProvider({
@@ -93,7 +78,7 @@ export function SettingsProvider({
   applyDateLocale(language);
 
   React.useEffect(() => {
-    document.documentElement.classList.toggle("privacy-on", hideAmounts);
+    document.documentElement.classList.toggle('privacy-on', hideAmounts);
     if (firstRun.current) {
       firstRun.current = false;
       return;
@@ -129,8 +114,8 @@ export function SettingsProvider({
     setIconStrokeState(clamped);
     const root = document.documentElement;
     const vars = iconStrokeVars(clamped);
-    root.style.setProperty("--hg-stroke", vars["--hg-stroke"]);
-    root.style.setProperty("--lucide-stroke", vars["--lucide-stroke"]);
+    root.style.setProperty('--hg-stroke', vars['--hg-stroke']);
+    root.style.setProperty('--lucide-stroke', vars['--lucide-stroke']);
     void updateSettings({ iconStroke: clamped });
   }, []);
 
@@ -148,15 +133,12 @@ export function SettingsProvider({
     if (res.ok) setSimActive(false);
   }, []);
 
-  const advanceSim = React.useCallback(
-    async (days: number, includeBudget = true) => {
-      setSimPending(true);
-      const res = await advanceSimClock(days, includeBudget);
-      setSimPending(false);
-      return res.ok && res.data ? res.data : null;
-    },
-    []
-  );
+  const advanceSim = React.useCallback(async (days: number, includeBudget = true) => {
+    setSimPending(true);
+    const res = await advanceSimClock(days, includeBudget);
+    setSimPending(false);
+    return res.ok && res.data ? res.data : null;
+  }, []);
 
   const money = React.useCallback(
     (cents: number, opts?: FormatMoneyOptions) =>
@@ -165,19 +147,19 @@ export function SettingsProvider({
         locale: settings.locale,
         ...opts,
       }),
-    [settings.currency, settings.locale]
+    [settings.currency, settings.locale],
   );
 
   const foreign = React.useCallback(
     (cents: number, currency: string, opts?: FormatMoneyOptions) =>
       fmtMoney(cents, { currency, locale: settings.locale, ...opts }),
-    [settings.locale]
+    [settings.locale],
   );
 
   const toBase = React.useCallback(
     (cents: number, currency: string) =>
       convertToBase(cents, currency, settings.currency, settings.rates),
-    [settings.currency, settings.rates]
+    [settings.currency, settings.rates],
   );
 
   const t = React.useMemo(() => createTranslator(language), [language]);
@@ -226,20 +208,16 @@ export function SettingsProvider({
       exitSim,
       advanceSim,
       simPending,
-    ]
+    ],
   );
 
-  return (
-    <SettingsContext.Provider value={value}>
-      {children}
-    </SettingsContext.Provider>
-  );
+  return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
 
 export function useSettings() {
   const ctx = React.useContext(SettingsContext);
   if (!ctx) {
-    throw new Error("useSettings must be used within a SettingsProvider");
+    throw new Error('useSettings must be used within a SettingsProvider');
   }
   return ctx;
 }

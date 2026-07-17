@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,10 +11,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useT } from "@/components/providers/settings-provider";
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useT } from '@/components/providers/settings-provider';
 
 export function ConfirmDialog({
   trigger,
@@ -41,7 +41,7 @@ export function ConfirmDialog({
   const t = useT();
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [typed, setTyped] = React.useState("");
+  const [typed, setTyped] = React.useState('');
 
   const gated = !!confirmPhrase;
   const matches = !gated || typed.trim() === confirmPhrase!.trim();
@@ -51,7 +51,7 @@ export function ConfirmDialog({
   const [prevOpen, setPrevOpen] = React.useState(open);
   if (open !== prevOpen) {
     setPrevOpen(open);
-    if (!open) setTyped("");
+    if (!open) setTyped('');
   }
 
   return (
@@ -60,15 +60,12 @@ export function ConfirmDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          {description && (
-            <AlertDialogDescription>{description}</AlertDialogDescription>
-          )}
+          {description && <AlertDialogDescription>{description}</AlertDialogDescription>}
         </AlertDialogHeader>
         {gated && (
           <div className="space-y-1.5 text-left">
             <Label htmlFor="confirm-phrase" className="text-xs text-muted-foreground">
-              {confirmPhraseLabel ??
-                t("common.typeToConfirm", { phrase: confirmPhrase! })}
+              {confirmPhraseLabel ?? t('common.typeToConfirm', { phrase: confirmPhrase! })}
             </Label>
             <Input
               id="confirm-phrase"
@@ -82,10 +79,10 @@ export function ConfirmDialog({
         )}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>
-            {cancelLabel ?? t("action.cancel")}
+            {cancelLabel ?? t('action.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
-            variant={destructive ? "destructive" : "default"}
+            variant={destructive ? 'destructive' : 'default'}
             disabled={loading || !matches}
             onClick={async (e) => {
               e.preventDefault();
@@ -99,7 +96,7 @@ export function ConfirmDialog({
               }
             }}
           >
-            {loading ? t("action.working") : confirmLabel ?? t("action.delete")}
+            {loading ? t('action.working') : (confirmLabel ?? t('action.delete'))}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

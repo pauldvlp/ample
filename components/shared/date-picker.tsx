@@ -1,18 +1,14 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { es as dfEs, enUS as dfEn } from "date-fns/locale";
-import { CalendarIcon, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { useSettings } from "@/components/providers/settings-provider";
-import { formatDate, toDateInputValue, fromDateInputValue } from "@/lib/format";
+import * as React from 'react';
+import { es as dfEs, enUS as dfEn } from 'date-fns/locale';
+import { CalendarIcon, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useSettings } from '@/components/providers/settings-provider';
+import { formatDate, toDateInputValue, fromDateInputValue } from '@/lib/format';
 
 /**
  * Date picker with the same string contract as the native `<input type=date>`
@@ -50,16 +46,16 @@ export function DatePicker({
             variant="outline"
             disabled={disabled}
             className={cn(
-              "w-full justify-start gap-2 font-normal",
-              !selected && "text-muted-foreground",
-              className
+              'w-full justify-start gap-2 font-normal',
+              !selected && 'text-muted-foreground',
+              className,
             )}
           />
         }
       >
         <CalendarIcon className="size-4 shrink-0 text-muted-foreground" />
         <span className="flex-1 truncate text-left">
-          {selected ? formatDate(selected, "PP") : placeholder ?? t("date.pick")}
+          {selected ? formatDate(selected, 'PP') : (placeholder ?? t('date.pick'))}
         </span>
         {clearable && selected && (
           <span
@@ -68,7 +64,7 @@ export function DatePicker({
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              onChange("");
+              onChange('');
             }}
           >
             <X className="size-3.5" />
@@ -82,7 +78,7 @@ export function DatePicker({
           defaultMonth={selected}
           captionLayout="dropdown"
           weekStartsOn={firstDayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6}
-          locale={language === "es" ? dfEs : dfEn}
+          locale={language === 'es' ? dfEs : dfEn}
           onSelect={(d) => {
             if (d) {
               onChange(toDateInputValue(d));

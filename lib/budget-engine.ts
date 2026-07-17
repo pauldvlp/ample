@@ -1,7 +1,7 @@
-import "server-only";
-import { db } from "@/db";
-import { accounts, budgets, transactions } from "@/db/schema";
-import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
+import 'server-only';
+import { db } from '@/db';
+import { accounts, budgets, transactions } from '@/db/schema';
+import { and, asc, eq, gte, lte, sql } from 'drizzle-orm';
 import {
   startOfMonth,
   endOfMonth,
@@ -9,18 +9,18 @@ import {
   getDaysInMonth,
   differenceInCalendarDays,
   min as dfMin,
-} from "date-fns";
-import { monthKey } from "@/lib/format";
-import { newId } from "@/lib/ids";
-import { getSettings } from "@/lib/data/settings";
+} from 'date-fns';
+import { monthKey } from '@/lib/format';
+import { newId } from '@/lib/ids';
+import { getSettings } from '@/lib/data/settings';
 
 /** Marks the synthetic expenses this engine posts, so they're easy to spot in a
  *  simulated ledger (and could be reverted selectively later). All of it is
  *  discarded when the user exits simulation, like everything else. */
-export const SIM_BUDGET_MARKER = "sim:budget";
+export const SIM_BUDGET_MARKER = 'sim:budget';
 
 /** Asset-side account types, preferred as the fallback "spending" account. */
-const ASSET_TYPES = ["checking", "cash", "savings", "investment"];
+const ASSET_TYPES = ['checking', 'cash', 'savings', 'investment'];
 
 /** Fraction (0..1) of the month starting at `monthStart` that has elapsed by
  *  `until`, counted by whole calendar days. A fully-past month is 1; day 1 of a
@@ -30,10 +30,7 @@ function monthElapsedFraction(monthStart: Date, until: Date): number {
   if (until >= end) return 1;
   if (until < monthStart) return 0;
   const days = getDaysInMonth(monthStart);
-  const elapsed = Math.min(
-    days,
-    differenceInCalendarDays(until, monthStart) + 1
-  );
+  const elapsed = Math.min(days, differenceInCalendarDays(until, monthStart) + 1);
   return elapsed / days;
 }
 
@@ -47,7 +44,7 @@ async function topAccountByCategory(): Promise<Map<string, string>> {
       n: sql<number>`COUNT(*)`,
     })
     .from(transactions)
-    .where(eq(transactions.type, "expense"))
+    .where(eq(transactions.type, 'expense'))
     .groupBy(transactions.categoryId, transactions.accountId);
 
   const best = new Map<string, { acct: string; n: number }>();
@@ -96,16 +93,12 @@ async function pickDefaultAccount(): Promise<string | null> {
  * base-currency cents (budgets and transactions share that unit — no conversion).
  * Does NOT revalidate — the caller (advanceSimClock) does. Returns rows posted.
  */
-export async function postBudgetSpendUpTo(
-  from: Date,
-  until: Date
-): Promise<number> {
+export async function postBudgetSpendUpTo(from: Date, until: Date): Promise<number> {
   if (until <= from) return 0;
 
   const s = await getSettings();
   const base = s.baseCurrency;
-  const label =
-    s.language === "en" ? "Budgeted spend (sim.)" : "Gasto presupuestado (sim.)";
+  const label = s.language === 'en' ? 'Budgeted spend (sim.)' : 'Gasto presupuestado (sim.)';
 
   // 1) each category's budget history, ascending by period ('YYYY-MM' sorts
   //    lexicographically == chronologically). Projected PER CATEGORY so a
@@ -124,10 +117,7 @@ export async function postBudgetSpendUpTo(
 
   /** The category's budget for month `k`: its most recent period on/before `k`,
    *  else its earliest (when `k` precedes any budget the user has set). */
-  const budgetForCatMonth = (
-    arr: { period: string; amount: number }[],
-    k: string
-  ): number => {
+  const budgetForCatMonth = (arr: { period: string; amount: number }[], k: string): number => {
     let chosen = arr[0];
     for (const e of arr) {
       if (e.period <= k) chosen = e;
@@ -156,10 +146,10 @@ export async function postBudgetSpendUpTo(
     .from(transactions)
     .where(
       and(
-        eq(transactions.type, "expense"),
+        eq(transactions.type, 'expense'),
         gte(transactions.date, months[0]),
-        lte(transactions.date, until)
-      )
+        lte(transactions.date, until),
+      ),
     );
   const spent = new Map<string, number>(); // key -> positive cents
   for (const r of spentRows) {
@@ -191,13 +181,13 @@ export async function postBudgetSpendUpTo(
         id: newId(),
         accountId: acctByCat.get(catId) ?? defaultAccountId,
         categoryId: catId,
-        type: "expense",
+        type: 'expense',
         amount: -gap,
         currency: base,
         date: postDate,
         payee: label,
         notes: label,
-        status: "cleared",
+        status: 'cleared',
         externalId: SIM_BUDGET_MARKER,
       });
     }

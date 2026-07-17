@@ -1,24 +1,24 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
-import { transactions, transactionTags, TRANSACTION_TYPES, TRANSACTION_STATUS } from "@/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
-import { toCents, convertToBase } from "@/lib/money";
-import { getConversionContext } from "@/lib/data/rates";
-import { newId } from "@/lib/ids";
-import { revalidateFinance, type ActionResult } from "./shared";
+import { z } from 'zod';
+import { db } from '@/db';
+import { transactions, transactionTags, TRANSACTION_TYPES, TRANSACTION_STATUS } from '@/db/schema';
+import { and, eq, inArray } from 'drizzle-orm';
+import { toCents, convertToBase } from '@/lib/money';
+import { getConversionContext } from '@/lib/data/rates';
+import { newId } from '@/lib/ids';
+import { revalidateFinance, type ActionResult } from './shared';
 
 const txSchema = z.object({
-  accountId: z.string().min(1, "Account is required"),
+  accountId: z.string().min(1, 'Account is required'),
   type: z.enum(TRANSACTION_TYPES),
-  amount: z.number().positive("Amount must be greater than zero"),
+  amount: z.number().positive('Amount must be greater than zero'),
   currency: z.string().optional().nullable(),
   date: z.number(), // epoch ms
   payee: z.string().trim().max(120).optional().nullable(),
   categoryId: z.string().optional().nullable(),
   notes: z.string().trim().max(500).optional().nullable(),
-  status: z.enum(TRANSACTION_STATUS).default("cleared"),
+  status: z.enum(TRANSACTION_STATUS).default('cleared'),
   transferAccountId: z.string().optional().nullable(),
   tagIds: z.array(z.string()).optional().default([]),
 });
@@ -37,9 +37,9 @@ async function insertTransaction(v: ParsedTx): Promise<string> {
   const originalCurrency = isForeign ? v.currency! : null;
   const date = new Date(v.date);
 
-  if (v.type === "transfer") {
+  if (v.type === 'transfer') {
     if (!v.transferAccountId || v.transferAccountId === v.accountId) {
-      throw new Error("Transfer needs a different destination account");
+      throw new Error('Transfer needs a different destination account');
     }
     const group = newId();
     const out = newId();
@@ -48,10 +48,10 @@ async function insertTransaction(v: ParsedTx): Promise<string> {
       {
         id: out,
         accountId: v.accountId,
-        type: "transfer",
+        type: 'transfer',
         amount: -amountCents,
         date,
-        payee: v.payee ?? "Transfer",
+        payee: v.payee ?? 'Transfer',
         notes: v.notes ?? null,
         status: v.status,
         categoryId: null,
@@ -61,10 +61,10 @@ async function insertTransaction(v: ParsedTx): Promise<string> {
       {
         id: inn,
         accountId: v.transferAccountId,
-        type: "transfer",
+        type: 'transfer',
         amount: amountCents,
         date,
-        payee: v.payee ?? "Transfer",
+        payee: v.payee ?? 'Transfer',
         notes: v.notes ?? null,
         status: v.status,
         categoryId: null,
@@ -75,7 +75,7 @@ async function insertTransaction(v: ParsedTx): Promise<string> {
     return out;
   }
 
-  const signed = v.type === "income" ? amountCents : -amountCents;
+  const signed = v.type === 'income' ? amountCents : -amountCents;
   const id = newId();
   await db.insert(transactions).values({
     id,
@@ -100,32 +100,26 @@ async function insertTransaction(v: ParsedTx): Promise<string> {
 }
 
 export async function createTransaction(
-  input: TransactionInput
+  input: TransactionInput,
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = txSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   }
   try {
     const id = await insertTransaction(parsed.data);
     revalidateFinance();
     return { ok: true, data: { id } };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Failed" };
+    return { ok: false, error: e instanceof Error ? e.message : 'Failed' };
   }
 }
 
 async function deleteTxInternal(id: string) {
-  const existing = await db
-    .select()
-    .from(transactions)
-    .where(eq(transactions.id, id))
-    .get();
+  const existing = await db.select().from(transactions).where(eq(transactions.id, id)).get();
   if (!existing) return;
   if (existing.transferGroupId) {
-    await db
-      .delete(transactions)
-      .where(eq(transactions.transferGroupId, existing.transferGroupId));
+    await db.delete(transactions).where(eq(transactions.transferGroupId, existing.transferGroupId));
   } else {
     await db.delete(transactions).where(eq(transactions.id, id));
   }
@@ -133,25 +127,21 @@ async function deleteTxInternal(id: string) {
 
 export async function updateTransaction(
   id: string,
-  input: TransactionInput
+  input: TransactionInput,
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = txSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   }
-  const existing = await db
-    .select()
-    .from(transactions)
-    .where(eq(transactions.id, id))
-    .get();
-  if (!existing) return { ok: false, error: "Transaction not found" };
+  const existing = await db.select().from(transactions).where(eq(transactions.id, id)).get();
+  if (!existing) return { ok: false, error: 'Transaction not found' };
 
   const v = parsed.data;
   const wasTransfer = !!existing.transferGroupId;
 
   try {
     // Any transfer involvement, or a type change: rebuild cleanly.
-    if (v.type === "transfer" || wasTransfer) {
+    if (v.type === 'transfer' || wasTransfer) {
       await deleteTxInternal(id);
       const newIdVal = await insertTransaction(v);
       revalidateFinance();
@@ -165,7 +155,7 @@ export async function updateTransaction(
     const amountCents = isForeign
       ? convertToBase(enteredCents, v.currency!, base, rates)
       : enteredCents;
-    const signed = v.type === "income" ? amountCents : -amountCents;
+    const signed = v.type === 'income' ? amountCents : -amountCents;
     await db
       .update(transactions)
       .set({
@@ -194,7 +184,7 @@ export async function updateTransaction(
     revalidateFinance();
     return { ok: true, data: { id } };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Failed" };
+    return { ok: false, error: e instanceof Error ? e.message : 'Failed' };
   }
 }
 
@@ -204,9 +194,7 @@ export async function deleteTransaction(id: string): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function bulkDeleteTransactions(
-  ids: string[]
-): Promise<ActionResult> {
+export async function bulkDeleteTransactions(ids: string[]): Promise<ActionResult> {
   if (!ids.length) return { ok: true };
   // expand transfer groups
   const rows = await db
@@ -216,9 +204,7 @@ export async function bulkDeleteTransactions(
   const groups = rows.map((r) => r.group).filter((g): g is string => !!g);
   await db.delete(transactions).where(inArray(transactions.id, ids));
   if (groups.length) {
-    await db
-      .delete(transactions)
-      .where(inArray(transactions.transferGroupId, groups));
+    await db.delete(transactions).where(inArray(transactions.transferGroupId, groups));
   }
   revalidateFinance();
   return { ok: true };
@@ -226,7 +212,7 @@ export async function bulkDeleteTransactions(
 
 export async function setTransactionStatus(
   id: string,
-  status: (typeof TRANSACTION_STATUS)[number]
+  status: (typeof TRANSACTION_STATUS)[number],
 ): Promise<ActionResult> {
   await db
     .update(transactions)

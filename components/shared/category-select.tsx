@@ -1,32 +1,26 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/shared/icon";
-import { CategoryDialog } from "@/components/categories/category-dialog";
-import { useT } from "@/components/providers/settings-provider";
-import type { CategoryOption } from "@/lib/types";
-import type { CategoryKind } from "@/db/schema";
-import { Plus } from "lucide-react";
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/shared/icon';
+import { CategoryDialog } from '@/components/categories/category-dialog';
+import { useT } from '@/components/providers/settings-provider';
+import type { CategoryOption } from '@/lib/types';
+import type { CategoryKind } from '@/db/schema';
+import { Plus } from 'lucide-react';
 
-const NONE = "__none__";
+const NONE = '__none__';
 
 /** A tiny icon+label node used both in the list and in the closed trigger. */
-function CategoryLabel({
-  cat,
-  indent = false,
-}: {
-  cat: CategoryOption;
-  indent?: boolean;
-}) {
+function CategoryLabel({ cat, indent = false }: { cat: CategoryOption; indent?: boolean }) {
   return (
     <span className="flex min-w-0 items-center gap-2">
       {indent && (
@@ -107,9 +101,7 @@ export function CategorySelect({
   const items = React.useMemo(() => {
     const map: Record<string, React.ReactNode> = {
       [NONE]: (
-        <span className="text-muted-foreground">
-          {placeholder ?? t("common.uncategorized")}
-        </span>
+        <span className="text-muted-foreground">{placeholder ?? t('common.uncategorized')}</span>
       ),
     };
     for (const c of pool) {
@@ -119,21 +111,19 @@ export function CategorySelect({
   }, [pool, byId, placeholder, t]);
 
   return (
-    <div className={cn("flex items-center gap-1.5", className)}>
+    <div className={cn('flex items-center gap-1.5', className)}>
       <Select
         value={value || NONE}
-        onValueChange={(v) => onChange(v && v !== NONE ? v : "")}
+        onValueChange={(v) => onChange(v && v !== NONE ? v : '')}
         items={items}
       >
         <SelectTrigger id={id} className="w-full min-w-0">
-          <SelectValue placeholder={placeholder ?? t("common.uncategorized")} />
+          <SelectValue placeholder={placeholder ?? t('common.uncategorized')} />
         </SelectTrigger>
         <SelectContent>
           {allowUncategorized && (
             <SelectItem value={NONE}>
-              <span className="text-muted-foreground">
-                {t("common.uncategorized")}
-              </span>
+              <span className="text-muted-foreground">{t('common.uncategorized')}</span>
             </SelectItem>
           )}
           {ordered.map(({ cat, indent }) => (
@@ -160,7 +150,7 @@ export function CategorySelect({
               variant="outline"
               size="icon"
               className="shrink-0"
-              aria-label={t("categorySelect.create")}
+              aria-label={t('categorySelect.create')}
             >
               <Plus className="size-4" />
             </Button>

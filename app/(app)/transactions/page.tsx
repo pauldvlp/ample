@@ -1,25 +1,25 @@
-import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
-import { TransactionDialog } from "@/components/transactions/transaction-dialog";
-import { TransactionsView } from "@/components/transactions/transactions-view";
-import { listTransactions, type TransactionFilters } from "@/lib/data/transactions";
-import { getAccountsWithBalances } from "@/lib/data/accounts";
-import { getCategories } from "@/lib/data/categories";
-import { getTags } from "@/lib/data/tags";
-import { getPayeeOptions } from "@/lib/data/payees";
-import type { AccountOption, CategoryOption, TagOption } from "@/lib/types";
-import type { TransactionType } from "@/db/schema";
-import { getT } from "@/lib/i18n/server";
-import { Plus } from "lucide-react";
+import { PageHeader } from '@/components/shared/page-header';
+import { Button } from '@/components/ui/button';
+import { TransactionDialog } from '@/components/transactions/transaction-dialog';
+import { TransactionsView } from '@/components/transactions/transactions-view';
+import { listTransactions, type TransactionFilters } from '@/lib/data/transactions';
+import { getAccountsWithBalances } from '@/lib/data/accounts';
+import { getCategories } from '@/lib/data/categories';
+import { getTags } from '@/lib/data/tags';
+import { getPayeeOptions } from '@/lib/data/payees';
+import type { AccountOption, CategoryOption, TagOption } from '@/lib/types';
+import type { TransactionType } from '@/db/schema';
+import { getT } from '@/lib/i18n/server';
+import { Plus } from 'lucide-react';
 
 const PAGE_SIZE = 50;
-const TX_TYPES: readonly TransactionType[] = ["income", "expense", "transfer"];
+const TX_TYPES: readonly TransactionType[] = ['income', 'expense', 'transfer'];
 
 function parseDate(value: string | undefined, endOfDay: boolean): Date | undefined {
   if (!value) return undefined;
   // Parse the yyyy-MM-dd input value in local time so the range aligns with
   // how transaction dates are stored (local day boundaries).
-  const d = new Date(`${value}T${endOfDay ? "23:59:59.999" : "00:00:00"}`);
+  const d = new Date(`${value}T${endOfDay ? '23:59:59.999' : '00:00:00'}`);
   return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
@@ -86,9 +86,9 @@ export default async function TransactionsPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={t("transactions.eyebrow")}
-        title={t("nav.transactions")}
-        description={t("transactions.description")}
+        eyebrow={t('transactions.eyebrow')}
+        title={t('nav.transactions')}
+        description={t('transactions.description')}
         actions={
           <TransactionDialog
             accounts={accounts}
@@ -98,7 +98,7 @@ export default async function TransactionsPage({
             trigger={
               <Button data-tour="transactions-add">
                 <Plus />
-                {t("transactions.new")}
+                {t('transactions.new')}
               </Button>
             }
           />
@@ -111,12 +111,12 @@ export default async function TransactionsPage({
         page={page}
         pageSize={PAGE_SIZE}
         filters={{
-          q: sp.q ?? "",
-          accountId: sp.accountId ?? "",
-          categoryId: sp.categoryId ?? "",
-          type: type ?? "",
-          from: sp.from ?? "",
-          to: sp.to ?? "",
+          q: sp.q ?? '',
+          accountId: sp.accountId ?? '',
+          categoryId: sp.categoryId ?? '',
+          type: type ?? '',
+          from: sp.from ?? '',
+          to: sp.to ?? '',
         }}
         accounts={accounts}
         categories={categories}

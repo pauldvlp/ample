@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { usePathname } from "next/navigation";
-import { pageTourIdForPath } from "./page-tours";
-import { PageTourButton } from "./page-tour-button";
+import { usePathname } from 'next/navigation';
+import { pageTourIdForPath } from './page-tours';
+import { PageTourButton } from './page-tour-button';
 
 /**
  * Route-aware help affordance for the topbar. Maps the current pathname to a

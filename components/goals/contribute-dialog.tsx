@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -10,16 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Field, AmountInput } from "@/components/shared/form-fields";
-import { Amount } from "@/components/shared/amount";
-import { useT } from "@/components/providers/settings-provider";
-import { addContribution } from "@/lib/actions/goals";
-import { fromCents } from "@/lib/money";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Field, AmountInput } from '@/components/shared/form-fields';
+import { Amount } from '@/components/shared/amount';
+import { useT } from '@/components/providers/settings-provider';
+import { addContribution } from '@/lib/actions/goals';
+import { fromCents } from '@/lib/money';
 
-type Mode = "add" | "withdraw";
+type Mode = 'add' | 'withdraw';
 
 export function ContributeDialog({
   goalId,
@@ -42,9 +42,9 @@ export function ContributeDialog({
   const open = controlledOpen ?? internalOpen;
   const setOpen = setControlledOpen ?? setInternalOpen;
 
-  const [mode, setMode] = React.useState<Mode>("add");
-  const [amount, setAmount] = React.useState("");
-  const [note, setNote] = React.useState("");
+  const [mode, setMode] = React.useState<Mode>('add');
+  const [amount, setAmount] = React.useState('');
+  const [note, setNote] = React.useState('');
   const [pending, setPending] = React.useState(false);
 
   // reset the form whenever the dialog is closed — during render (tracking
@@ -53,9 +53,9 @@ export function ContributeDialog({
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (!open) {
-      setMode("add");
-      setAmount("");
-      setNote("");
+      setMode('add');
+      setAmount('');
+      setNote('');
     }
   }
 
@@ -63,21 +63,19 @@ export function ContributeDialog({
     e.preventDefault();
     const amt = Number(amount);
     if (!amt || amt <= 0) {
-      toast.error(t("goals.errorAmount"));
+      toast.error(t('goals.errorAmount'));
       return;
     }
     setPending(true);
     const res = await addContribution(
       goalId,
-      mode === "withdraw" ? -amt : amt,
-      note.trim() || undefined
+      mode === 'withdraw' ? -amt : amt,
+      note.trim() || undefined,
     );
     setPending(false);
     if (res.ok) {
       toast.success(
-        mode === "withdraw"
-          ? t("goals.toastWithdrawal")
-          : t("goals.toastContribution")
+        mode === 'withdraw' ? t('goals.toastWithdrawal') : t('goals.toastContribution'),
       );
       setOpen(false);
     } else {
@@ -90,16 +88,12 @@ export function ContributeDialog({
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {t("goals.contributeTo", { name: goalName })}
-          </DialogTitle>
-          <DialogDescription>
-            {t("goals.contributeDescription")}
-          </DialogDescription>
+          <DialogTitle>{t('goals.contributeTo', { name: goalName })}</DialogTitle>
+          <DialogDescription>{t('goals.contributeDescription')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-muted/60 p-1">
-            {(["add", "withdraw"] as Mode[]).map((m) => {
+            {(['add', 'withdraw'] as Mode[]).map((m) => {
               const active = mode === m;
               return (
                 <button
@@ -107,54 +101,49 @@ export function ContributeDialog({
                   type="button"
                   onClick={() => setMode(m)}
                   className={cn(
-                    "rounded-lg px-2 py-2.5 text-sm font-medium transition-all",
+                    'rounded-lg px-2 py-2.5 text-sm font-medium transition-all',
                     active
-                      ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? 'bg-card text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  {m === "add" ? t("goals.addFunds") : t("goals.withdraw")}
+                  {m === 'add' ? t('goals.addFunds') : t('goals.withdraw')}
                 </button>
               );
             })}
           </div>
 
-          <Field label={t("common.amount")} htmlFor="contribute-amount">
-            <AmountInput
-              id="contribute-amount"
-              value={amount}
-              onChange={setAmount}
-              autoFocus
-            />
+          <Field label={t('common.amount')} htmlFor="contribute-amount">
+            <AmountInput id="contribute-amount" value={amount} onChange={setAmount} autoFocus />
           </Field>
 
-          {mode === "add" && remaining > 0 && (
+          {mode === 'add' && remaining > 0 && (
             <button
               type="button"
               onClick={() => setAmount(String(fromCents(remaining)))}
               className="text-xs font-medium text-primary transition-colors hover:text-primary/80"
             >
-              {t("goals.fundRemaining")}{" "}
+              {t('goals.fundRemaining')}{' '}
               <Amount value={remaining} decimals={false} sensitive={false} />
             </button>
           )}
 
-          <Field label={t("goals.note")} htmlFor="contribute-note">
+          <Field label={t('goals.note')} htmlFor="contribute-note">
             <Input
               id="contribute-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder={t("goals.notePlaceholder")}
+              placeholder={t('goals.notePlaceholder')}
             />
           </Field>
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="submit" disabled={pending}>
               {pending
-                ? t("action.saving")
-                : mode === "withdraw"
-                  ? t("goals.recordWithdrawal")
-                  : t("goals.addContribution")}
+                ? t('action.saving')
+                : mode === 'withdraw'
+                  ? t('goals.recordWithdrawal')
+                  : t('goals.addContribution')}
             </Button>
           </div>
         </form>

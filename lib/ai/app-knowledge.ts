@@ -1,4 +1,4 @@
-import "server-only";
+import 'server-only';
 
 /**
  * Product knowledge for the assistant — the single source of truth about what
@@ -139,27 +139,25 @@ export interface PlannedFeature {
  */
 export const PLANNED_FEATURES: PlannedFeature[] = [
   {
-    title: "Import transactions from a CSV or bank statement",
-    note: "today every transaction is entered by hand",
+    title: 'Import transactions from a CSV or bank statement',
+    note: 'today every transaction is entered by hand',
   },
   {
-    title: "Reminders / notifications for upcoming bills and cuotas",
+    title: 'Reminders / notifications for upcoming bills and cuotas',
     note: "the app already computes what's due; this would surface it proactively",
   },
 ];
 
 function roadmapBlock(): string {
-  if (PLANNED_FEATURES.length === 0) return "";
-  const lines = PLANNED_FEATURES.map(
-    (f) => `- ${f.title}${f.note ? ` — ${f.note}` : ""}`
-  );
+  if (PLANNED_FEATURES.length === 0) return '';
+  const lines = PLANNED_FEATURES.map((f) => `- ${f.title}${f.note ? ` — ${f.note}` : ''}`);
   return [
-    "",
-    "## Roadmap — PLANNED, not available yet",
+    '',
+    '## Roadmap — PLANNED, not available yet',
     "These are planned; they do NOT work today. If the user asks about one, say it's",
-    "on the roadmap and not yet available — never imply it already works.",
+    'on the roadmap and not yet available — never imply it already works.',
     ...lines,
-  ].join("\n");
+  ].join('\n');
 }
 
 /**

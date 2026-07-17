@@ -1,10 +1,10 @@
-import "server-only";
-import { db } from "@/db";
-import { budgets, categories, transactions } from "@/db/schema";
-import { and, eq, gte, lte, sql } from "drizzle-orm";
-import { startOfMonth, endOfMonth } from "date-fns";
-import { monthKey, monthKeyToDate } from "@/lib/format";
-import { getNow } from "./clock";
+import 'server-only';
+import { db } from '@/db';
+import { budgets, categories, transactions } from '@/db/schema';
+import { and, eq, gte, lte, sql } from 'drizzle-orm';
+import { startOfMonth, endOfMonth } from 'date-fns';
+import { monthKey, monthKeyToDate } from '@/lib/format';
+import { getNow } from './clock';
 
 export interface BudgetLine {
   budgetId: string | null;
@@ -44,10 +44,10 @@ async function spentByCategory(from: Date, to: Date): Promise<Map<string, number
     .from(transactions)
     .where(
       and(
-        eq(transactions.type, "expense"),
+        eq(transactions.type, 'expense'),
         gte(transactions.date, from),
-        lte(transactions.date, to)
-      )
+        lte(transactions.date, to),
+      ),
     )
     .groupBy(transactions.categoryId);
   const map = new Map<string, number>();
@@ -55,9 +55,7 @@ async function spentByCategory(from: Date, to: Date): Promise<Map<string, number
   return map;
 }
 
-export async function getBudgetSummary(
-  period?: string
-): Promise<BudgetSummary> {
+export async function getBudgetSummary(period?: string): Promise<BudgetSummary> {
   period = period ?? monthKey(await getNow());
   const monthDate = monthKeyToDate(period);
   const from = startOfMonth(monthDate);
@@ -66,7 +64,7 @@ export async function getBudgetSummary(
   const [budgetRows, spent, expenseCats] = await Promise.all([
     db.select().from(budgets).where(eq(budgets.period, period)),
     spentByCategory(from, to),
-    db.select().from(categories).where(eq(categories.kind, "expense")),
+    db.select().from(categories).where(eq(categories.kind, 'expense')),
   ]);
 
   const catMap = new Map(expenseCats.map((c) => [c.id, c]));
@@ -79,7 +77,7 @@ export async function getBudgetSummary(
       return {
         budgetId: b.id,
         categoryId: b.categoryId,
-        categoryName: c?.name ?? "Unknown",
+        categoryName: c?.name ?? 'Unknown',
         categoryColor: c?.color ?? null,
         categoryIcon: c?.icon ?? null,
         amount: b.amount,
@@ -97,7 +95,7 @@ export async function getBudgetSummary(
       const c = catMap.get(id);
       return {
         categoryId: id,
-        name: c?.name ?? "Uncategorized",
+        name: c?.name ?? 'Uncategorized',
         color: c?.color ?? null,
         icon: c?.icon ?? null,
         spent: s,
@@ -120,9 +118,7 @@ export async function getBudgetSummary(
 }
 
 export async function getAvailableBudgetPeriods(): Promise<string[]> {
-  const rows = await db
-    .selectDistinct({ period: budgets.period })
-    .from(budgets);
+  const rows = await db.selectDistinct({ period: budgets.period }).from(budgets);
   const set = new Set(rows.map((r) => r.period));
   set.add(monthKey(await getNow()));
   return [...set].sort().reverse();

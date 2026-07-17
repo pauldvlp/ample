@@ -21,7 +21,7 @@ export function convertToBase(
   amountMinor: number,
   fromCurrency: string,
   baseCurrency: string,
-  rates: Record<string, number>
+  rates: Record<string, number>,
 ): number {
   if (!fromCurrency || fromCurrency === baseCurrency) return amountMinor;
   const rate = rates[fromCurrency];
@@ -39,27 +39,27 @@ export function convertToBase(
  * identical across every environment.
  */
 const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  JPY: "¥",
-  CAD: "$",
-  AUD: "$",
-  CHF: "CHF",
-  CNY: "¥",
-  INR: "₹",
-  MXN: "$",
-  HNL: "L",
-  GTQ: "Q",
-  CRC: "₡",
-  BRL: "R$",
-  ARS: "$",
-  COP: "$",
-  CLP: "$",
-  SEK: "kr",
-  NOK: "kr",
-  NZD: "$",
-  SGD: "$",
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+  CAD: '$',
+  AUD: '$',
+  CHF: 'CHF',
+  CNY: '¥',
+  INR: '₹',
+  MXN: '$',
+  HNL: 'L',
+  GTQ: 'Q',
+  CRC: '₡',
+  BRL: 'R$',
+  ARS: '$',
+  COP: '$',
+  CLP: '$',
+  SEK: 'kr',
+  NOK: 'kr',
+  NZD: '$',
+  SGD: '$',
 };
 
 const formatterCache = new Map<string, Intl.NumberFormat>();
@@ -81,40 +81,42 @@ export interface FormatMoneyOptions {
   /** compact notation: $1.2K, $3.4M */
   compact?: boolean;
   /** force a leading + for positive values */
-  signDisplay?: "auto" | "always" | "exceptZero" | "never";
+  signDisplay?: 'auto' | 'always' | 'exceptZero' | 'never';
 }
 
 export function formatMoney(
   amountCents: number,
   {
-    currency = "USD",
-    locale = "en-US",
+    currency = 'USD',
+    locale = 'en-US',
     cents = true,
     compact = false,
-    signDisplay = "auto",
-  }: FormatMoneyOptions = {}
+    signDisplay = 'auto',
+  }: FormatMoneyOptions = {},
 ): string {
   const value = amountCents / 100;
   const key = `m:${locale}:${currency}:${cents}:${compact}:${signDisplay}`;
-  const fmt = getFormatter(key, () =>
-    new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency,
-      // Use the ISO code for layout (position/spacing are stable across ICU
-      // versions) and swap in our own glyph below — see CURRENCY_SYMBOLS.
-      currencyDisplay: "code",
-      notation: compact ? "compact" : "standard",
-      minimumFractionDigits: compact ? 0 : cents ? 2 : 0,
-      maximumFractionDigits: compact ? 1 : cents ? 2 : 0,
-      signDisplay,
-    })
+  const fmt = getFormatter(
+    key,
+    () =>
+      new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency,
+        // Use the ISO code for layout (position/spacing are stable across ICU
+        // versions) and swap in our own glyph below — see CURRENCY_SYMBOLS.
+        currencyDisplay: 'code',
+        notation: compact ? 'compact' : 'standard',
+        minimumFractionDigits: compact ? 0 : cents ? 2 : 0,
+        maximumFractionDigits: compact ? 1 : cents ? 2 : 0,
+        signDisplay,
+      }),
   );
   try {
     const symbol = CURRENCY_SYMBOLS[currency] ?? currency;
     return fmt
       .formatToParts(value)
-      .map((part) => (part.type === "currency" ? symbol : part.value))
-      .join("");
+      .map((part) => (part.type === 'currency' ? symbol : part.value))
+      .join('');
   } catch {
     // invalid currency code fallback
     return `${value.toFixed(cents ? 2 : 0)} ${currency}`;
@@ -122,23 +124,22 @@ export function formatMoney(
 }
 
 /** Absolute value formatting — useful when the sign is conveyed by color/arrow. */
-export function formatMoneyAbs(
-  amountCents: number,
-  opts: FormatMoneyOptions = {}
-): string {
+export function formatMoneyAbs(amountCents: number, opts: FormatMoneyOptions = {}): string {
   return formatMoney(Math.abs(amountCents), opts);
 }
 
 export function formatNumber(
   value: number,
-  { locale = "en-US", compact = false, maximumFractionDigits = 1 } = {}
+  { locale = 'en-US', compact = false, maximumFractionDigits = 1 } = {},
 ): string {
   const key = `n:${locale}:${compact}:${maximumFractionDigits}`;
-  const fmt = getFormatter(key, () =>
-    new Intl.NumberFormat(locale, {
-      notation: compact ? "compact" : "standard",
-      maximumFractionDigits,
-    })
+  const fmt = getFormatter(
+    key,
+    () =>
+      new Intl.NumberFormat(locale, {
+        notation: compact ? 'compact' : 'standard',
+        maximumFractionDigits,
+      }),
   );
   return fmt.format(value);
 }
@@ -146,22 +147,24 @@ export function formatNumber(
 export function formatPercent(
   ratio: number,
   {
-    locale = "en-US",
+    locale = 'en-US',
     maximumFractionDigits = 0,
-    signDisplay = "auto",
+    signDisplay = 'auto',
   }: {
     locale?: string;
     maximumFractionDigits?: number;
-    signDisplay?: "auto" | "always" | "exceptZero" | "never";
-  } = {}
+    signDisplay?: 'auto' | 'always' | 'exceptZero' | 'never';
+  } = {},
 ): string {
   const key = `p:${locale}:${maximumFractionDigits}:${signDisplay}`;
-  const fmt = getFormatter(key, () =>
-    new Intl.NumberFormat(locale, {
-      style: "percent",
-      maximumFractionDigits,
-      signDisplay,
-    })
+  const fmt = getFormatter(
+    key,
+    () =>
+      new Intl.NumberFormat(locale, {
+        style: 'percent',
+        maximumFractionDigits,
+        signDisplay,
+      }),
   );
   return fmt.format(ratio);
 }

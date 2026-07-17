@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -10,17 +10,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Icon } from "@/components/shared/icon";
-import { useT } from "@/components/providers/settings-provider";
-import { createPayee } from "@/lib/actions/payees";
-import type { PayeeOption } from "@/lib/types";
-import { ChevronsUpDown, Plus, User } from "lucide-react";
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Icon } from '@/components/shared/icon';
+import { useT } from '@/components/providers/settings-provider';
+import { createPayee } from '@/lib/actions/payees';
+import type { PayeeOption } from '@/lib/types';
+import { ChevronsUpDown, Plus, User } from 'lucide-react';
 
 /**
  * Creatable payee / income-source picker. Suggests saved payees and any names
@@ -39,13 +35,13 @@ export function PayeeCombobox({
   value: string;
   onChange: (value: string) => void;
   payees: PayeeOption[];
-  kind?: "income" | "expense";
+  kind?: 'income' | 'expense';
   placeholder?: string;
   id?: string;
 }) {
   const t = useT();
   const [open, setOpen] = React.useState(false);
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = React.useState('');
 
   const q = query.trim();
   const exact = payees.some((p) => p.name.toLowerCase() === q.toLowerCase());
@@ -53,7 +49,7 @@ export function PayeeCombobox({
   function choose(name: string) {
     onChange(name);
     setOpen(false);
-    setQuery("");
+    setQuery('');
   }
 
   async function create() {
@@ -72,51 +68,35 @@ export function PayeeCombobox({
             type="button"
             variant="outline"
             className={cn(
-              "w-full justify-between gap-2 font-normal",
-              !value && "text-muted-foreground"
+              'w-full justify-between gap-2 font-normal',
+              !value && 'text-muted-foreground',
             )}
           />
         }
       >
         <span className="flex min-w-0 items-center gap-2">
           <User className="size-4 shrink-0 text-muted-foreground" />
-          <span className="truncate">
-            {value || placeholder || t("payee.pick")}
-          </span>
+          <span className="truncate">{value || placeholder || t('payee.pick')}</span>
         </span>
         <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
       </PopoverTrigger>
       <PopoverContent className="w-[var(--anchor-width)] min-w-56 p-0" align="start">
-        <Command
-          filter={(v, search) =>
-            v.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
-          }
-        >
-          <CommandInput
-            value={query}
-            onValueChange={setQuery}
-            placeholder={t("payee.search")}
-          />
+        <Command filter={(v, search) => (v.toLowerCase().includes(search.toLowerCase()) ? 1 : 0)}>
+          <CommandInput value={query} onValueChange={setQuery} placeholder={t('payee.search')} />
           <CommandList>
-            {payees.length === 0 && !q && (
-              <CommandEmpty>{t("payee.empty")}</CommandEmpty>
-            )}
+            {payees.length === 0 && !q && <CommandEmpty>{t('payee.empty')}</CommandEmpty>}
             {q && !exact && (
               <CommandGroup>
                 <CommandItem value={q} onSelect={create}>
                   <Plus className="size-4" />
-                  {t("payee.create", { name: q })}
+                  {t('payee.create', { name: q })}
                 </CommandItem>
               </CommandGroup>
             )}
             {payees.length > 0 && (
               <CommandGroup>
                 {payees.map((p) => (
-                  <CommandItem
-                    key={p.id ?? p.name}
-                    value={p.name}
-                    onSelect={() => choose(p.name)}
-                  >
+                  <CommandItem key={p.id ?? p.name} value={p.name} onSelect={() => choose(p.name)}>
                     {p.icon ? (
                       <Icon
                         name={p.icon}

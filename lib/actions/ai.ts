@@ -1,46 +1,39 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
-import { accounts, categories, transactions } from "@/db/schema";
-import { asc, eq } from "drizzle-orm";
-import { toCents, convertToBase } from "@/lib/money";
-import { getConversionContext } from "@/lib/data/rates";
-import { getSettings } from "@/lib/data/settings";
-import { getNow } from "@/lib/data/clock";
-import { newId } from "@/lib/ids";
-import { parseTransaction, type ParsedTransaction } from "@/lib/ai/parse";
-import {
-  aiGenerate,
-  getAiConfig,
-  parseJsonLoose,
-  AiNotConfiguredError,
-} from "@/lib/ai/provider";
-import { buildFinanceContext } from "@/lib/ai/context";
-import { revalidateFinance, type ActionResult } from "./shared";
+import { db } from '@/db';
+import { accounts, categories, transactions } from '@/db/schema';
+import { asc, eq } from 'drizzle-orm';
+import { toCents, convertToBase } from '@/lib/money';
+import { getConversionContext } from '@/lib/data/rates';
+import { getSettings } from '@/lib/data/settings';
+import { getNow } from '@/lib/data/clock';
+import { newId } from '@/lib/ids';
+import { parseTransaction, type ParsedTransaction } from '@/lib/ai/parse';
+import { aiGenerate, getAiConfig, parseJsonLoose, AiNotConfiguredError } from '@/lib/ai/provider';
+import { buildFinanceContext } from '@/lib/ai/context';
+import { revalidateFinance, type ActionResult } from './shared';
 
 export interface QuickAddResult {
   amountCents: number; // base-currency signed cents
-  type: "income" | "expense";
+  type: 'income' | 'expense';
   currency: string;
   categoryName: string | null;
   payee: string | null;
   date: number;
   confidence: number;
   /** which engine parsed it — surfaced in the UI */
-  engine: "ai" | "local";
+  engine: 'ai' | 'local';
 }
 
-const LANG_NAME: Record<string, string> = { es: "Spanish", en: "English" };
+const LANG_NAME: Record<string, string> = { es: 'Spanish', en: 'English' };
 
 /* -------------------------------------------------------------------------- */
 /*  Quick add (natural language → transaction)                                */
 /* -------------------------------------------------------------------------- */
 
-export async function quickAddTransaction(
-  text: string
-): Promise<ActionResult<QuickAddResult>> {
+export async function quickAddTransaction(text: string): Promise<ActionResult<QuickAddResult>> {
   const trimmed = text.trim();
-  if (!trimmed) return { ok: false, error: "empty" };
+  if (!trimmed) return { ok: false, error: 'empty' };
 
   const [firstAccount, cats, ctx, now, aiCfg] = await Promise.all([
     db
@@ -55,12 +48,12 @@ export async function quickAddTransaction(
     getAiConfig(),
   ]);
 
-  if (!firstAccount) return { ok: false, error: "no-account" };
+  if (!firstAccount) return { ok: false, error: 'no-account' };
 
   const catList = cats.map((c) => ({ id: c.id, name: c.name, kind: c.kind }));
 
   let parsed: ParsedTransaction | null = null;
-  let engine: "ai" | "local" = "local";
+  let engine: 'ai' | 'local' = 'local';
 
   // Prefer the configured LLM; fall back to the offline heuristic on any error.
   if (aiCfg.enabled) {
@@ -70,7 +63,7 @@ export async function quickAddTransaction(
         baseCurrency: ctx.base,
         now,
       });
-      if (parsed) engine = "ai";
+      if (parsed) engine = 'ai';
     } catch {
       parsed = null;
     }
@@ -86,14 +79,14 @@ export async function quickAddTransaction(
       parsed = null;
     }
   }
-  if (!parsed) return { ok: false, error: "unparsed" };
+  if (!parsed) return { ok: false, error: 'unparsed' };
 
   const isForeign = parsed.currency !== ctx.base;
   const enteredCents = toCents(parsed.amount);
   const baseCents = isForeign
     ? convertToBase(enteredCents, parsed.currency, ctx.base, ctx.rates)
     : enteredCents;
-  const signed = parsed.type === "income" ? baseCents : -baseCents;
+  const signed = parsed.type === 'income' ? baseCents : -baseCents;
 
   await db.insert(transactions).values({
     id: newId(),
@@ -107,7 +100,7 @@ export async function quickAddTransaction(
     date: new Date(parsed.date),
     payee: parsed.payee,
     notes: parsed.notes,
-    status: "cleared",
+    status: 'cleared',
   });
 
   revalidateFinance();
@@ -133,17 +126,17 @@ async function aiExtractTransaction(
     categories: { id: string; name: string; kind: string }[];
     baseCurrency: string;
     now: Date;
-  }
+  },
 ): Promise<ParsedTransaction | null> {
-  const catNames = ctx.categories.map((c) => `${c.name} (${c.kind})`).join(", ");
+  const catNames = ctx.categories.map((c) => `${c.name} (${c.kind})`).join(', ');
   const today = ctx.now.toISOString().slice(0, 10);
   const system =
     "You extract a single personal-finance transaction from the user's short " +
-    "message and return STRICT JSON only. Infer sign from wording (spending = " +
-    "expense, receiving = income).";
+    'message and return STRICT JSON only. Infer sign from wording (spending = ' +
+    'expense, receiving = income).';
   const prompt =
     `Today is ${today}. Base currency: ${ctx.baseCurrency}.\n` +
-    `Available categories: ${catNames || "(none)"}.\n\n` +
+    `Available categories: ${catNames || '(none)'}.\n\n` +
     `Message: """${text}"""\n\n` +
     `Return JSON with exactly these keys:\n` +
     `{"type":"income|expense","amount":<positive number in major units>,` +
@@ -154,7 +147,7 @@ async function aiExtractTransaction(
 
   const raw = await aiGenerate({
     system,
-    messages: [{ role: "user", content: prompt }],
+    messages: [{ role: 'user', content: prompt }],
     maxTokens: 300,
     json: true,
     temperature: 0,
@@ -173,8 +166,7 @@ async function aiExtractTransaction(
   const amount = Number(obj.amount);
   if (!Number.isFinite(amount) || amount <= 0) return null;
 
-  const type: "income" | "expense" =
-    obj.type === "income" ? "income" : "expense";
+  const type: 'income' | 'expense' = obj.type === 'income' ? 'income' : 'expense';
   const currency = (obj.currency || ctx.baseCurrency).toUpperCase().slice(0, 3);
 
   // resolve the category name to an id of the right kind
@@ -182,9 +174,7 @@ async function aiExtractTransaction(
   let categoryName: string | null = null;
   if (obj.category) {
     const match = ctx.categories.find(
-      (c) =>
-        c.kind === type &&
-        c.name.toLowerCase() === String(obj.category).toLowerCase()
+      (c) => c.kind === type && c.name.toLowerCase() === String(obj.category).toLowerCase(),
     );
     if (match) {
       categoryId = match.id;
@@ -215,20 +205,18 @@ async function aiExtractTransaction(
 /*  Insights: monthly summary + advice                                        */
 /* -------------------------------------------------------------------------- */
 
-export type InsightKind = "summary" | "advice";
+export type InsightKind = 'summary' | 'advice';
 
-export async function generateInsight(
-  kind: InsightKind
-): Promise<ActionResult<{ text: string }>> {
+export async function generateInsight(kind: InsightKind): Promise<ActionResult<{ text: string }>> {
   const cfg = await getAiConfig();
-  if (!cfg.enabled) return { ok: false, error: "ai-disabled" };
+  if (!cfg.enabled) return { ok: false, error: 'ai-disabled' };
 
   const s = await getSettings();
-  const lang = LANG_NAME[s.language] ?? "English";
+  const lang = LANG_NAME[s.language] ?? 'English';
   const context = await buildFinanceContext();
 
   const system =
-    kind === "summary"
+    kind === 'summary'
       ? `You are a warm, concise personal-finance narrator. Write a short ` +
         `natural-language recap (about 90-140 words) of the user's month using ` +
         `the data provided. Lead with the headline (net worth / cash flow), ` +
@@ -246,7 +234,7 @@ export async function generateInsight(
       system,
       messages: [
         {
-          role: "user",
+          role: 'user',
           content: `Here is my financial snapshot:\n\n${context}`,
         },
       ],
@@ -255,11 +243,10 @@ export async function generateInsight(
     });
     return { ok: true, data: { text: text.trim() } };
   } catch (e) {
-    if (e instanceof AiNotConfiguredError)
-      return { ok: false, error: "ai-disabled" };
+    if (e instanceof AiNotConfiguredError) return { ok: false, error: 'ai-disabled' };
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "ai-error",
+      error: e instanceof Error ? e.message : 'ai-error',
     };
   }
 }
@@ -275,12 +262,12 @@ export async function generateInsight(
  * reversible: run it again toward the other language.
  */
 export async function translateCategories(
-  targetLang: "es" | "en"
+  targetLang: 'es' | 'en',
 ): Promise<ActionResult<{ updated: number }>> {
   const cfg = await getAiConfig();
-  if (!cfg.enabled) return { ok: false, error: "ai-disabled" };
+  if (!cfg.enabled) return { ok: false, error: 'ai-disabled' };
 
-  const langName = LANG_NAME[targetLang] ?? "English";
+  const langName = LANG_NAME[targetLang] ?? 'English';
   const cats = await db.select().from(categories);
   const active = cats.filter((c) => !c.isArchived);
   if (!active.length) return { ok: true, data: { updated: 0 } };
@@ -299,22 +286,21 @@ export async function translateCategories(
   try {
     raw = await aiGenerate({
       system,
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: 'user', content: prompt }],
       maxTokens: 2000,
       json: true,
       // no temperature: newer Anthropic/OpenAI models reject sampling params.
     });
   } catch (e) {
-    if (e instanceof AiNotConfiguredError)
-      return { ok: false, error: "ai-disabled" };
-    return { ok: false, error: e instanceof Error ? e.message : "ai-error" };
+    if (e instanceof AiNotConfiguredError) return { ok: false, error: 'ai-disabled' };
+    return { ok: false, error: e instanceof Error ? e.message : 'ai-error' };
   }
 
   const parsed = parseJsonLoose<{
     translations?: { id: string; name: string }[];
   }>(raw);
   const list = parsed?.translations;
-  if (!Array.isArray(list)) return { ok: false, error: "parse" };
+  if (!Array.isArray(list)) return { ok: false, error: 'parse' };
 
   let updated = 0;
   for (const p of list) {

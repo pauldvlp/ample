@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { createPortal } from "react-dom";
-import { usePathname, useRouter } from "next/navigation";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { SparklesIcon } from "@hugeicons/core-free-icons";
-import { useT } from "@/components/providers/settings-provider";
+import * as React from 'react';
+import { createPortal } from 'react-dom';
+import { usePathname, useRouter } from 'next/navigation';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { SparklesIcon } from '@hugeicons/core-free-icons';
+import { useT } from '@/components/providers/settings-provider';
 
 /**
  * Mobile-only floating shortcut to the full-page AI assistant (`/assistant`).
@@ -27,18 +27,18 @@ export function AiAssistant() {
   }, []);
 
   // Already on the assistant page — no need for the shortcut.
-  if (!mounted || pathname === "/assistant") return null;
+  if (!mounted || pathname === '/assistant') return null;
 
   return createPortal(
     <button
       type="button"
-      onClick={() => router.push("/assistant")}
-      aria-label={t("assistant.title")}
+      onClick={() => router.push('/assistant')}
+      aria-label={t('assistant.title')}
       data-tour="assistant"
       className="fixed right-4 bottom-5 z-40 grid size-14 place-items-center rounded-full bg-brass text-brass-foreground shadow-lg shadow-brass/30 ring-1 ring-black/5 transition-transform active:scale-95 lg:hidden"
     >
       <HugeiconsIcon icon={SparklesIcon} className="hg-icon size-6" />
     </button>,
-    document.body
+    document.body,
   );
 }

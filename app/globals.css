@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -76,14 +76,12 @@
 
   /* tinted, layered shadows — cards sit on paper, they don't float in a void */
   --shadow-xs: 0 1px 2px -1px oklch(0.24 0.02 62 / 0.06);
-  --shadow-sm: 0 1px 2px oklch(0.24 0.02 62 / 0.05),
-    0 1px 3px -1px oklch(0.24 0.02 62 / 0.04);
-  --shadow-card: 0 1px 2px oklch(0.24 0.02 62 / 0.04),
-    0 8px 20px -14px oklch(0.34 0.06 168 / 0.22);
-  --shadow-elevated: 0 2px 4px oklch(0.24 0.02 62 / 0.05),
-    0 18px 40px -20px oklch(0.34 0.06 168 / 0.3);
-  --shadow-pop: 0 4px 12px oklch(0.24 0.02 62 / 0.08),
-    0 24px 48px -24px oklch(0.24 0.06 168 / 0.34);
+  --shadow-sm: 0 1px 2px oklch(0.24 0.02 62 / 0.05), 0 1px 3px -1px oklch(0.24 0.02 62 / 0.04);
+  --shadow-card: 0 1px 2px oklch(0.24 0.02 62 / 0.04), 0 8px 20px -14px oklch(0.34 0.06 168 / 0.22);
+  --shadow-elevated:
+    0 2px 4px oklch(0.24 0.02 62 / 0.05), 0 18px 40px -20px oklch(0.34 0.06 168 / 0.3);
+  --shadow-pop:
+    0 4px 12px oklch(0.24 0.02 62 / 0.08), 0 24px 48px -24px oklch(0.24 0.06 168 / 0.34);
 }
 
 :root {
@@ -214,27 +212,27 @@
    custom-property override alone can be defeated by the inlined utility. The
    attribute selector (0,1,1) also outranks the `html { @apply font-sans }`
    base rule (0,0,1). */
-:root[data-font="geist"] {
+:root[data-font='geist'] {
   --ui-font: var(--font-geist);
   font-family: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
 }
-:root[data-font="onest"] {
+:root[data-font='onest'] {
   --ui-font: var(--font-onest);
   font-family: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
 }
-:root[data-font="outfit"] {
+:root[data-font='outfit'] {
   --ui-font: var(--font-outfit);
   font-family: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
 }
-:root[data-font="inter"] {
+:root[data-font='inter'] {
   --ui-font: var(--font-inter);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
-:root[data-font="jakarta"] {
+:root[data-font='jakarta'] {
   --ui-font: var(--font-jakarta);
   font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
-:root[data-font="space"] {
+:root[data-font='space'] {
   --ui-font: var(--font-space);
   font-family: var(--font-space), ui-sans-serif, system-ui, sans-serif;
 }
@@ -252,7 +250,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "ss01", "cv01";
+    font-feature-settings: 'ss01', 'cv01';
   }
 
   ::selection {
@@ -263,8 +261,7 @@
   /* thin, warm scrollbars */
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 22%, transparent)
-      transparent;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 22%, transparent) transparent;
   }
   *::-webkit-scrollbar {
     width: 9px;
@@ -294,12 +291,12 @@
   .tnum {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum", "zero";
+    font-feature-settings: 'tnum', 'zero';
   }
   .font-ledger {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum", "zero";
+    font-feature-settings: 'tnum', 'zero';
   }
   .font-display {
     font-family: var(--font-display);
@@ -307,7 +304,9 @@
 
   /* privacy blur — toggled by `.privacy-on` on <html> */
   .sensitive {
-    transition: filter 0.28s ease, opacity 0.28s ease;
+    transition:
+      filter 0.28s ease,
+      opacity 0.28s ease;
   }
   html.privacy-on .sensitive {
     filter: blur(7px);
@@ -337,7 +336,7 @@
     isolation: isolate;
   }
   .hero-orb::before {
-    content: "";
+    content: '';
     position: absolute;
     z-index: -1;
     top: -30%;
@@ -357,7 +356,7 @@
     position: relative;
   }
   .hairline-brass::after {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0 0 auto 0;
     height: 1px;
@@ -380,7 +379,9 @@
 
   /* subtle rise on hover */
   .lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
   .lift:hover {
     transform: translateY(-2px);

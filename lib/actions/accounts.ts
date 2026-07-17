@@ -1,17 +1,17 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
-import { accounts, ACCOUNT_TYPES } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { toCents } from "@/lib/money";
-import { revalidateFinance, type ActionResult } from "./shared";
+import { z } from 'zod';
+import { db } from '@/db';
+import { accounts, ACCOUNT_TYPES } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { toCents } from '@/lib/money';
+import { revalidateFinance, type ActionResult } from './shared';
 
 const accountSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(80),
+  name: z.string().trim().min(1, 'Name is required').max(80),
   type: z.enum(ACCOUNT_TYPES),
   institution: z.string().trim().max(80).optional().nullable(),
-  currency: z.string().trim().length(3).default("USD"),
+  currency: z.string().trim().length(3).default('USD'),
   startingBalance: z.number().default(0),
   creditLimit: z.number().nullable().optional(),
   icon: z.string().optional().nullable(),
@@ -22,12 +22,10 @@ const accountSchema = z.object({
 
 export type AccountInput = z.input<typeof accountSchema>;
 
-export async function createAccount(
-  input: AccountInput
-): Promise<ActionResult<{ id: string }>> {
+export async function createAccount(input: AccountInput): Promise<ActionResult<{ id: string }>> {
   const parsed = accountSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   }
   const v = parsed.data;
   const row = await db
@@ -50,13 +48,10 @@ export async function createAccount(
   return { ok: true, data: { id: row.id } };
 }
 
-export async function updateAccount(
-  id: string,
-  input: AccountInput
-): Promise<ActionResult> {
+export async function updateAccount(id: string, input: AccountInput): Promise<ActionResult> {
   const parsed = accountSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   }
   const v = parsed.data;
   await db
@@ -85,14 +80,8 @@ export async function deleteAccount(id: string): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function setAccountArchived(
-  id: string,
-  isArchived: boolean
-): Promise<ActionResult> {
-  await db
-    .update(accounts)
-    .set({ isArchived, updatedAt: new Date() })
-    .where(eq(accounts.id, id));
+export async function setAccountArchived(id: string, isArchived: boolean): Promise<ActionResult> {
+  await db.update(accounts).set({ isArchived, updatedAt: new Date() }).where(eq(accounts.id, id));
   revalidateFinance();
   return { ok: true };
 }

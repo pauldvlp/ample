@@ -1,47 +1,47 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { toast } from "sonner";
-import { useTheme } from "next-themes";
-import { Monitor, Moon, Sun } from "lucide-react";
-import { cn, iconStrokeVars } from "@/lib/utils";
+import * as React from 'react';
+import { toast } from 'sonner';
+import { useTheme } from 'next-themes';
+import { Monitor, Moon, Sun } from 'lucide-react';
+import { cn, iconStrokeVars } from '@/lib/utils';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { SectionCard } from "@/components/shared/section-card";
-import { Field } from "@/components/shared/form-fields";
-import { Icon } from "@/components/shared/icon";
-import { useSettings, useT } from "@/components/providers/settings-provider";
-import { useIsClient } from "@/hooks/use-is-client";
-import { updateSettings, type SettingsPatch } from "@/lib/actions/settings";
-import { refreshRates, setManualRate } from "@/lib/actions/rates";
-import { CURRENCIES, LOCALES, UI_FONTS, ZOOM_STEPS } from "@/lib/constants";
-import { LANGUAGES, type Language } from "@/lib/i18n";
-import type { Settings } from "@/db/schema";
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import { SectionCard } from '@/components/shared/section-card';
+import { Field } from '@/components/shared/form-fields';
+import { Icon } from '@/components/shared/icon';
+import { useSettings, useT } from '@/components/providers/settings-provider';
+import { useIsClient } from '@/hooks/use-is-client';
+import { updateSettings, type SettingsPatch } from '@/lib/actions/settings';
+import { refreshRates, setManualRate } from '@/lib/actions/rates';
+import { CURRENCIES, LOCALES, UI_FONTS, ZOOM_STEPS } from '@/lib/constants';
+import { LANGUAGES, type Language } from '@/lib/i18n';
+import type { Settings } from '@/db/schema';
 
-type ThemeValue = "light" | "dark" | "system";
+type ThemeValue = 'light' | 'dark' | 'system';
 
 const THEME_OPTIONS: { value: ThemeValue; icon: React.ElementType }[] = [
-  { value: "light", icon: Sun },
-  { value: "dark", icon: Moon },
-  { value: "system", icon: Monitor },
+  { value: 'light', icon: Sun },
+  { value: 'dark', icon: Moon },
+  { value: 'system', icon: Monitor },
 ];
 
 const WEEKDAY_KEYS = [
-  "settings.weekday.sunday",
-  "settings.weekday.monday",
-  "settings.weekday.tuesday",
-  "settings.weekday.wednesday",
-  "settings.weekday.thursday",
-  "settings.weekday.friday",
-  "settings.weekday.saturday",
+  'settings.weekday.sunday',
+  'settings.weekday.monday',
+  'settings.weekday.tuesday',
+  'settings.weekday.wednesday',
+  'settings.weekday.thursday',
+  'settings.weekday.friday',
+  'settings.weekday.saturday',
 ];
 
 export function SettingsForm({
@@ -59,9 +59,7 @@ export function SettingsForm({
   const [baseCurrency, setBaseCurrency] = React.useState(settings.baseCurrency);
   const [locale, setLocale] = React.useState(settings.locale);
   const [firstDayOfWeek, setFirstDayOfWeek] = React.useState(settings.firstDayOfWeek);
-  const [budgetStartDay, setBudgetStartDay] = React.useState(
-    String(settings.budgetStartDay)
-  );
+  const [budgetStartDay, setBudgetStartDay] = React.useState(String(settings.budgetStartDay));
   const [pending, setPending] = React.useState(false);
 
   const dirty =
@@ -72,7 +70,7 @@ export function SettingsForm({
     (Number(budgetStartDay) || 0) !== settings.budgetStartDay;
 
   async function save() {
-    const name = displayName.trim() || "Ample";
+    const name = displayName.trim() || 'Ample';
     const day = Math.min(28, Math.max(1, Math.round(Number(budgetStartDay) || 1)));
     const patch: SettingsPatch = {
       displayName: name,
@@ -88,9 +86,9 @@ export function SettingsForm({
       // normalise local state to what was actually persisted
       setDisplayName(name);
       setBudgetStartDay(String(day));
-      toast.success(t("settings.toast.saved"));
+      toast.success(t('settings.toast.saved'));
     } else {
-      toast.error(t("settings.toast.saveError"));
+      toast.error(t('settings.toast.saveError'));
     }
   }
 
@@ -98,43 +96,36 @@ export function SettingsForm({
     <>
       {/* ------------------------------- Profile ------------------------------ */}
       <SectionCard
-        title={t("settings.profile.title")}
-        description={t("settings.profile.description")}
+        title={t('settings.profile.title')}
+        description={t('settings.profile.description')}
         hairline
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label={t("settings.displayName.label")}
+            label={t('settings.displayName.label')}
             htmlFor="set-name"
-            hint={t("settings.displayName.hint")}
+            hint={t('settings.displayName.hint')}
           >
             <Input
               id="set-name"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder={t("settings.displayName.placeholder")}
+              placeholder={t('settings.displayName.placeholder')}
             />
           </Field>
-          <Field
-            label={t("settings.currency.label")}
-            hint={t("settings.currency.hint")}
-          >
+          <Field label={t('settings.currency.label')} hint={t('settings.currency.hint')}>
             <Select
               value={baseCurrency}
-              onValueChange={(v) => setBaseCurrency(v ?? "")}
-              items={Object.fromEntries(
-                CURRENCIES.map((c) => [c.code, `${c.code} · ${c.label}`])
-              )}
+              onValueChange={(v) => setBaseCurrency(v ?? '')}
+              items={Object.fromEntries(CURRENCIES.map((c) => [c.code, `${c.code} · ${c.label}`]))}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("settings.currency.placeholder")} />
+                <SelectValue placeholder={t('settings.currency.placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {CURRENCIES.map((c) => (
                   <SelectItem key={c.code} value={c.code}>
-                    <span className="font-ledger text-muted-foreground">
-                      {c.symbol}
-                    </span>
+                    <span className="font-ledger text-muted-foreground">{c.symbol}</span>
                     <span>{c.label}</span>
                     <span className="text-muted-foreground">{c.code}</span>
                   </SelectItem>
@@ -147,30 +138,27 @@ export function SettingsForm({
 
       {/* ----------------------------- Preferences ---------------------------- */}
       <SectionCard
-        title={t("settings.preferences.title")}
-        description={t("settings.preferences.description")}
+        title={t('settings.preferences.title')}
+        description={t('settings.preferences.description')}
       >
         <div className="space-y-4">
-          <Field label={t("settings.language.label")}>
+          <Field label={t('settings.language.label')}>
             <LanguageControl />
           </Field>
 
-          <Field label={t("settings.theme.label")} hint={t("settings.theme.hint")}>
+          <Field label={t('settings.theme.label')} hint={t('settings.theme.hint')}>
             <ThemeControl />
           </Field>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field
-              label={t("settings.format.label")}
-              hint={t("settings.format.hint")}
-            >
+            <Field label={t('settings.format.label')} hint={t('settings.format.hint')}>
               <Select
                 value={locale}
-                onValueChange={(v) => setLocale(v ?? "")}
+                onValueChange={(v) => setLocale(v ?? '')}
                 items={Object.fromEntries(LOCALES.map((l) => [l.code, l.label]))}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("settings.format.placeholder")} />
+                  <SelectValue placeholder={t('settings.format.placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {LOCALES.map((l) => (
@@ -182,19 +170,14 @@ export function SettingsForm({
               </Select>
             </Field>
 
-            <Field
-              label={t("settings.firstDay.label")}
-              hint={t("settings.firstDay.hint")}
-            >
+            <Field label={t('settings.firstDay.label')} hint={t('settings.firstDay.hint')}>
               <Select
                 value={String(firstDayOfWeek)}
-                onValueChange={(v) =>
-                  setFirstDayOfWeek(Number(v ?? String(firstDayOfWeek)))
-                }
+                onValueChange={(v) => setFirstDayOfWeek(Number(v ?? String(firstDayOfWeek)))}
                 items={Object.fromEntries(WEEKDAYS.map((d, i) => [String(i), d]))}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("settings.firstDay.placeholder")} />
+                  <SelectValue placeholder={t('settings.firstDay.placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {WEEKDAYS.map((d, i) => (
@@ -208,9 +191,9 @@ export function SettingsForm({
           </div>
 
           <Field
-            label={t("settings.budgetDay.label")}
+            label={t('settings.budgetDay.label')}
             htmlFor="set-budget-day"
-            hint={t("settings.budgetDay.hint")}
+            hint={t('settings.budgetDay.hint')}
             className="sm:max-w-[12rem]"
           >
             <Input
@@ -227,31 +210,24 @@ export function SettingsForm({
       </SectionCard>
 
       {/* ----------------------------- Appearance ----------------------------- */}
-      <SectionCard
-        title={t("appearance.title")}
-        description={t("appearance.description")}
-      >
+      <SectionCard title={t('appearance.title')} description={t('appearance.description')}>
         <AppearanceControl />
       </SectionCard>
 
       {/* --------------------------- Currencies / FX -------------------------- */}
-      <SectionCard title={t("fx.title")} description={t("fx.description")}>
+      <SectionCard title={t('fx.title')} description={t('fx.description')}>
         <CurrencyControl usedCurrencies={usedCurrencies} />
       </SectionCard>
 
       {/* ------------------------------- Privacy ------------------------------ */}
       <SectionCard
-        title={t("settings.privacy.title")}
-        description={t("settings.privacy.description")}
+        title={t('settings.privacy.title')}
+        description={t('settings.privacy.description')}
       >
         <div className="flex items-center justify-between gap-4 rounded-xl bg-muted/40 px-4 py-3">
           <div className="space-y-0.5">
-            <p className="text-sm font-medium text-foreground">
-              {t("privacy.hide")}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {t("settings.privacy.hideDescription")}
-            </p>
+            <p className="text-sm font-medium text-foreground">{t('privacy.hide')}</p>
+            <p className="text-xs text-muted-foreground">{t('settings.privacy.hideDescription')}</p>
           </div>
           <Switch
             checked={hideAmounts}
@@ -259,25 +235,19 @@ export function SettingsForm({
               const next = !hideAmounts;
               toggleHideAmounts();
               toast.success(
-                next
-                  ? t("settings.toast.amountsHidden")
-                  : t("settings.toast.amountsShown")
+                next ? t('settings.toast.amountsHidden') : t('settings.toast.amountsShown'),
               );
             }}
-            aria-label={t("privacy.hide")}
+            aria-label={t('privacy.hide')}
           />
         </div>
       </SectionCard>
 
       {/* --------------------------- Save (text/selects) ---------------------- */}
       <div className="flex items-center justify-end gap-3">
-        {dirty && (
-          <p className="text-xs text-muted-foreground">
-            {t("settings.unsaved")}
-          </p>
-        )}
+        {dirty && <p className="text-xs text-muted-foreground">{t('settings.unsaved')}</p>}
         <Button onClick={save} disabled={!dirty || pending}>
-          {pending ? t("action.saving") : t("action.saveChanges")}
+          {pending ? t('action.saving') : t('action.saveChanges')}
         </Button>
       </div>
     </>
@@ -295,9 +265,7 @@ function ThemeControl() {
   function choose(value: ThemeValue) {
     setTheme(value);
     void updateSettings({ theme: value });
-    toast.success(
-      t("settings.toast.themeSet", { theme: t(`theme.${value}`) })
-    );
+    toast.success(t('settings.toast.themeSet', { theme: t(`theme.${value}`) }));
   }
 
   return (
@@ -312,13 +280,13 @@ function ThemeControl() {
             onClick={() => choose(opt.value)}
             aria-pressed={active}
             className={cn(
-              "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium transition-all",
+              'flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium transition-all',
               active
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+                ? 'bg-card text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <Ico className={cn("size-3.5", active && "text-brass")} />
+            <Ico className={cn('size-3.5', active && 'text-brass')} />
             {t(`theme.${opt.value}`)}
           </button>
         );
@@ -332,14 +300,13 @@ const STROKE_STEPS = [1, 1.25, 1.5, 2] as const;
 
 function AppearanceControl() {
   const t = useT();
-  const { uiFont, uiScale, iconStroke, setFont, setScale, setIconStroke } =
-    useSettings();
+  const { uiFont, uiScale, iconStroke, setFont, setScale, setIconStroke } = useSettings();
   return (
     <div className="space-y-4">
-      <Field label={t("appearance.font")} hint={t("appearance.fontHint")}>
+      <Field label={t('appearance.font')} hint={t('appearance.fontHint')}>
         <Select
           value={uiFont}
-          onValueChange={(v) => setFont(v ?? "geist")}
+          onValueChange={(v) => setFont(v ?? 'geist')}
           items={Object.fromEntries(UI_FONTS.map((f) => [f.value, f.label]))}
         >
           <SelectTrigger className="w-full sm:max-w-xs">
@@ -354,7 +321,7 @@ function AppearanceControl() {
           </SelectContent>
         </Select>
       </Field>
-      <Field label={t("appearance.zoom")} hint={t("appearance.zoomHint")}>
+      <Field label={t('appearance.zoom')} hint={t('appearance.zoomHint')}>
         <div className="grid max-w-xs grid-cols-4 gap-1.5 rounded-xl bg-muted/60 p-1">
           {ZOOM_STEPS.map((z) => {
             const active = uiScale === z;
@@ -365,10 +332,10 @@ function AppearanceControl() {
                 onClick={() => setScale(z)}
                 aria-pressed={active}
                 className={cn(
-                  "tnum rounded-lg px-2 py-1.5 text-sm font-medium transition-all",
+                  'tnum rounded-lg px-2 py-1.5 text-sm font-medium transition-all',
                   active
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {z}%
@@ -377,10 +344,7 @@ function AppearanceControl() {
           })}
         </div>
       </Field>
-      <Field
-        label={t("appearance.iconStroke")}
-        hint={t("appearance.iconStrokeHint")}
-      >
+      <Field label={t('appearance.iconStroke')} hint={t('appearance.iconStrokeHint')}>
         <div className="grid max-w-xs grid-cols-4 gap-1.5 rounded-xl bg-muted/60 p-1">
           {STROKE_STEPS.map((s) => {
             const active = Math.abs(iconStroke - s) < 0.01;
@@ -392,10 +356,10 @@ function AppearanceControl() {
                 aria-pressed={active}
                 style={{ ...iconStrokeVars(s) } as React.CSSProperties}
                 className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium transition-all",
+                  'flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium transition-all',
                   active
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 <Icon name="Sparkles" className="size-4" />
@@ -414,7 +378,7 @@ function AppearanceControl() {
  *  to the top so they're never buried at the bottom of the alphabetical list. */
 // Common foreign currencies pinned near the top even before they're used, so
 // the one you care about (e.g. USD) is never buried at the end of the list.
-const PINNED = ["USD", "EUR"];
+const PINNED = ['USD', 'EUR'];
 
 function CurrencyControl({ usedCurrencies }: { usedCurrencies: string[] }) {
   const t = useT();
@@ -445,35 +409,28 @@ function CurrencyControl({ usedCurrencies }: { usedCurrencies: string[] }) {
     setPending(true);
     const res = await refreshRates();
     setPending(false);
-    if (res.ok) toast.success(t("fx.updatedToast"));
-    else toast.error(res.error || t("fx.refreshError"));
+    if (res.ok) toast.success(t('fx.updatedToast'));
+    else toast.error(res.error || t('fx.refreshError'));
   }
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">
-          {t("fx.base")}:{" "}
-          <span className="font-medium text-foreground">{base}</span>
+          {t('fx.base')}: <span className="font-medium text-foreground">{base}</span>
         </p>
         <Button size="sm" variant="outline" onClick={refresh} disabled={pending}>
-          {pending ? t("fx.refreshing") : t("fx.refresh")}
+          {pending ? t('fx.refreshing') : t('fx.refresh')}
         </Button>
       </div>
       {codes.length === 0 ? (
         <p className="rounded-lg bg-muted/40 px-3 py-2.5 text-sm text-muted-foreground">
-          {t("fx.none")}
+          {t('fx.none')}
         </p>
       ) : (
         <ul className="max-h-64 space-y-1 overflow-y-auto pr-1">
           {codes.map((code) => (
-            <RateRow
-              key={code}
-              code={code}
-              base={base}
-              rate={rates[code]}
-              inUse={used.has(code)}
-            />
+            <RateRow key={code} code={code} base={base} rate={rates[code]} inUse={used.has(code)} />
           ))}
         </ul>
       )}
@@ -516,7 +473,7 @@ function RateRow({
       </span>
       {inUse && (
         <span className="rounded-full bg-brass/15 px-1.5 py-0.5 text-[0.55rem] font-medium uppercase tracking-wide text-brass">
-          {t("fx.inUse")}
+          {t('fx.inUse')}
         </span>
       )}
       <span className="text-muted-foreground">=</span>
@@ -552,10 +509,10 @@ function LanguageControl() {
             onClick={() => setLanguage(lang.value as Language)}
             aria-pressed={active}
             className={cn(
-              "flex items-center justify-center rounded-lg px-2 py-1.5 text-sm font-medium transition-all",
+              'flex items-center justify-center rounded-lg px-2 py-1.5 text-sm font-medium transition-all',
               active
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+                ? 'bg-card text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
             )}
           >
             {lang.native}

@@ -1,13 +1,13 @@
-import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
-import { getDebts } from "@/lib/data/debts";
-import { getAccountsWithBalances } from "@/lib/data/accounts";
-import { getPayeeOptions } from "@/lib/data/payees";
-import { DebtsView } from "@/components/debts/debts-view";
-import { DebtDialog } from "@/components/debts/debt-dialog";
-import { getT } from "@/lib/i18n/server";
-import type { AccountOption } from "@/lib/types";
-import { Plus } from "lucide-react";
+import { PageHeader } from '@/components/shared/page-header';
+import { Button } from '@/components/ui/button';
+import { getDebts } from '@/lib/data/debts';
+import { getAccountsWithBalances } from '@/lib/data/accounts';
+import { getPayeeOptions } from '@/lib/data/payees';
+import { DebtsView } from '@/components/debts/debts-view';
+import { DebtDialog } from '@/components/debts/debt-dialog';
+import { getT } from '@/lib/i18n/server';
+import type { AccountOption } from '@/lib/types';
+import { Plus } from 'lucide-react';
 
 export default async function DebtsPage() {
   const t = await getT();
@@ -29,9 +29,9 @@ export default async function DebtsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={t("debts.eyebrow")}
-        title={t("nav.debts")}
-        description={t("debts.description")}
+        eyebrow={t('debts.eyebrow')}
+        title={t('nav.debts')}
+        description={t('debts.description')}
         actions={
           <DebtDialog
             accounts={accounts}
@@ -39,7 +39,7 @@ export default async function DebtsPage() {
             trigger={
               <Button data-tour="debts-add">
                 <Plus />
-                {t("debts.add")}
+                {t('debts.add')}
               </Button>
             }
           />

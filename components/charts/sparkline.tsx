@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Area, AreaChart, ResponsiveContainer, YAxis } from "recharts";
+import * as React from 'react';
+import { Area, AreaChart, ResponsiveContainer, YAxis } from 'recharts';
 
 export function Sparkline({
   data,
-  color = "var(--chart-1)",
+  color = 'var(--chart-1)',
   height = 40,
 }: {
   data: number[];
   color?: string;
   height?: number;
 }) {
-  const id = React.useId().replace(/:/g, "");
+  const id = React.useId().replace(/:/g, '');
   const chartData = data.map((v, i) => ({ i, v }));
   if (data.length < 2) {
     return <div style={{ height }} />;
@@ -26,7 +26,7 @@ export function Sparkline({
             <stop offset="100%" stopColor={color} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <YAxis hide domain={["dataMin", "dataMax"]} />
+        <YAxis hide domain={['dataMin', 'dataMax']} />
         <Area
           type="monotone"
           dataKey="v"

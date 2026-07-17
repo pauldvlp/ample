@@ -1,15 +1,9 @@
-import "server-only";
-import { db } from "@/db";
-import {
-  debts,
-  debtPayments,
-  debtInstallments,
-  transactions,
-  type Debt,
-} from "@/db/schema";
-import { and, asc, eq, isNull, lte, sql } from "drizzle-orm";
-import { getConversionContext } from "@/lib/data/rates";
-import { newId } from "@/lib/ids";
+import 'server-only';
+import { db } from '@/db';
+import { debts, debtPayments, debtInstallments, transactions, type Debt } from '@/db/schema';
+import { and, asc, eq, isNull, lte, sql } from 'drizzle-orm';
+import { getConversionContext } from '@/lib/data/rates';
+import { newId } from '@/lib/ids';
 
 export interface PostDebtPaymentArgs {
   debt: Debt;
@@ -35,7 +29,7 @@ export interface PostDebtPaymentArgs {
  * "mark installment paid" action, and the simulation installment poster.
  */
 export async function postDebtPaymentCore(
-  args: PostDebtPaymentArgs
+  args: PostDebtPaymentArgs,
 ): Promise<{ paymentId: string }> {
   const { debt, amount, date, note, recordTransaction, base } = args;
   const paymentId = newId();
@@ -50,18 +44,17 @@ export async function postDebtPaymentCore(
 
   if (recordTransaction && debt.accountId) {
     // receivable → they repay you → cash IN (income); payable → you repay → OUT.
-    const signed = debt.kind === "receivable" ? amount : -amount;
-    const isForeign =
-      args.originalAmount != null && !!args.originalCurrency;
+    const signed = debt.kind === 'receivable' ? amount : -amount;
+    const isForeign = args.originalAmount != null && !!args.originalCurrency;
     await db.insert(transactions).values({
       id: newId(),
       accountId: debt.accountId,
       categoryId: null,
-      type: debt.kind === "receivable" ? "income" : "expense",
+      type: debt.kind === 'receivable' ? 'income' : 'expense',
       amount: signed,
       currency: base,
       originalAmount: isForeign
-        ? debt.kind === "receivable"
+        ? debt.kind === 'receivable'
           ? args.originalAmount!
           : -args.originalAmount!
         : null,
@@ -69,7 +62,7 @@ export async function postDebtPaymentCore(
       date,
       payee: debt.counterparty,
       notes: debt.name,
-      status: "cleared",
+      status: 'cleared',
       debtId: debt.id,
       debtPaymentId: paymentId,
     });
@@ -82,10 +75,10 @@ export async function postDebtPaymentCore(
     .where(eq(debtPayments.debtId, debt.id))
     .get();
   const paid = Number(paidRow?.paid ?? 0);
-  if (paid >= debt.principal && debt.status !== "settled") {
+  if (paid >= debt.principal && debt.status !== 'settled') {
     await db
       .update(debts)
-      .set({ status: "settled", updatedAt: new Date() })
+      .set({ status: 'settled', updatedAt: new Date() })
       .where(eq(debts.id, debt.id));
   }
 
@@ -106,24 +99,15 @@ export async function postDueDebtInstallmentsUpTo(until: Date): Promise<number> 
   const due = await db
     .select()
     .from(debtInstallments)
-    .where(
-      and(
-        isNull(debtInstallments.paidPaymentId),
-        lte(debtInstallments.dueDate, until)
-      )
-    )
+    .where(and(isNull(debtInstallments.paidPaymentId), lte(debtInstallments.dueDate, until)))
     .orderBy(asc(debtInstallments.dueDate), asc(debtInstallments.createdAt));
 
   const MAX = 2000; // runaway guard
   let posted = 0;
   for (const inst of due) {
     if (posted >= MAX) break;
-    const debt = await db
-      .select()
-      .from(debts)
-      .where(eq(debts.id, inst.debtId))
-      .get();
-    if (!debt || debt.status !== "open") continue;
+    const debt = await db.select().from(debts).where(eq(debts.id, inst.debtId)).get();
+    if (!debt || debt.status !== 'open') continue;
 
     const paidRow = await db
       .select({ paid: sql<number>`COALESCE(SUM(${debtPayments.amount}), 0)` })

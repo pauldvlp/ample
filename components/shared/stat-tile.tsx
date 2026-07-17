@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
-import { AnimatedAmount, DeltaChip } from "./amount";
-import { Icon } from "./icon";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
+import { AnimatedAmount, DeltaChip } from './amount';
+import { Icon } from './icon';
 
 export function StatTile({
   label,
@@ -11,7 +11,7 @@ export function StatTile({
   compact = false,
   decimals = false,
   delta,
-  deltaKind = "percent",
+  deltaKind = 'percent',
   positiveIsGood = true,
   icon,
   iconColor,
@@ -25,7 +25,7 @@ export function StatTile({
   compact?: boolean;
   decimals?: boolean;
   delta?: number;
-  deltaKind?: "percent" | "currency";
+  deltaKind?: 'percent' | 'currency';
   positiveIsGood?: boolean;
   icon?: string;
   iconColor?: string;
@@ -37,8 +37,8 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "lift flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-card",
-        className
+        'lift flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-card',
+        className,
       )}
     >
       <div className="flex items-center justify-between gap-2">
@@ -49,8 +49,8 @@ export function StatTile({
           <span
             className="grid size-7 place-items-center rounded-lg"
             style={{
-              backgroundColor: `color-mix(in oklch, ${iconColor ?? "var(--primary)"} 14%, transparent)`,
-              color: iconColor ?? "var(--primary)",
+              backgroundColor: `color-mix(in oklch, ${iconColor ?? 'var(--primary)'} 14%, transparent)`,
+              color: iconColor ?? 'var(--primary)',
             }}
           >
             <Icon name={icon} className="size-3.5" />
@@ -63,8 +63,8 @@ export function StatTile({
           compact={compact}
           decimals={decimals}
           className={cn(
-            "block w-full min-w-0 truncate font-display text-xl font-medium leading-none tracking-tight sm:w-auto sm:text-2xl",
-            valueClassName
+            'block w-full min-w-0 truncate font-display text-xl font-medium leading-none tracking-tight sm:w-auto sm:text-2xl',
+            valueClassName,
           )}
         />
         {delta !== undefined && (

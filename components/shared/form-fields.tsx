@@ -1,20 +1,16 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Icon } from "./icon";
-import { CATEGORY_PALETTE, ICON_OPTIONS } from "@/lib/constants";
-import { useSettings } from "@/components/providers/settings-provider";
-import { currencySymbol } from "@/lib/money";
-import { Check } from "lucide-react";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Icon } from './icon';
+import { CATEGORY_PALETTE, ICON_OPTIONS } from '@/lib/constants';
+import { useSettings } from '@/components/providers/settings-provider';
+import { currencySymbol } from '@/lib/money';
+import { Check } from 'lucide-react';
 
 export function Field({
   label,
@@ -32,7 +28,7 @@ export function Field({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn('space-y-1.5', className)}>
       {label && (
         <Label htmlFor={htmlFor} className="text-xs font-medium text-muted-foreground">
           {label}
@@ -51,7 +47,7 @@ export function Field({
 export function AmountInput({
   value,
   onChange,
-  placeholder = "0.00",
+  placeholder = '0.00',
   id,
   className,
   autoFocus,
@@ -69,7 +65,7 @@ export function AmountInput({
   const { currency: base } = useSettings();
   const symbol = currencySymbol(currencyProp ?? base);
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn('relative', className)}>
       <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
         {symbol}
       </span>
@@ -99,7 +95,7 @@ export function ColorPicker({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-wrap gap-1.5", className)}>
+    <div className={cn('flex flex-wrap gap-1.5', className)}>
       {CATEGORY_PALETTE.map((c) => {
         const active = value === c;
         return (
@@ -108,8 +104,8 @@ export function ColorPicker({
             type="button"
             onClick={() => onChange(c)}
             className={cn(
-              "grid size-7 place-items-center rounded-full transition-transform hover:scale-110",
-              active && "ring-2 ring-offset-2 ring-offset-background"
+              'grid size-7 place-items-center rounded-full transition-transform hover:scale-110',
+              active && 'ring-2 ring-offset-2 ring-offset-background',
             )}
             style={{ backgroundColor: c, ...(active ? { boxShadow: `0 0 0 2px ${c}` } : {}) }}
             aria-label={`Color ${c}`}
@@ -135,9 +131,7 @@ export function IconPicker({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        render={
-          <Button type="button" variant="outline" size="icon" aria-label="Pick icon" />
-        }
+        render={<Button type="button" variant="outline" size="icon" aria-label="Pick icon" />}
       >
         <Icon name={value} className="size-4" style={{ color: color ?? undefined }} />
       </PopoverTrigger>
@@ -152,8 +146,8 @@ export function IconPicker({
                 setOpen(false);
               }}
               className={cn(
-                "grid aspect-square place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
-                value === name && "bg-primary/12 text-primary"
+                'grid aspect-square place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground',
+                value === name && 'bg-primary/12 text-primary',
               )}
               aria-label={name}
             >

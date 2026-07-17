@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 
 /**
  * Tiny, dependency-free markdown renderer for the short, controlled outputs our
@@ -13,13 +13,13 @@ export function AiMarkdown({ text }: { text: string }) {
   return (
     <div className="space-y-2 text-sm leading-relaxed">
       {blocks.map((b, i) => {
-        if (b.type === "h")
+        if (b.type === 'h')
           return (
             <p key={i} className="font-display text-base text-foreground">
               {inline(b.text)}
             </p>
           );
-        if (b.type === "ul")
+        if (b.type === 'ul')
           return (
             <ul key={i} className="space-y-1.5 pl-1">
               {b.items.map((it, j) => (
@@ -41,24 +41,22 @@ export function AiMarkdown({ text }: { text: string }) {
 }
 
 type Block =
-  | { type: "p"; text: string }
-  | { type: "h"; text: string }
-  | { type: "ul"; items: string[] };
+  { type: 'p'; text: string } | { type: 'h'; text: string } | { type: 'ul'; items: string[] };
 
 function parseBlocks(text: string): Block[] {
-  const lines = text.replace(/\r/g, "").split("\n");
+  const lines = text.replace(/\r/g, '').split('\n');
   const blocks: Block[] = [];
   let para: string[] = [];
   let list: string[] | null = null;
 
   const flushPara = () => {
     if (para.length) {
-      blocks.push({ type: "p", text: para.join(" ").trim() });
+      blocks.push({ type: 'p', text: para.join(' ').trim() });
       para = [];
     }
   };
   const flushList = () => {
-    if (list && list.length) blocks.push({ type: "ul", items: list });
+    if (list && list.length) blocks.push({ type: 'ul', items: list });
     list = null;
   };
 
@@ -74,7 +72,7 @@ function parseBlocks(text: string): Block[] {
     if (heading) {
       flushPara();
       flushList();
-      blocks.push({ type: "h", text: heading[1] });
+      blocks.push({ type: 'h', text: heading[1] });
     } else if (bullet) {
       flushPara();
       list ??= [];
@@ -102,16 +100,13 @@ function inline(text: string): React.ReactNode[] {
       parts.push(
         <strong key={key++} className="font-semibold text-foreground">
           {m[1]}
-        </strong>
+        </strong>,
       );
     else if (m[2] != null)
       parts.push(
-        <code
-          key={key++}
-          className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]"
-        >
+        <code key={key++} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
           {m[2]}
-        </code>
+        </code>,
       );
     last = m.index + m[0].length;
   }

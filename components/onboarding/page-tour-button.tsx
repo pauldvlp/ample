@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { driver, type DriveStep } from "driver.js";
-import "driver.js/dist/driver.css";
-import { CircleHelp, GraduationCap } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { useT } from "@/components/providers/settings-provider";
-import { PAGE_TOURS, type PageTourId } from "./page-tours";
+import * as React from 'react';
+import { driver, type DriveStep } from 'driver.js';
+import 'driver.js/dist/driver.css';
+import { CircleHelp, GraduationCap } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useT } from '@/components/providers/settings-provider';
+import { PAGE_TOURS, type PageTourId } from './page-tours';
 
 /**
  * Launches the guided tutorial for a given page. Reuses the exact driver.js
@@ -26,7 +26,7 @@ export function PageTourButton({
   className?: string;
 }) {
   const t = useT();
-  const ariaLabel = t("help.pageTour");
+  const ariaLabel = t('help.pageTour');
 
   const start = React.useCallback(() => {
     const steps: DriveStep[] = PAGE_TOURS[pageId].map((step) => ({
@@ -41,11 +41,11 @@ export function PageTourButton({
 
     const d = driver({
       showProgress: true,
-      progressText: "{{current}} / {{total}}",
-      nextBtnText: t("tour.next"),
-      prevBtnText: t("tour.prev"),
-      doneBtnText: t("tour.done"),
-      popoverClass: "ample-driver",
+      progressText: '{{current}} / {{total}}',
+      nextBtnText: t('tour.next'),
+      prevBtnText: t('tour.prev'),
+      doneBtnText: t('tour.done'),
+      popoverClass: 'ample-driver',
       stagePadding: 6,
       stageRadius: 12,
       overlayOpacity: 0.5,
@@ -61,7 +61,7 @@ export function PageTourButton({
         variant="outline"
         size="sm"
         onClick={start}
-        className={cn("justify-start", className)}
+        className={cn('justify-start', className)}
       >
         <GraduationCap className="size-4 text-brass" />
         <span className="truncate">{label}</span>

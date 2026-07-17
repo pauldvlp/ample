@@ -1,11 +1,11 @@
-import "server-only";
+import 'server-only';
 
-import Anthropic from "@anthropic-ai/sdk";
-import OpenAI from "openai";
-import { GoogleGenAI } from "@google/genai";
-import { getSettings } from "@/lib/data/settings";
-import { DEFAULT_MODELS } from "@/lib/ai/models";
-import type { AiProvider } from "@/db/schema";
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
+import { GoogleGenAI } from '@google/genai';
+import { getSettings } from '@/lib/data/settings';
+import { DEFAULT_MODELS } from '@/lib/ai/models';
+import type { AiProvider } from '@/db/schema';
 
 /**
  * Unified, provider-agnostic LLM layer. All three providers (Anthropic, OpenAI,
@@ -24,7 +24,7 @@ export interface AiConfig {
 }
 
 export interface AiMessage {
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
 }
 
@@ -39,8 +39,8 @@ export interface AiGenerateOptions {
 
 export class AiNotConfiguredError extends Error {
   constructor() {
-    super("AI is not configured");
-    this.name = "AiNotConfiguredError";
+    super('AI is not configured');
+    this.name = 'AiNotConfiguredError';
   }
 }
 
@@ -71,45 +71,42 @@ function modelFor(cfg: AiConfig & { provider: AiProvider }): string {
 /*  One-shot generation                                                       */
 /* -------------------------------------------------------------------------- */
 
-export async function aiGenerate(
-  opts: AiGenerateOptions,
-  cfgIn?: AiConfig
-): Promise<string> {
+export async function aiGenerate(opts: AiGenerateOptions, cfgIn?: AiConfig): Promise<string> {
   const cfg = cfgIn ?? (await getAiConfig());
   requireReady(cfg);
   const model = modelFor(cfg);
   const maxTokens = opts.maxTokens ?? 1024;
 
-  if (cfg.provider === "anthropic") {
+  if (cfg.provider === 'anthropic') {
     const client = new Anthropic({ apiKey: cfg.apiKey });
     const res = await client.messages.create({
       model,
       max_tokens: maxTokens,
       temperature: opts.temperature,
       system: opts.json
-        ? `${opts.system ?? ""}\nRespond with ONLY a single valid JSON value, no prose, no markdown fences.`.trim()
+        ? `${opts.system ?? ''}\nRespond with ONLY a single valid JSON value, no prose, no markdown fences.`.trim()
         : opts.system,
       messages: opts.messages.map((m) => ({ role: m.role, content: m.content })),
     });
     return res.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
       .map((b) => b.text)
-      .join("");
+      .join('');
   }
 
-  if (cfg.provider === "openai") {
+  if (cfg.provider === 'openai') {
     const client = new OpenAI({ apiKey: cfg.apiKey });
     const res = await client.chat.completions.create({
       model,
       max_completion_tokens: maxTokens,
       temperature: opts.temperature,
-      response_format: opts.json ? { type: "json_object" } : undefined,
+      response_format: opts.json ? { type: 'json_object' } : undefined,
       messages: [
-        ...(opts.system ? [{ role: "system" as const, content: opts.system }] : []),
+        ...(opts.system ? [{ role: 'system' as const, content: opts.system }] : []),
         ...opts.messages.map((m) => ({ role: m.role, content: m.content })),
       ],
     });
-    return res.choices[0]?.message?.content ?? "";
+    return res.choices[0]?.message?.content ?? '';
   }
 
   // google
@@ -121,26 +118,23 @@ export async function aiGenerate(
       systemInstruction: opts.system,
       maxOutputTokens: maxTokens,
       temperature: opts.temperature,
-      ...(opts.json ? { responseMimeType: "application/json" } : {}),
+      ...(opts.json ? { responseMimeType: 'application/json' } : {}),
     },
   });
-  return res.text ?? "";
+  return res.text ?? '';
 }
 
 /* -------------------------------------------------------------------------- */
 /*  Streaming generation (chat)                                               */
 /* -------------------------------------------------------------------------- */
 
-export async function* aiStream(
-  opts: AiGenerateOptions,
-  cfgIn?: AiConfig
-): AsyncGenerator<string> {
+export async function* aiStream(opts: AiGenerateOptions, cfgIn?: AiConfig): AsyncGenerator<string> {
   const cfg = cfgIn ?? (await getAiConfig());
   requireReady(cfg);
   const model = modelFor(cfg);
   const maxTokens = opts.maxTokens ?? 1024;
 
-  if (cfg.provider === "anthropic") {
+  if (cfg.provider === 'anthropic') {
     const client = new Anthropic({ apiKey: cfg.apiKey });
     const stream = client.messages.stream({
       model,
@@ -149,24 +143,21 @@ export async function* aiStream(
       messages: opts.messages.map((m) => ({ role: m.role, content: m.content })),
     });
     for await (const ev of stream) {
-      if (
-        ev.type === "content_block_delta" &&
-        ev.delta.type === "text_delta"
-      ) {
+      if (ev.type === 'content_block_delta' && ev.delta.type === 'text_delta') {
         yield ev.delta.text;
       }
     }
     return;
   }
 
-  if (cfg.provider === "openai") {
+  if (cfg.provider === 'openai') {
     const client = new OpenAI({ apiKey: cfg.apiKey });
     const stream = await client.chat.completions.create({
       model,
       max_completion_tokens: maxTokens,
       stream: true,
       messages: [
-        ...(opts.system ? [{ role: "system" as const, content: opts.system }] : []),
+        ...(opts.system ? [{ role: 'system' as const, content: opts.system }] : []),
         ...opts.messages.map((m) => ({ role: m.role, content: m.content })),
       ],
     });
@@ -195,7 +186,7 @@ export async function* aiStream(
 
 function toGoogleContents(messages: AiMessage[]) {
   return messages.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
+    role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }));
 }
@@ -210,7 +201,7 @@ export function parseJsonLoose<T = unknown>(text: string): T | null {
   if (start === -1) return null;
   // find the matching closing bracket from the end
   const open = s[start];
-  const close = open === "{" ? "}" : "]";
+  const close = open === '{' ? '}' : ']';
   const end = s.lastIndexOf(close);
   if (end <= start) return null;
   try {
@@ -226,11 +217,8 @@ export function parseJsonLoose<T = unknown>(text: string): T | null {
  * hardcoded ID can 404 for a given project (e.g. new Gemini projects lose
  * access to older pinned models). Filters to chat/generate-capable models.
  */
-export async function listAvailableModels(
-  provider: AiProvider,
-  apiKey: string
-): Promise<string[]> {
-  if (provider === "anthropic") {
+export async function listAvailableModels(provider: AiProvider, apiKey: string): Promise<string[]> {
+  if (provider === 'anthropic') {
     const client = new Anthropic({ apiKey });
     const out: string[] = [];
     for await (const m of client.models.list({ limit: 100 })) {
@@ -239,7 +227,7 @@ export async function listAvailableModels(
     return out;
   }
 
-  if (provider === "openai") {
+  if (provider === 'openai') {
     const client = new OpenAI({ apiKey });
     const out: string[] = [];
     for await (const m of client.models.list()) {
@@ -254,10 +242,10 @@ export async function listAvailableModels(
   const out: string[] = [];
   const pager = await ai.models.list();
   for await (const m of pager) {
-    const name = (m.name ?? "").replace(/^models\//, "");
+    const name = (m.name ?? '').replace(/^models\//, '');
     if (!name) continue;
     const actions = m.supportedActions;
-    if (actions && actions.length > 0 && !actions.includes("generateContent")) {
+    if (actions && actions.length > 0 && !actions.includes('generateContent')) {
       continue;
     }
     out.push(name);
@@ -269,23 +257,23 @@ export async function listAvailableModels(
 export async function verifyAiKey(
   provider: AiProvider,
   apiKey: string,
-  model?: string
+  model?: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     const text = await aiGenerate(
       {
-        system: "You are a connectivity check.",
-        messages: [{ role: "user", content: "Reply with the single word: ok" }],
+        system: 'You are a connectivity check.',
+        messages: [{ role: 'user', content: 'Reply with the single word: ok' }],
         maxTokens: 8,
       },
-      { enabled: true, provider, apiKey, model: model ?? null }
+      { enabled: true, provider, apiKey, model: model ?? null },
     );
-    if (typeof text === "string") return { ok: true };
-    return { ok: false, error: "empty response" };
+    if (typeof text === 'string') return { ok: true };
+    return { ok: false, error: 'empty response' };
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "unknown error",
+      error: e instanceof Error ? e.message : 'unknown error',
     };
   }
 }

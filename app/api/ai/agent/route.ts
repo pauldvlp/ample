@@ -1,20 +1,12 @@
-import { type NextRequest } from "next/server";
-import { aiStream, getAiConfig } from "@/lib/ai/provider";
-import {
-  planAndExecute,
-  buildAnswerSystem,
-  type AgentChatMessage,
-} from "@/lib/ai/agent";
-import {
-  appendMessage,
-  createThread,
-  threadExists,
-} from "@/lib/ai/threads";
-import { buildThreadRecall } from "@/lib/ai/recall";
-import type { ExecutedAction } from "@/lib/ai/agent-tools";
+import { type NextRequest } from 'next/server';
+import { aiStream, getAiConfig } from '@/lib/ai/provider';
+import { planAndExecute, buildAnswerSystem, type AgentChatMessage } from '@/lib/ai/agent';
+import { appendMessage, createThread, threadExists } from '@/lib/ai/threads';
+import { buildThreadRecall } from '@/lib/ai/recall';
+import type { ExecutedAction } from '@/lib/ai/agent-tools';
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 /**
  * Streaming agentic finance chat. Two phases inside one response:
@@ -42,30 +34,29 @@ function sanitize(messages: unknown): AgentChatMessage[] {
     .filter(
       (m): m is AgentChatMessage =>
         !!m &&
-        typeof m === "object" &&
-        ((m as AgentChatMessage).role === "user" ||
-          (m as AgentChatMessage).role === "assistant") &&
-        typeof (m as AgentChatMessage).content === "string"
+        typeof m === 'object' &&
+        ((m as AgentChatMessage).role === 'user' || (m as AgentChatMessage).role === 'assistant') &&
+        typeof (m as AgentChatMessage).content === 'string',
     )
     .map((m) => ({ role: m.role, content: m.content }));
 }
 
 export async function POST(req: NextRequest) {
   const cfg = await getAiConfig();
-  if (!cfg.enabled) return new Response("ai-disabled", { status: 403 });
+  if (!cfg.enabled) return new Response('ai-disabled', { status: 403 });
 
   let body: { messages?: unknown; threadId?: unknown };
   try {
     body = await req.json();
   } catch {
-    return new Response("bad-request", { status: 400 });
+    return new Response('bad-request', { status: 400 });
   }
 
   const history = sanitize(body.messages);
-  if (!history.length) return new Response("empty", { status: 400 });
+  if (!history.length) return new Response('empty', { status: 400 });
   const requestedThreadId =
-    typeof body.threadId === "string" && body.threadId ? body.threadId : null;
-  const lastUser = history[history.length - 1]?.content ?? "";
+    typeof body.threadId === 'string' && body.threadId ? body.threadId : null;
+  const lastUser = history[history.length - 1]?.content ?? '';
 
   const encoder = new TextEncoder();
   const line = (obj: unknown) => encoder.encode(`${JSON.stringify(obj)}\n`);
@@ -83,19 +74,18 @@ export async function POST(req: NextRequest) {
       };
 
       let threadId: string | null = requestedThreadId;
-      let full = "";
+      let full = '';
       let executed: ExecutedAction[] = [];
       let sawError = false;
 
       try {
         // --- Resolve the thread + persist the user turn ------------------
-        if (!threadId || !(await threadExists(threadId)))
-          threadId = await createThread();
+        if (!threadId || !(await threadExists(threadId))) threadId = await createThread();
         const { title } = await appendMessage(threadId, {
-          role: "user",
+          role: 'user',
           content: lastUser,
         });
-        send({ type: "thread", threadId, title });
+        send({ type: 'thread', threadId, title });
 
         // Cross-thread memory: let this turn draw on the user's OTHER saved
         // conversations when relevant (token-bounded; excludes this thread).
@@ -105,24 +95,22 @@ export async function POST(req: NextRequest) {
         });
 
         // --- Phase 1: plan + execute tools -------------------------------
-        const { actions, ctx, snapshot, messages, message } =
-          await planAndExecute(history, cfg, { recall });
+        const { actions, ctx, snapshot, messages, message } = await planAndExecute(history, cfg, {
+          recall,
+        });
         executed = actions;
 
-        if (actions.length) send({ type: "actions", actions });
+        if (actions.length) send({ type: 'actions', actions });
 
         // --- Phase 2: stream the grounded reply --------------------------
         const system = buildAnswerSystem(ctx, snapshot, actions, recall);
         let streamed = false;
         try {
-          for await (const delta of aiStream(
-            { system, messages, maxTokens: 2000 },
-            cfg
-          )) {
+          for await (const delta of aiStream({ system, messages, maxTokens: 2000 }, cfg)) {
             if (delta) {
               streamed = true;
               full += delta;
-              send({ type: "delta", text: delta });
+              send({ type: 'delta', text: delta });
             }
           }
         } catch (streamErr) {
@@ -130,7 +118,7 @@ export async function POST(req: NextRequest) {
           // leaves the user with silent action chips and nothing else.
           if (!streamed && message) {
             full = message;
-            send({ type: "delta", text: message });
+            send({ type: 'delta', text: message });
             streamed = true;
           } else {
             throw streamErr;
@@ -141,19 +129,19 @@ export async function POST(req: NextRequest) {
         // fall back to the planner message rather than an empty bubble.
         if (!streamed && message) {
           full = message;
-          send({ type: "delta", text: message });
+          send({ type: 'delta', text: message });
         }
       } catch (e) {
         sawError = true;
-        const msg = e instanceof Error ? e.message : "error";
-        send({ type: "error", message: msg });
+        const msg = e instanceof Error ? e.message : 'error';
+        send({ type: 'error', message: msg });
       } finally {
         // Record the assistant turn regardless of how phase 2 ended (empty,
         // streamed, or errored) so the persisted thread stays complete.
         if (threadId) {
           try {
             await appendMessage(threadId, {
-              role: "assistant",
+              role: 'assistant',
               content: full,
               actions: executed.length ? executed : null,
               error: sawError && !full && executed.length === 0,
@@ -162,7 +150,7 @@ export async function POST(req: NextRequest) {
             /* persistence is best-effort; never crash the response */
           }
         }
-        send({ type: "done" });
+        send({ type: 'done' });
         controller.close();
       }
     },
@@ -170,9 +158,9 @@ export async function POST(req: NextRequest) {
 
   return new Response(stream, {
     headers: {
-      "Content-Type": "application/x-ndjson; charset=utf-8",
-      "Cache-Control": "no-store",
-      "X-Accel-Buffering": "no",
+      'Content-Type': 'application/x-ndjson; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Accel-Buffering': 'no',
     },
   });
 }

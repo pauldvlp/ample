@@ -1,22 +1,18 @@
-import "server-only";
+import 'server-only';
 
-import { z } from "zod";
-import { formatMoney } from "@/lib/money";
-import { monthKey } from "@/lib/format";
-import { ACCOUNT_TYPES, FREQUENCIES } from "@/db/schema";
-import { createTransaction } from "@/lib/actions/transactions";
-import {
-  createRecurring,
-  toggleRecurringActive,
-  postRecurringNow,
-} from "@/lib/actions/recurring";
-import { createDebt, addDebtPayment, setDebtStatus } from "@/lib/actions/debts";
-import { createGoal, addContribution, setGoalStatus } from "@/lib/actions/goals";
-import { createAccount } from "@/lib/actions/accounts";
-import { createCategory } from "@/lib/actions/categories";
-import { upsertBudget } from "@/lib/actions/budgets";
-import { updateSettings } from "@/lib/actions/settings";
-import { setManualRate } from "@/lib/actions/rates";
+import { z } from 'zod';
+import { formatMoney } from '@/lib/money';
+import { monthKey } from '@/lib/format';
+import { ACCOUNT_TYPES, FREQUENCIES } from '@/db/schema';
+import { createTransaction } from '@/lib/actions/transactions';
+import { createRecurring, toggleRecurringActive, postRecurringNow } from '@/lib/actions/recurring';
+import { createDebt, addDebtPayment, setDebtStatus } from '@/lib/actions/debts';
+import { createGoal, addContribution, setGoalStatus } from '@/lib/actions/goals';
+import { createAccount } from '@/lib/actions/accounts';
+import { createCategory } from '@/lib/actions/categories';
+import { upsertBudget } from '@/lib/actions/budgets';
+import { updateSettings } from '@/lib/actions/settings';
+import { setManualRate } from '@/lib/actions/rates';
 
 /**
  * The agent's action toolbox. Each tool wraps an existing server action so the
@@ -32,7 +28,7 @@ import { setManualRate } from "@/lib/actions/rates";
 
 /* --------------------------------- context -------------------------------- */
 
-export type AgentLang = "es" | "en";
+export type AgentLang = 'es' | 'en';
 
 export interface AgentAccount {
   id: string;
@@ -100,14 +96,14 @@ interface ToolDef {
 
 function norm(s: string): string {
   return s
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // fold diacritics: "Súper" ~ "super", "Juán" ~ "juan"
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // fold diacritics: "Súper" ~ "super", "Juán" ~ "juan"
     .trim()
     .toLowerCase();
 }
 
 function escapeRe(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** Does `needle` appear in `hay` as a prefix word or a whole word? Lets
@@ -164,7 +160,7 @@ function match<T>(list: T[], name: string, key: (t: T) => string): T | null {
  *  errors instead of silently booking to an arbitrary account. */
 function pickAccount(
   ctx: AgentCtx,
-  name?: string | null
+  name?: string | null,
 ): { account: AgentAccount | null; missing: boolean } {
   if (!name) return { account: ctx.accounts[0] ?? null, missing: false };
   const found = match(ctx.accounts, name, (a) => a.name);
@@ -172,10 +168,7 @@ function pickAccount(
 }
 
 /** Strict account lookup (no fallback) — used for a transfer destination. */
-function resolveAccountStrict(
-  ctx: AgentCtx,
-  name?: string | null
-): AgentAccount | null {
+function resolveAccountStrict(ctx: AgentCtx, name?: string | null): AgentAccount | null {
   if (!name) return null;
   return match(ctx.accounts, name, (a) => a.name);
 }
@@ -183,91 +176,91 @@ function resolveAccountStrict(
 function resolveCategory(
   ctx: AgentCtx,
   name: string | null | undefined,
-  kind: "income" | "expense"
+  kind: 'income' | 'expense',
 ): AgentCategory | null {
   if (!name) return null;
   const ofKind = ctx.categories.filter((c) => c.kind === kind);
   return match(ofKind, name, (c) => c.name);
 }
 
-function resolveDebt(
-  ctx: AgentCtx,
-  ref: string,
-  debtName?: string | null
-): AgentDebt | null {
-  const open = ctx.debts.filter((d) => d.status === "open");
+function resolveDebt(ctx: AgentCtx, ref: string, debtName?: string | null): AgentDebt | null {
+  const open = ctx.debts.filter((d) => d.status === 'open');
   const pool = open.length ? open : ctx.debts;
   if (debtName) {
     const byName = match(
       pool.filter((d) => d.name),
       debtName,
-      (d) => d.name as string
+      (d) => d.name as string,
     );
     if (byName) return byName;
   }
   return (
     match(pool, ref, (d) => d.counterparty) ??
-    match(pool.filter((d) => d.name), ref, (d) => d.name as string) ??
+    match(
+      pool.filter((d) => d.name),
+      ref,
+      (d) => d.name as string,
+    ) ??
     null
   );
 }
 
 const LABELS = {
   es: {
-    income: "Ingreso",
-    expense: "Gasto",
-    transfer: "Transferencia",
-    recurring: "Recurrente",
-    receivable: "Préstamo (te deben)",
-    payable: "Deuda (debes)",
-    payment: "Abono a deuda",
-    goal: "Meta",
-    contribution: "Aporte a meta",
-    account: "Cuenta nueva",
-    category: "Categoría nueva",
-    budget: "Presupuesto",
-    setting: "Ajuste",
-    rate: "Tipo de cambio",
-    settled: "Deuda saldada",
-    goalStatus: "Estado de meta",
-    recurringOn: "Recurrente activada",
-    recurringOff: "Recurrente pausada",
-    posted: "Recurrente registrada",
-    notFound: "no encontrado",
-    noAccount: "no hay cuentas",
-    needDest: "falta la cuenta destino",
-    action: "Acción",
-    invalidData: "datos inválidos",
-    unknownTool: "acción no reconocida",
-    failed: "falló",
+    income: 'Ingreso',
+    expense: 'Gasto',
+    transfer: 'Transferencia',
+    recurring: 'Recurrente',
+    receivable: 'Préstamo (te deben)',
+    payable: 'Deuda (debes)',
+    payment: 'Abono a deuda',
+    goal: 'Meta',
+    contribution: 'Aporte a meta',
+    account: 'Cuenta nueva',
+    category: 'Categoría nueva',
+    budget: 'Presupuesto',
+    setting: 'Ajuste',
+    rate: 'Tipo de cambio',
+    settled: 'Deuda saldada',
+    goalStatus: 'Estado de meta',
+    recurringOn: 'Recurrente activada',
+    recurringOff: 'Recurrente pausada',
+    posted: 'Recurrente registrada',
+    notFound: 'no encontrado',
+    noAccount: 'no hay cuentas',
+    needDest: 'falta la cuenta destino',
+    action: 'Acción',
+    invalidData: 'datos inválidos',
+    unknownTool: 'acción no reconocida',
+    failed: 'falló',
   },
   en: {
-    income: "Income",
-    expense: "Expense",
-    transfer: "Transfer",
-    recurring: "Recurring",
-    receivable: "Loan (owed to you)",
-    payable: "Debt (you owe)",
-    payment: "Debt payment",
-    goal: "Goal",
-    contribution: "Goal contribution",
-    account: "New account",
-    category: "New category",
-    budget: "Budget",
-    setting: "Setting",
-    rate: "Exchange rate",
-    settled: "Debt settled",
-    goalStatus: "Goal status",
-    recurringOn: "Recurring resumed",
-    recurringOff: "Recurring paused",
-    posted: "Recurring posted",
-    notFound: "not found",
-    noAccount: "no accounts yet",
-    needDest: "missing destination account",
-    action: "Action",
-    invalidData: "invalid data",
-    unknownTool: "unrecognized action",
-    failed: "failed",
+    income: 'Income',
+    expense: 'Expense',
+    transfer: 'Transfer',
+    recurring: 'Recurring',
+    receivable: 'Loan (owed to you)',
+    payable: 'Debt (you owe)',
+    payment: 'Debt payment',
+    goal: 'Goal',
+    contribution: 'Goal contribution',
+    account: 'New account',
+    category: 'New category',
+    budget: 'Budget',
+    setting: 'Setting',
+    rate: 'Exchange rate',
+    settled: 'Debt settled',
+    goalStatus: 'Goal status',
+    recurringOn: 'Recurring resumed',
+    recurringOff: 'Recurring paused',
+    posted: 'Recurring posted',
+    notFound: 'not found',
+    noAccount: 'no accounts yet',
+    needDest: 'missing destination account',
+    action: 'Action',
+    invalidData: 'invalid data',
+    unknownTool: 'unrecognized action',
+    failed: 'failed',
   },
 } as const;
 
@@ -277,7 +270,7 @@ function L(ctx: AgentCtx) {
 
 /** Compose a chip detail from the first non-empty parts. */
 function joinDetail(...parts: (string | null | undefined)[]): string {
-  return parts.filter((p) => p && p.trim()).join(" · ");
+  return parts.filter((p) => p && p.trim()).join(' · ');
 }
 
 /* --------------------------------- schemas -------------------------------- */
@@ -288,14 +281,14 @@ const optDate = z.string().trim().optional().nullable();
 // Robust boolean: real JSON booleans pass through, but tolerate the model
 // sending "true"/"false" strings or 1/0 (z.coerce.boolean turns "false" → true).
 const boolish = z.preprocess((v) => {
-  if (typeof v === "string") return /^(true|1|yes|si|sí|on)$/i.test(v.trim());
-  if (typeof v === "number") return v !== 0;
+  if (typeof v === 'string') return /^(true|1|yes|si|sí|on)$/i.test(v.trim());
+  if (typeof v === 'number') return v !== 0;
   return v;
 }, z.boolean());
 const optBool = boolish.optional().nullable();
 
 const createTransactionSchema = z.object({
-  type: z.enum(["income", "expense", "transfer"]),
+  type: z.enum(['income', 'expense', 'transfer']),
   amount,
   currency: optStr,
   account: optStr,
@@ -308,7 +301,7 @@ const createTransactionSchema = z.object({
 
 const createRecurringSchema = z.object({
   name: z.string().trim().min(1),
-  type: z.enum(["income", "expense"]),
+  type: z.enum(['income', 'expense']),
   amount,
   frequency: z.enum(FREQUENCIES),
   interval: z.coerce.number().int().min(1).optional().nullable(),
@@ -324,7 +317,7 @@ const createRecurringSchema = z.object({
 });
 
 const createDebtSchema = z.object({
-  kind: z.enum(["receivable", "payable"]),
+  kind: z.enum(['receivable', 'payable']),
   counterparty: z.string().trim().min(1),
   amount,
   name: optStr,
@@ -371,7 +364,7 @@ const createAccountSchema = z.object({
 
 const createCategorySchema = z.object({
   name: z.string().trim().min(1),
-  kind: z.enum(["income", "expense"]),
+  kind: z.enum(['income', 'expense']),
 });
 
 const setBudgetSchema = z.object({
@@ -392,7 +385,7 @@ const setRateSchema = z.object({
 });
 
 const updateSettingsSchema = z.object({
-  language: z.enum(["es", "en"]).optional().nullable(),
+  language: z.enum(['es', 'en']).optional().nullable(),
   displayName: optStr,
 });
 
@@ -403,7 +396,7 @@ const settleDebtSchema = z.object({
 
 const setGoalStatusSchema = z.object({
   goal: z.string().trim().min(1),
-  status: z.enum(["active", "completed", "paused", "archived"]),
+  status: z.enum(['active', 'completed', 'paused', 'archived']),
 });
 
 const toggleRecurringSchema = z.object({
@@ -417,20 +410,20 @@ const postRecurringSchema = z.object({ name: z.string().trim().min(1) });
 
 export const TOOLS: Record<string, ToolDef> = {
   create_transaction: {
-    name: "create_transaction",
+    name: 'create_transaction',
     doc:
       'Record ONE transaction. Params: type ("income"|"expense"|"transfer"), amount (positive), ' +
-      "currency? (ISO, default base), account? (name; default first account), category? (name; ignored for transfer), " +
-      "toAccount? (destination account name — REQUIRED for transfer), payee? (merchant/source), date? (YYYY-MM-DD), notes?.",
+      'currency? (ISO, default base), account? (name; default first account), category? (name; ignored for transfer), ' +
+      'toAccount? (destination account name — REQUIRED for transfer), payee? (merchant/source), date? (YYYY-MM-DD), notes?.',
     schema: createTransactionSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof createTransactionSchema>;
       const label =
-        a.type === "income"
+        a.type === 'income'
           ? L(ctx).income
-          : a.type === "transfer"
-          ? L(ctx).transfer
-          : L(ctx).expense;
+          : a.type === 'transfer'
+            ? L(ctx).transfer
+            : L(ctx).expense;
       const picked = pickAccount(ctx, a.account);
       if (!picked.account)
         return {
@@ -442,17 +435,16 @@ export const TOOLS: Record<string, ToolDef> = {
 
       let transferAccountId: string | null = null;
       let who: string | null = a.payee ?? null;
-      if (a.type === "transfer") {
+      if (a.type === 'transfer') {
         const to = resolveAccountStrict(ctx, a.toAccount);
-        if (!to || to.id === from.id)
-          return { ok: false, label, error: L(ctx).needDest };
+        if (!to || to.id === from.id) return { ok: false, label, error: L(ctx).needDest };
         transferAccountId = to.id;
         who = `${from.name} → ${to.name}`;
       }
       const cat =
-        a.type === "transfer"
+        a.type === 'transfer'
           ? null
-          : resolveCategory(ctx, a.category, a.type as "income" | "expense");
+          : resolveCategory(ctx, a.category, a.type as 'income' | 'expense');
 
       const res = await createTransaction({
         accountId: from.id,
@@ -475,12 +467,12 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   create_recurring: {
-    name: "create_recurring",
+    name: 'create_recurring',
     doc:
       'Create a recurring rule (subscription, bill, salary…). Params: name, type ("income"|"expense"), amount (positive), ' +
       'frequency ("daily"|"weekly"|"biweekly"|"monthly"|"quarterly"|"yearly"), interval? (int, default 1), ' +
-      "currency?, account? (name; default first), category? (name), payee?, nextDueDate? (YYYY-MM-DD, default today), " +
-      "endDate? (YYYY-MM-DD), isSubscription? (bool), autoPost? (bool — post automatically when due), notes?.",
+      'currency?, account? (name; default first), category? (name), payee?, nextDueDate? (YYYY-MM-DD, default today), ' +
+      'endDate? (YYYY-MM-DD), isSubscription? (bool), autoPost? (bool — post automatically when due), notes?.',
     schema: createRecurringSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof createRecurringSchema>;
@@ -511,29 +503,25 @@ export const TOOLS: Record<string, ToolDef> = {
         notes: a.notes ?? null,
       });
       if (!res.ok) return { ok: false, label, error: res.error };
-      if (res.data)
-        ctx.recurring.push({ id: res.data.id, name: a.name, isActive: true });
+      if (res.data) ctx.recurring.push({ id: res.data.id, name: a.name, isActive: true });
       return {
         ok: true,
         label,
-        detail: joinDetail(
-          `${money(ctx, a.amount, a.currency)}/${a.frequency}`,
-          a.name
-        ),
+        detail: joinDetail(`${money(ctx, a.amount, a.currency)}/${a.frequency}`, a.name),
       };
     },
   },
 
   create_debt: {
-    name: "create_debt",
+    name: 'create_debt',
     doc:
       'Track a person-to-person debt. Params: kind ("receivable" = they owe you | "payable" = you owe), ' +
-      "counterparty (person/entity name), amount (positive), name? (label/reason), currency?, account? (linked account name), " +
-      "dueDate? (YYYY-MM-DD), notes?.",
+      'counterparty (person/entity name), amount (positive), name? (label/reason), currency?, account? (linked account name), ' +
+      'dueDate? (YYYY-MM-DD), notes?.',
     schema: createDebtSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof createDebtSchema>;
-      const label = a.kind === "receivable" ? L(ctx).receivable : L(ctx).payable;
+      const label = a.kind === 'receivable' ? L(ctx).receivable : L(ctx).payable;
       const acc = resolveAccountStrict(ctx, a.account);
       const res = await createDebt({
         kind: a.kind,
@@ -553,7 +541,7 @@ export const TOOLS: Record<string, ToolDef> = {
           name: a.name ?? null,
           kind: a.kind,
           outstanding: Math.round(a.amount * 100),
-          status: "open",
+          status: 'open',
         });
       return {
         ok: true,
@@ -564,18 +552,17 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   add_debt_payment: {
-    name: "add_debt_payment",
+    name: 'add_debt_payment',
     doc:
-      "Record a payment against an existing debt (identify it by counterparty, optionally debtName). " +
-      "Params: counterparty, amount (positive), debtName?, currency?, date? (YYYY-MM-DD), note?, " +
-      "recordTransaction? (bool — also post the matching cash movement in the linked account).",
+      'Record a payment against an existing debt (identify it by counterparty, optionally debtName). ' +
+      'Params: counterparty, amount (positive), debtName?, currency?, date? (YYYY-MM-DD), note?, ' +
+      'recordTransaction? (bool — also post the matching cash movement in the linked account).',
     schema: addDebtPaymentSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof addDebtPaymentSchema>;
       const label = L(ctx).payment;
       const debt = resolveDebt(ctx, a.counterparty, a.debtName);
-      if (!debt)
-        return { ok: false, label, error: `${a.counterparty}: ${L(ctx).notFound}` };
+      if (!debt) return { ok: false, label, error: `${a.counterparty}: ${L(ctx).notFound}` };
       const res = await addDebtPayment({
         debtId: debt.id,
         amount: a.amount,
@@ -594,10 +581,10 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   create_goal: {
-    name: "create_goal",
+    name: 'create_goal',
     doc:
-      "Create a savings goal. Params: name, targetAmount (positive), currentAmount? (already saved), " +
-      "targetDate? (YYYY-MM-DD), account? (linked account name), notes?.",
+      'Create a savings goal. Params: name, targetAmount (positive), currentAmount? (already saved), ' +
+      'targetDate? (YYYY-MM-DD), account? (linked account name), notes?.',
     schema: createGoalSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof createGoalSchema>;
@@ -622,9 +609,8 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   contribute_to_goal: {
-    name: "contribute_to_goal",
-    doc:
-      "Add money toward a goal (identify it by goal name). Params: goal (goal name), amount (positive), note?.",
+    name: 'contribute_to_goal',
+    doc: 'Add money toward a goal (identify it by goal name). Params: goal (goal name), amount (positive), note?.',
     schema: contributeGoalSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof contributeGoalSchema>;
@@ -638,10 +624,10 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   create_account: {
-    name: "create_account",
+    name: 'create_account',
     doc:
       'Create an account/wallet. Params: name, type ("checking"|"savings"|"credit"|"cash"|"investment"|"loan"|"other"), ' +
-      "currency? (default base), startingBalance? (major units, may be negative), institution?, includeInNetWorth? (bool), notes?.",
+      'currency? (default base), startingBalance? (major units, may be negative), institution?, includeInNetWorth? (bool), notes?.',
     schema: createAccountSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof createAccountSchema>;
@@ -657,38 +643,35 @@ export const TOOLS: Record<string, ToolDef> = {
         notes: a.notes ?? null,
       });
       if (!res.ok) return { ok: false, label, error: res.error };
-      if (res.data)
-        ctx.accounts.push({ id: res.data.id, name: a.name, type: a.type, currency });
+      if (res.data) ctx.accounts.push({ id: res.data.id, name: a.name, type: a.type, currency });
       return { ok: true, label, detail: joinDetail(a.name, a.type) };
     },
   },
 
   create_category: {
-    name: "create_category",
-    doc:
-      'Create a category. Params: name, kind ("income"|"expense"). Reference it by name in later actions of the same message.',
+    name: 'create_category',
+    doc: 'Create a category. Params: name, kind ("income"|"expense"). Reference it by name in later actions of the same message.',
     schema: createCategorySchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof createCategorySchema>;
       const label = L(ctx).category;
       const res = await createCategory({ name: a.name, kind: a.kind });
       if (!res.ok) return { ok: false, label, error: res.error };
-      if (res.data)
-        ctx.categories.push({ id: res.data.id, name: a.name, kind: a.kind });
+      if (res.data) ctx.categories.push({ id: res.data.id, name: a.name, kind: a.kind });
       return { ok: true, label, detail: joinDetail(a.name, a.kind) };
     },
   },
 
   set_budget: {
-    name: "set_budget",
+    name: 'set_budget',
     doc:
-      "Set (or update) a monthly budget for an EXPENSE category. Params: category (name), amount (positive; 0 removes it), " +
-      "period? (YYYY-MM, default current month), rollover? (bool).",
+      'Set (or update) a monthly budget for an EXPENSE category. Params: category (name), amount (positive; 0 removes it), ' +
+      'period? (YYYY-MM, default current month), rollover? (bool).',
     schema: setBudgetSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof setBudgetSchema>;
       const label = L(ctx).budget;
-      const cat = resolveCategory(ctx, a.category, "expense");
+      const cat = resolveCategory(ctx, a.category, 'expense');
       if (!cat) return { ok: false, label, error: `${a.category}: ${L(ctx).notFound}` };
       const period = a.period ?? monthKey(ctx.now);
       const res = await upsertBudget({
@@ -707,10 +690,10 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   set_exchange_rate: {
-    name: "set_exchange_rate",
+    name: 'set_exchange_rate',
     doc:
-      "Set the manual exchange rate for a currency, expressed as how many BASE units equal 1 unit of that currency. " +
-      "Params: currency (ISO), rate (positive number — base per 1 foreign unit).",
+      'Set the manual exchange rate for a currency, expressed as how many BASE units equal 1 unit of that currency. ' +
+      'Params: currency (ISO), rate (positive number — base per 1 foreign unit).',
     schema: setRateSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof setRateSchema>;
@@ -723,19 +706,18 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   update_settings: {
-    name: "update_settings",
+    name: 'update_settings',
     doc:
       'Change a safe app setting. Params: language? ("es"|"en"), displayName? (your name shown in the app). ' +
-      "Do NOT change the base currency here — tell the user to do that in Settings (it does not reconvert stored data).",
+      'Do NOT change the base currency here — tell the user to do that in Settings (it does not reconvert stored data).',
     schema: updateSettingsSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof updateSettingsSchema>;
       const label = L(ctx).setting;
-      const patch: { language?: "es" | "en"; displayName?: string } = {};
+      const patch: { language?: 'es' | 'en'; displayName?: string } = {};
       if (a.language) patch.language = a.language;
       if (a.displayName) patch.displayName = a.displayName;
-      if (!Object.keys(patch).length)
-        return { ok: false, label, error: "nothing to change" };
+      if (!Object.keys(patch).length) return { ok: false, label, error: 'nothing to change' };
       await updateSettings(patch);
       return { ok: true, label, detail: joinDetail(a.displayName, a.language) };
     },
@@ -744,27 +726,24 @@ export const TOOLS: Record<string, ToolDef> = {
   /* ------------------------ status / lifecycle tools ---------------------- */
 
   settle_debt: {
-    name: "settle_debt",
-    doc:
-      "Mark a debt as fully settled/closed. Params: counterparty, debtName?. (Reversible — reopen in the UI.)",
+    name: 'settle_debt',
+    doc: 'Mark a debt as fully settled/closed. Params: counterparty, debtName?. (Reversible — reopen in the UI.)',
     schema: settleDebtSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof settleDebtSchema>;
       const label = L(ctx).settled;
       const debt = resolveDebt(ctx, a.counterparty, a.debtName);
-      if (!debt)
-        return { ok: false, label, error: `${a.counterparty}: ${L(ctx).notFound}` };
-      const res = await setDebtStatus(debt.id, "settled");
+      if (!debt) return { ok: false, label, error: `${a.counterparty}: ${L(ctx).notFound}` };
+      const res = await setDebtStatus(debt.id, 'settled');
       if (!res.ok) return { ok: false, label, error: res.error };
-      debt.status = "settled";
+      debt.status = 'settled';
       return { ok: true, label, detail: debt.counterparty };
     },
   },
 
   set_goal_status: {
-    name: "set_goal_status",
-    doc:
-      'Change a goal\'s status. Params: goal (name), status ("active"|"completed"|"paused"|"archived").',
+    name: 'set_goal_status',
+    doc: 'Change a goal\'s status. Params: goal (name), status ("active"|"completed"|"paused"|"archived").',
     schema: setGoalStatusSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof setGoalStatusSchema>;
@@ -778,9 +757,8 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   toggle_recurring: {
-    name: "toggle_recurring",
-    doc:
-      "Pause or resume a recurring rule. Params: name (rule name), active (bool — false pauses, true resumes).",
+    name: 'toggle_recurring',
+    doc: 'Pause or resume a recurring rule. Params: name (rule name), active (bool — false pauses, true resumes).',
     schema: toggleRecurringSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof toggleRecurringSchema>;
@@ -795,9 +773,8 @@ export const TOOLS: Record<string, ToolDef> = {
   },
 
   post_recurring_now: {
-    name: "post_recurring_now",
-    doc:
-      "Immediately post a recurring rule as a real transaction and advance its next-due date. Params: name (rule name).",
+    name: 'post_recurring_now',
+    doc: 'Immediately post a recurring rule as a real transaction and advance its next-due date. Params: name (rule name).',
     schema: postRecurringSchema,
     run: async (raw, ctx) => {
       const a = raw as z.infer<typeof postRecurringSchema>;
@@ -815,11 +792,11 @@ export const TOOLS: Record<string, ToolDef> = {
 export function toolCatalog(): string {
   return Object.values(TOOLS)
     .map((t) => `- ${t.name}: ${t.doc}`)
-    .join("\n");
+    .join('\n');
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {
-  return !!v && typeof v === "object" && !Array.isArray(v);
+  return !!v && typeof v === 'object' && !Array.isArray(v);
 }
 
 /**
@@ -833,10 +810,10 @@ function splitAction(action: Record<string, unknown>): {
   args: Record<string, unknown>;
 } {
   // Which key names the tool? Prefer explicit `tool`, then `action`, then `name`.
-  let toolKey: "tool" | "action" | "name" | null = null;
-  if (typeof action.tool === "string") toolKey = "tool";
-  else if (typeof action.action === "string") toolKey = "action";
-  else if (typeof action.name === "string") toolKey = "name";
+  let toolKey: 'tool' | 'action' | 'name' | null = null;
+  if (typeof action.tool === 'string') toolKey = 'tool';
+  else if (typeof action.action === 'string') toolKey = 'action';
+  else if (typeof action.name === 'string') toolKey = 'name';
   const tool = toolKey ? (action[toolKey] as string) : null;
 
   // Params may be nested under a conventional key, or be the action itself.
@@ -851,8 +828,8 @@ function splitAction(action: Record<string, unknown>): {
 
   const args: Record<string, unknown> = { ...action };
   // strip only the nesting wrappers and the ONE key that named the tool
-  for (const k of ["params", "arguments", "args", "input", "tool"]) delete args[k];
-  if (toolKey && toolKey !== "tool") delete args[toolKey];
+  for (const k of ['params', 'arguments', 'args', 'input', 'tool']) delete args[k];
+  if (toolKey && toolKey !== 'tool') delete args[toolKey];
   return { tool, args };
 }
 
@@ -862,16 +839,12 @@ export interface ExecutedAction extends ToolResult {
 }
 
 /** Validate + execute a single model-emitted action against the context. */
-export async function executeAction(
-  action: unknown,
-  ctx: AgentCtx
-): Promise<ExecutedAction> {
+export async function executeAction(action: unknown, ctx: AgentCtx): Promise<ExecutedAction> {
   const t = L(ctx);
-  if (!action || typeof action !== "object")
-    return { tool: "?", ok: false, label: t.action, error: t.invalidData };
+  if (!action || typeof action !== 'object')
+    return { tool: '?', ok: false, label: t.action, error: t.invalidData };
   const { tool, args } = splitAction(action as Record<string, unknown>);
-  if (!tool)
-    return { tool: "?", ok: false, label: t.action, error: t.invalidData };
+  if (!tool) return { tool: '?', ok: false, label: t.action, error: t.invalidData };
   const def = TOOLS[tool];
   if (!def) return { tool, ok: false, label: t.action, error: t.unknownTool };
   const parsed = def.schema.safeParse(args);

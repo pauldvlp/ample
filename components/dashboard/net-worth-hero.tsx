@@ -1,12 +1,11 @@
-"use client";
+'use client';
 
-import { AnimatedAmount, Amount, DeltaChip } from "@/components/shared/amount";
-import { NetWorthChart } from "@/components/charts/net-worth-chart";
-import { useT } from "@/components/providers/settings-provider";
-import type { NetWorthPoint } from "@/lib/data/reports";
+import { AnimatedAmount, Amount, DeltaChip } from '@/components/shared/amount';
+import { NetWorthChart } from '@/components/charts/net-worth-chart';
+import { useT } from '@/components/providers/settings-provider';
+import type { NetWorthPoint } from '@/lib/data/reports';
 
-const eyebrow =
-  "text-[0.65rem] font-medium uppercase tracking-[0.14em] text-muted-foreground";
+const eyebrow = 'text-[0.65rem] font-medium uppercase tracking-[0.14em] text-muted-foreground';
 
 export function NetWorthHero({
   netWorth,
@@ -28,7 +27,7 @@ export function NetWorthHero({
     <div className="hero-orb hairline-brass relative flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card p-5 shadow-card sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className={eyebrow}>{t("common.netWorth")}</p>
+          <p className={eyebrow}>{t('common.netWorth')}</p>
           <AnimatedAmount
             value={netWorth}
             className="mt-1 block font-display text-4xl font-medium leading-none tracking-tight sm:text-5xl"
@@ -36,14 +35,14 @@ export function NetWorthHero({
           <div className="mt-2.5 flex items-center gap-2">
             <DeltaChip value={deltaPct} positiveIsGood />
             <span className="text-xs text-muted-foreground">
-              <Amount value={deltaAmount} showSign decimals={false} sensitive={false} />{" "}
-              {t("dashboard.thisMonthInline")}
+              <Amount value={deltaAmount} showSign decimals={false} sensitive={false} />{' '}
+              {t('dashboard.thisMonthInline')}
             </span>
           </div>
         </div>
         <div className="flex gap-5">
           <div>
-            <p className={eyebrow}>{t("common.assets")}</p>
+            <p className={eyebrow}>{t('common.assets')}</p>
             <Amount
               value={assets}
               compact
@@ -52,7 +51,7 @@ export function NetWorthHero({
             />
           </div>
           <div>
-            <p className={eyebrow}>{t("common.liabilities")}</p>
+            <p className={eyebrow}>{t('common.liabilities')}</p>
             <Amount
               value={liabilities}
               compact

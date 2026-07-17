@@ -1,6 +1,6 @@
-import "server-only";
-import { format } from "date-fns";
-import { listThreads, getThreadMessages } from "@/lib/ai/threads";
+import 'server-only';
+import { format } from 'date-fns';
+import { listThreads, getThreadMessages } from '@/lib/ai/threads';
 
 /**
  * Cross-conversation memory for the assistant. Each turn happens inside ONE
@@ -29,16 +29,86 @@ const MIN_SCORE = 2; // relevance gate before a thread is inlined
 /** Common es/en words that shouldn't drive relevance. */
 const STOPWORDS = new Set([
   // spanish
-  "que", "los", "las", "una", "unos", "unas", "del", "por", "con", "para",
-  "como", "más", "mas", "pero", "sus", "este", "esta", "esto", "eso", "esa",
-  "ese", "son", "hay", "muy", "sin", "sobre", "entre", "cuando", "donde",
-  "porque", "cual", "cuales", "tengo", "tienes", "tiene", "puedo", "puedes",
-  "quiero", "hacer", "sabes", "cuánto", "cuanto", "cuánta", "cuanta",
+  'que',
+  'los',
+  'las',
+  'una',
+  'unos',
+  'unas',
+  'del',
+  'por',
+  'con',
+  'para',
+  'como',
+  'más',
+  'mas',
+  'pero',
+  'sus',
+  'este',
+  'esta',
+  'esto',
+  'eso',
+  'esa',
+  'ese',
+  'son',
+  'hay',
+  'muy',
+  'sin',
+  'sobre',
+  'entre',
+  'cuando',
+  'donde',
+  'porque',
+  'cual',
+  'cuales',
+  'tengo',
+  'tienes',
+  'tiene',
+  'puedo',
+  'puedes',
+  'quiero',
+  'hacer',
+  'sabes',
+  'cuánto',
+  'cuanto',
+  'cuánta',
+  'cuanta',
   // english
-  "the", "and", "for", "you", "your", "with", "this", "that", "have", "has",
-  "are", "was", "what", "when", "where", "which", "how", "can", "could",
-  "would", "should", "about", "into", "from", "they", "them", "there",
-  "here", "will", "want", "know", "tell", "make", "give", "get",
+  'the',
+  'and',
+  'for',
+  'you',
+  'your',
+  'with',
+  'this',
+  'that',
+  'have',
+  'has',
+  'are',
+  'was',
+  'what',
+  'when',
+  'where',
+  'which',
+  'how',
+  'can',
+  'could',
+  'would',
+  'should',
+  'about',
+  'into',
+  'from',
+  'they',
+  'them',
+  'there',
+  'here',
+  'will',
+  'want',
+  'know',
+  'tell',
+  'make',
+  'give',
+  'get',
 ]);
 
 function terms(text: string): string[] {
@@ -47,11 +117,11 @@ function terms(text: string): string[] {
 }
 
 function collapse(text: string): string {
-  return text.replace(/\s+/g, " ").trim();
+  return text.replace(/\s+/g, ' ').trim();
 }
 
 function day(ms: number): string {
-  return format(new Date(ms), "yyyy-MM-dd");
+  return format(new Date(ms), 'yyyy-MM-dd');
 }
 
 export async function buildThreadRecall(opts: {
@@ -59,9 +129,9 @@ export async function buildThreadRecall(opts: {
   query: string;
 }): Promise<string> {
   const others = (await listThreads(MAX_SCAN_THREADS)).filter(
-    (t) => t.id !== opts.excludeThreadId && t.title.trim()
+    (t) => t.id !== opts.excludeThreadId && t.title.trim(),
   );
-  if (others.length === 0) return "";
+  if (others.length === 0) return '';
 
   const q = new Set(terms(opts.query));
 
@@ -71,14 +141,17 @@ export async function buildThreadRecall(opts: {
     others.map(async (t) => {
       const msgs = await getThreadMessages(t.id);
       const titleTerms = new Set(terms(t.title));
-      const bodyText = msgs.map((m) => m.content).join(" ").toLowerCase();
+      const bodyText = msgs
+        .map((m) => m.content)
+        .join(' ')
+        .toLowerCase();
       let score = 0;
       for (const term of q) {
         if (titleTerms.has(term)) score += 3;
         else if (bodyText.includes(term)) score += 1;
       }
       return { t, msgs, score };
-    })
+    }),
   );
 
   const indexLines = others
@@ -101,15 +174,15 @@ export async function buildThreadRecall(opts: {
   ];
 
   if (relevant.length) {
-    parts.push("", "## Possibly relevant past conversation(s), excerpted");
+    parts.push('', '## Possibly relevant past conversation(s), excerpted');
     for (const r of relevant) {
       parts.push(`### "${r.t.title}" (${day(r.t.updatedAt)})`);
       for (const m of r.msgs.slice(-DETAIL_MESSAGES)) {
-        const who = m.role === "user" ? "User" : "You";
+        const who = m.role === 'user' ? 'User' : 'You';
         parts.push(`- ${who}: ${collapse(m.content).slice(0, MSG_CHARS)}`);
       }
     }
   }
 
-  return parts.join("\n");
+  return parts.join('\n');
 }

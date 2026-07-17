@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { toast } from "sonner";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { TestTube01Icon } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useSettings } from "@/components/providers/settings-provider";
-import { formatDate } from "@/lib/format";
-import { FastForward } from "lucide-react";
+import * as React from 'react';
+import { toast } from 'sonner';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { TestTube01Icon } from '@hugeicons/core-free-icons';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSettings } from '@/components/providers/settings-provider';
+import { formatDate } from '@/lib/format';
+import { FastForward } from 'lucide-react';
 
 /** Topbar button that enters simulation mode. Hidden while already simulating. */
 export function SimulationToggle() {
@@ -23,32 +23,31 @@ export function SimulationToggle() {
             variant="ghost"
             size="icon-sm"
             disabled={simPending}
-            aria-label={t("sim.enter")}
+            aria-label={t('sim.enter')}
             onClick={async () => {
               await enterSim();
-              toast.success(t("sim.startedToast"));
+              toast.success(t('sim.startedToast'));
             }}
           />
         }
       >
         <HugeiconsIcon icon={TestTube01Icon} className="hg-icon size-4" />
       </TooltipTrigger>
-      <TooltipContent>{t("sim.tooltip")}</TooltipContent>
+      <TooltipContent>{t('sim.tooltip')}</TooltipContent>
     </Tooltip>
   );
 }
 
 const STEPS: { labelKey: string; days: number }[] = [
-  { labelKey: "sim.plusDay", days: 1 },
-  { labelKey: "sim.plusWeek", days: 7 },
-  { labelKey: "sim.plusMonth", days: 30 },
+  { labelKey: 'sim.plusDay', days: 1 },
+  { labelKey: 'sim.plusWeek', days: 7 },
+  { labelKey: 'sim.plusMonth', days: 30 },
 ];
 
 /** Prominent bar shown across the app while simulating, with a time-machine
  *  that fast-forwards the clock and auto-posts recurring bills as they fall due. */
 export function SimulationBanner() {
-  const { simulationActive, simDate, exitSim, advanceSim, simPending, t } =
-    useSettings();
+  const { simulationActive, simDate, exitSim, advanceSim, simPending, t } = useSettings();
   // Fold projected budget spending into the time-machine so fast-forwarding
   // reflects real day-to-day spending, not just fixed bills. On by default.
   const [includeBudget, setIncludeBudget] = React.useState(true);
@@ -58,9 +57,7 @@ export function SimulationBanner() {
     const res = await advanceSim(days, includeBudget);
     if (res) {
       toast.success(
-        res.posted > 0
-          ? t("sim.advancedPosted", { n: res.posted })
-          : t("sim.advanced")
+        res.posted > 0 ? t('sim.advancedPosted', { n: res.posted }) : t('sim.advanced'),
       );
     }
   }
@@ -73,14 +70,14 @@ export function SimulationBanner() {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground">
-            {t("sim.active")}
+            {t('sim.active')}
             {simDate && (
               <span className="ml-2 font-normal text-muted-foreground">
-                · {t("sim.simDate", { date: formatDate(simDate) })}
+                · {t('sim.simDate', { date: formatDate(simDate) })}
               </span>
             )}
           </p>
-          <p className="truncate text-xs text-muted-foreground">{t("sim.banner")}</p>
+          <p className="truncate text-xs text-muted-foreground">{t('sim.banner')}</p>
         </div>
 
         {/* budget-spend toggle */}
@@ -93,11 +90,11 @@ export function SimulationBanner() {
                   onCheckedChange={setIncludeBudget}
                   disabled={simPending}
                 />
-                <span className="hidden md:inline">{t("sim.budgetSpend")}</span>
+                <span className="hidden md:inline">{t('sim.budgetSpend')}</span>
               </label>
             }
           />
-          <TooltipContent>{t("sim.budgetSpendHint")}</TooltipContent>
+          <TooltipContent>{t('sim.budgetSpendHint')}</TooltipContent>
         </Tooltip>
 
         {/* time machine */}
@@ -124,10 +121,10 @@ export function SimulationBanner() {
           className="shrink-0 border-brass/40"
           onClick={async () => {
             await exitSim();
-            toast.success(t("sim.endedToast"));
+            toast.success(t('sim.endedToast'));
           }}
         >
-          {simPending ? t("sim.working") : t("sim.discard")}
+          {simPending ? t('sim.working') : t('sim.discard')}
         </Button>
       </div>
     </div>

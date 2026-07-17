@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { Brand } from "./brand";
-import { SidebarNav } from "./sidebar-nav";
-import { AnimatedAmount, DeltaChip } from "@/components/shared/amount";
-import { getT } from "@/lib/i18n/server";
+import Link from 'next/link';
+import { Brand } from './brand';
+import { SidebarNav } from './sidebar-nav';
+import { AnimatedAmount, DeltaChip } from '@/components/shared/amount';
+import { getT } from '@/lib/i18n/server';
 
 export async function DesktopSidebar({
   netWorth,
@@ -27,7 +27,7 @@ export async function DesktopSidebar({
       <div className="p-3">
         <div className="hairline-brass rounded-xl border border-border/70 bg-card/60 p-3.5">
           <p className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            {t("common.netWorth")}
+            {t('common.netWorth')}
           </p>
           <div className="mt-1 flex items-center justify-between gap-2">
             <AnimatedAmount

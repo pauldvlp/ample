@@ -1,17 +1,9 @@
-"use client";
+'use client';
 
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { useSettings } from "@/components/providers/settings-provider";
-import { ChartTooltip } from "./chart-tooltip";
-import type { MonthlyFlow } from "@/lib/data/reports";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useSettings } from '@/components/providers/settings-provider';
+import { ChartTooltip } from './chart-tooltip';
+import type { MonthlyFlow } from '@/lib/data/reports';
 
 export function IncomeExpenseChart({
   data,
@@ -34,22 +26,31 @@ export function IncomeExpenseChart({
           dataKey="label"
           axisLine={false}
           tickLine={false}
-          tick={{ fill: "var(--chart-axis)", fontSize: 11 }}
+          tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
           dy={8}
         />
         <YAxis
           axisLine={false}
           tickLine={false}
           width={46}
-          tick={{ fill: "var(--chart-axis)", fontSize: 11 }}
+          tick={{ fill: 'var(--chart-axis)', fontSize: 11 }}
           tickFormatter={(v: number) => money(v, { compact: true, cents: false })}
         />
-        <Tooltip
-          cursor={{ fill: "var(--muted)", fillOpacity: 0.45 }}
-          content={<ChartTooltip />}
+        <Tooltip cursor={{ fill: 'var(--muted)', fillOpacity: 0.45 }} content={<ChartTooltip />} />
+        <Bar
+          dataKey="income"
+          name={t('common.income')}
+          fill="var(--positive)"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={22}
         />
-        <Bar dataKey="income" name={t("common.income")} fill="var(--positive)" radius={[4, 4, 0, 0]} maxBarSize={22} />
-        <Bar dataKey="expense" name={t("common.expenses")} fill="var(--negative)" radius={[4, 4, 0, 0]} maxBarSize={22} />
+        <Bar
+          dataKey="expense"
+          name={t('common.expenses')}
+          fill="var(--negative)"
+          radius={[4, 4, 0, 0]}
+          maxBarSize={22}
+        />
       </BarChart>
     </ResponsiveContainer>
   );

@@ -1,9 +1,9 @@
-import { PageHeader } from "@/components/shared/page-header";
-import { BudgetsView } from "@/components/budgets/budgets-view";
-import { getBudgetSummary } from "@/lib/data/budgets";
-import { getCategoriesByKind } from "@/lib/data/categories";
-import { currentMonthKey } from "@/lib/format";
-import { getT } from "@/lib/i18n/server";
+import { PageHeader } from '@/components/shared/page-header';
+import { BudgetsView } from '@/components/budgets/budgets-view';
+import { getBudgetSummary } from '@/lib/data/budgets';
+import { getCategoriesByKind } from '@/lib/data/categories';
+import { currentMonthKey } from '@/lib/format';
+import { getT } from '@/lib/i18n/server';
 
 export default async function BudgetsPage({
   searchParams,
@@ -16,15 +16,15 @@ export default async function BudgetsPage({
 
   const [budget, categories] = await Promise.all([
     getBudgetSummary(period),
-    getCategoriesByKind("expense"),
+    getCategoriesByKind('expense'),
   ]);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={t("budgets.eyebrow")}
-        title={t("budgets.title")}
-        description={t("budgets.description")}
+        eyebrow={t('budgets.eyebrow')}
+        title={t('budgets.title')}
+        description={t('budgets.description')}
       />
       <BudgetsView budget={budget} categories={categories} period={period} />
     </div>

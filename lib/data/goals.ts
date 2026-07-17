@@ -1,14 +1,8 @@
-import "server-only";
-import { db } from "@/db";
-import {
-  goals,
-  goalContributions,
-  accounts,
-  type Goal,
-  type GoalContribution,
-} from "@/db/schema";
-import { asc, desc, eq } from "drizzle-orm";
-import { getNow } from "./clock";
+import 'server-only';
+import { db } from '@/db';
+import { goals, goalContributions, accounts, type Goal, type GoalContribution } from '@/db/schema';
+import { asc, desc, eq } from 'drizzle-orm';
+import { getNow } from './clock';
 
 export interface GoalWithProgress extends Goal {
   pct: number;
@@ -18,11 +12,7 @@ export interface GoalWithProgress extends Goal {
   projectedDate: Date | null;
 }
 
-function projectCompletion(
-  remaining: number,
-  monthlyPace: number | null,
-  from: Date
-): Date | null {
+function projectCompletion(remaining: number, monthlyPace: number | null, from: Date): Date | null {
   if (!monthlyPace || monthlyPace <= 0 || remaining <= 0) return null;
   const months = Math.ceil(remaining / monthlyPace);
   const d = new Date(from);
@@ -72,9 +62,7 @@ export async function getGoal(id: string): Promise<Goal | null> {
   return (await db.select().from(goals).where(eq(goals.id, id)).get()) ?? null;
 }
 
-export async function getGoalContributions(
-  goalId: string
-): Promise<GoalContribution[]> {
+export async function getGoalContributions(goalId: string): Promise<GoalContribution[]> {
   return db
     .select()
     .from(goalContributions)

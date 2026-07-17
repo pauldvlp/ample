@@ -1,5 +1,5 @@
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 export function PageHeader({
   eyebrow,
@@ -17,10 +17,7 @@ export function PageHeader({
   return (
     <div
       data-tour="page-header"
-      className={cn(
-        "flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between",
-        className
-      )}
+      className={cn('flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between', className)}
     >
       <div className="space-y-1">
         {eyebrow && (
@@ -31,13 +28,9 @@ export function PageHeader({
         <h1 className="font-display text-3xl leading-none font-medium tracking-tight text-foreground sm:text-[2.1rem]">
           {title}
         </h1>
-        {description && (
-          <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>
-        )}
+        {description && <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>}
       </div>
-      {actions && (
-        <div className="flex flex-wrap items-center gap-2">{actions}</div>
-      )}
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }

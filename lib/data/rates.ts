@@ -1,23 +1,14 @@
-import "server-only";
-import { db } from "@/db";
-import {
-  exchangeRates,
-  transactions,
-  recurringRules,
-  debts,
-  type ExchangeRate,
-} from "@/db/schema";
-import { eq, isNotNull } from "drizzle-orm";
-import { getSettings } from "./settings";
-import { fetchLiveRates } from "@/lib/fx";
-import { CURRENCIES } from "@/lib/constants";
+import 'server-only';
+import { db } from '@/db';
+import { exchangeRates, transactions, recurringRules, debts, type ExchangeRate } from '@/db/schema';
+import { eq, isNotNull } from 'drizzle-orm';
+import { getSettings } from './settings';
+import { fetchLiveRates } from '@/lib/fx';
+import { CURRENCIES } from '@/lib/constants';
 
 /** Map of quote currency -> value of 1 quote in the base currency. */
 export async function getRatesMap(base: string): Promise<Record<string, number>> {
-  const rows = await db
-    .select()
-    .from(exchangeRates)
-    .where(eq(exchangeRates.base, base));
+  const rows = await db.select().from(exchangeRates).where(eq(exchangeRates.base, base));
   const map: Record<string, number> = {};
   for (const r of rows) map[r.quote] = r.rate;
   return map;
@@ -58,10 +49,10 @@ export async function getLiveConversionContext(): Promise<{
     if (!rate) continue;
     await db
       .insert(exchangeRates)
-      .values({ base, quote: c.code, rate, source: "auto", updatedAt: new Date() })
+      .values({ base, quote: c.code, rate, source: 'auto', updatedAt: new Date() })
       .onConflictDoUpdate({
         target: [exchangeRates.base, exchangeRates.quote],
-        set: { rate, source: "auto", updatedAt: new Date() },
+        set: { rate, source: 'auto', updatedAt: new Date() },
       });
   }
   return { base, rates: live };

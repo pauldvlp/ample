@@ -1,26 +1,26 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
+import { z } from 'zod';
+import { db } from '@/db';
 import {
   recurringRules,
   transactions,
   FREQUENCIES,
   type TransactionType,
   type TransactionStatus,
-} from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
-import { toCents, convertToBase } from "@/lib/money";
-import { getConversionContext, getLiveConversionContext } from "@/lib/data/rates";
-import { postRuleOnce } from "@/lib/recurring-engine";
-import { revalidateFinance, type ActionResult } from "./shared";
+} from '@/db/schema';
+import { desc, eq } from 'drizzle-orm';
+import { toCents, convertToBase } from '@/lib/money';
+import { getConversionContext, getLiveConversionContext } from '@/lib/data/rates';
+import { postRuleOnce } from '@/lib/recurring-engine';
+import { revalidateFinance, type ActionResult } from './shared';
 
 const recurringSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(80),
-  accountId: z.string().min(1, "Account is required"),
+  name: z.string().trim().min(1, 'Name is required').max(80),
+  accountId: z.string().min(1, 'Account is required'),
   categoryId: z.string().nullable().optional(),
-  type: z.enum(["income", "expense"]),
-  amount: z.number().positive("Amount must be greater than zero"),
+  type: z.enum(['income', 'expense']),
+  amount: z.number().positive('Amount must be greater than zero'),
   currency: z.string().nullable().optional(),
   payee: z.string().trim().max(120).nullable().optional(),
   frequency: z.enum(FREQUENCIES),
@@ -35,11 +35,11 @@ const recurringSchema = z.object({
 export type RecurringInput = z.input<typeof recurringSchema>;
 
 export async function createRecurring(
-  input: RecurringInput
+  input: RecurringInput,
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = recurringSchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   const { base, rates } = await getConversionContext();
   const isForeign = !!v.currency && v.currency !== base;
@@ -47,7 +47,7 @@ export async function createRecurring(
   const baseCents = isForeign
     ? convertToBase(enteredCents, v.currency!, base, rates)
     : enteredCents;
-  const signed = v.type === "income" ? baseCents : -baseCents;
+  const signed = v.type === 'income' ? baseCents : -baseCents;
   const row = await db
     .insert(recurringRules)
     .values({
@@ -74,13 +74,10 @@ export async function createRecurring(
   return { ok: true, data: { id: row.id } };
 }
 
-export async function updateRecurring(
-  id: string,
-  input: RecurringInput
-): Promise<ActionResult> {
+export async function updateRecurring(id: string, input: RecurringInput): Promise<ActionResult> {
   const parsed = recurringSchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   const { base, rates } = await getConversionContext();
   const isForeign = !!v.currency && v.currency !== base;
@@ -88,7 +85,7 @@ export async function updateRecurring(
   const baseCents = isForeign
     ? convertToBase(enteredCents, v.currency!, base, rates)
     : enteredCents;
-  const signed = v.type === "income" ? baseCents : -baseCents;
+  const signed = v.type === 'income' ? baseCents : -baseCents;
   await db
     .update(recurringRules)
     .set({
@@ -120,10 +117,7 @@ export async function deleteRecurring(id: string): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function toggleRecurringActive(
-  id: string,
-  isActive: boolean
-): Promise<ActionResult> {
+export async function toggleRecurringActive(id: string, isActive: boolean): Promise<ActionResult> {
   await db
     .update(recurringRules)
     .set({ isActive, updatedAt: new Date() })
@@ -134,12 +128,8 @@ export async function toggleRecurringActive(
 
 /** Post the rule as a real transaction now and advance its next-due date. */
 export async function postRecurringNow(id: string): Promise<ActionResult> {
-  const rule = await db
-    .select()
-    .from(recurringRules)
-    .where(eq(recurringRules.id, id))
-    .get();
-  if (!rule) return { ok: false, error: "Rule not found" };
+  const rule = await db.select().from(recurringRules).where(eq(recurringRules.id, id)).get();
+  if (!rule) return { ok: false, error: 'Rule not found' };
 
   const ctx = await getLiveConversionContext();
   await postRuleOnce(rule, ctx);
@@ -162,7 +152,7 @@ export interface RecurringPosting {
 
 /** List the transactions a rule has generated, newest first. */
 export async function getRecurringPostings(
-  ruleId: string
+  ruleId: string,
 ): Promise<ActionResult<RecurringPosting[]>> {
   const rows = await db
     .select({
@@ -194,17 +184,10 @@ export async function getRecurringPostings(
  * posting was created manually (postRecurringNow) or automatically (the
  * time-machine's postDueRulesUpTo) — both stamp `recurringRuleId`.
  */
-export async function revertRecurringPosting(
-  transactionId: string
-): Promise<ActionResult> {
-  const tx = await db
-    .select()
-    .from(transactions)
-    .where(eq(transactions.id, transactionId))
-    .get();
-  if (!tx) return { ok: false, error: "Transaction not found" };
-  if (!tx.recurringRuleId)
-    return { ok: false, error: "Not a recurring posting" };
+export async function revertRecurringPosting(transactionId: string): Promise<ActionResult> {
+  const tx = await db.select().from(transactions).where(eq(transactions.id, transactionId)).get();
+  if (!tx) return { ok: false, error: 'Transaction not found' };
+  if (!tx.recurringRuleId) return { ok: false, error: 'Not a recurring posting' };
 
   // All postings for this rule, newest first, so we can tell whether the one
   // being reverted is the latest occurrence and what the previous one was.
@@ -236,15 +219,13 @@ export async function revertRecurringPosting(
 }
 
 /** Convenience: revert the most recent transaction generated by a rule. */
-export async function revertLastRecurring(
-  ruleId: string
-): Promise<ActionResult> {
+export async function revertLastRecurring(ruleId: string): Promise<ActionResult> {
   const latest = await db
     .select({ id: transactions.id })
     .from(transactions)
     .where(eq(transactions.recurringRuleId, ruleId))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .get();
-  if (!latest) return { ok: false, error: "nothing-to-revert" };
+  if (!latest) return { ok: false, error: 'nothing-to-revert' };
   return revertRecurringPosting(latest.id);
 }

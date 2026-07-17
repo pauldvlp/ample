@@ -1,35 +1,35 @@
-"use server";
+'use server';
 
-import fs from "node:fs";
-import { addDays } from "date-fns";
-import { db, DB_PATH } from "@/db";
-import { settings } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { postDueRulesUpTo } from "@/lib/recurring-engine";
-import { postDueDebtInstallmentsUpTo } from "@/lib/debt-engine";
-import { postBudgetSpendUpTo } from "@/lib/budget-engine";
-import { revalidateFinance, type ActionResult } from "./shared";
+import fs from 'node:fs';
+import { addDays } from 'date-fns';
+import { db, DB_PATH } from '@/db';
+import { settings } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { postDueRulesUpTo } from '@/lib/recurring-engine';
+import { postDueDebtInstallmentsUpTo } from '@/lib/debt-engine';
+import { postBudgetSpendUpTo } from '@/lib/budget-engine';
+import { revalidateFinance, type ActionResult } from './shared';
 
 const SINGLETON_ID = 1;
-const BACKUP_PATH = DB_PATH.replace(/\.db$/, ".sim-backup.db");
+const BACKUP_PATH = DB_PATH.replace(/\.db$/, '.sim-backup.db');
 
 /** Financial data tables to snapshot & restore. `settings` is intentionally
  *  excluded so appearance/language/theme changes made during simulation stick. */
 const DATA_TABLES = [
-  "accounts",
-  "categories",
-  "transactions",
-  "tags",
-  "transaction_tags",
-  "budgets",
-  "goals",
-  "goal_contributions",
-  "recurring_rules",
-  "debts",
-  "debt_payments",
-  "debt_installments",
-  "net_worth_snapshots",
-  "net_worth_snapshot_balances",
+  'accounts',
+  'categories',
+  'transactions',
+  'tags',
+  'transaction_tags',
+  'budgets',
+  'goals',
+  'goal_contributions',
+  'recurring_rules',
+  'debts',
+  'debt_payments',
+  'debt_installments',
+  'net_worth_snapshots',
+  'net_worth_snapshot_balances',
 ] as const;
 
 function esc(p: string) {
@@ -43,7 +43,7 @@ function esc(p: string) {
 export async function enterSimulation(): Promise<ActionResult> {
   try {
     const client = db.$client;
-    client.pragma("wal_checkpoint(TRUNCATE)");
+    client.pragma('wal_checkpoint(TRUNCATE)');
     if (fs.existsSync(BACKUP_PATH)) fs.rmSync(BACKUP_PATH, { force: true });
     client.exec(`VACUUM INTO '${esc(BACKUP_PATH)}'`);
     // Start the simulated clock at "today"; the time-machine advances it.
@@ -54,7 +54,7 @@ export async function enterSimulation(): Promise<ActionResult> {
     revalidateFinance();
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Failed to start simulation" };
+    return { ok: false, error: e instanceof Error ? e.message : 'Failed to start simulation' };
   }
 }
 
@@ -69,7 +69,7 @@ export async function exitSimulation(): Promise<ActionResult> {
       client.exec(`ATTACH DATABASE '${esc(BACKUP_PATH)}' AS simbak`);
       try {
         const restore = client.transaction(() => {
-          client.pragma("defer_foreign_keys = ON");
+          client.pragma('defer_foreign_keys = ON');
           for (const tbl of DATA_TABLES) {
             client.exec(`DELETE FROM main."${tbl}";`);
             client.exec(`INSERT INTO main."${tbl}" SELECT * FROM simbak."${tbl}";`);
@@ -77,7 +77,7 @@ export async function exitSimulation(): Promise<ActionResult> {
         });
         restore();
       } finally {
-        client.exec("DETACH DATABASE simbak");
+        client.exec('DETACH DATABASE simbak');
       }
       fs.rmSync(BACKUP_PATH, { force: true });
     }
@@ -89,7 +89,7 @@ export async function exitSimulation(): Promise<ActionResult> {
     revalidateFinance();
     return { ok: true };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Failed to exit simulation" };
+    return { ok: false, error: e instanceof Error ? e.message : 'Failed to exit simulation' };
   }
 }
 
@@ -106,15 +106,11 @@ export async function exitSimulation(): Promise<ActionResult> {
  */
 export async function advanceSimClock(
   deltaDays: number,
-  includeBudgetSpend = true
+  includeBudgetSpend = true,
 ): Promise<ActionResult<{ date: number; posted: number }>> {
-  const s = await db
-    .select()
-    .from(settings)
-    .where(eq(settings.id, SINGLETON_ID))
-    .get();
+  const s = await db.select().from(settings).where(eq(settings.id, SINGLETON_ID)).get();
   if (!s?.simulationActive) {
-    return { ok: false, error: "Simulation is not active" };
+    return { ok: false, error: 'Simulation is not active' };
   }
   const from = s.simDate ?? new Date();
   const days = Math.max(1, Math.round(deltaDays));
@@ -122,9 +118,7 @@ export async function advanceSimClock(
 
   const postedRules = await postDueRulesUpTo(target);
   const postedDebts = await postDueDebtInstallmentsUpTo(target);
-  const postedBudget = includeBudgetSpend
-    ? await postBudgetSpendUpTo(from, target)
-    : 0;
+  const postedBudget = includeBudgetSpend ? await postBudgetSpendUpTo(from, target) : 0;
 
   await db
     .update(settings)

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,13 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { RecurringForm } from "./recurring-form";
-import { RecurringHistory } from "./recurring-history";
-import { useT } from "@/components/providers/settings-provider";
-import type { AccountOption, CategoryOption, PayeeOption } from "@/lib/types";
-import type { RecurringWithRefs } from "@/lib/data/recurring";
+} from '@/components/ui/dialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { RecurringForm } from './recurring-form';
+import { RecurringHistory } from './recurring-history';
+import { useT } from '@/components/providers/settings-provider';
+import type { AccountOption, CategoryOption, PayeeOption } from '@/lib/types';
+import type { RecurringWithRefs } from '@/lib/data/recurring';
 
 export function RecurringDialog({
   accounts,
@@ -38,7 +38,7 @@ export function RecurringDialog({
   const open = controlledOpen ?? internalOpen;
   const setOpen = setControlledOpen ?? setInternalOpen;
   const isEdit = !!rule;
-  const [tab, setTab] = React.useState("edit");
+  const [tab, setTab] = React.useState('edit');
 
   // Reset to the edit tab on close (not on open) so the next open renders the
   // form immediately — resetting on open would first paint the stale history
@@ -47,7 +47,7 @@ export function RecurringDialog({
   const [prevOpen, setPrevOpen] = React.useState(open);
   if (open !== prevOpen) {
     setPrevOpen(open);
-    if (!open) setTab("edit");
+    if (!open) setTab('edit');
   }
 
   const form = (
@@ -55,11 +55,7 @@ export function RecurringDialog({
       // Remount when this rule's schedule changes (a post or an in-dialog
       // revert) so the keepMounted form picks up the fresh nextDueDate instead
       // of later saving a stale value that would undo the rollback.
-      key={
-        rule
-          ? `${rule.id}:${rule.nextDueDate?.getTime() ?? 0}:${rule.postedCount}`
-          : "new"
-      }
+      key={rule ? `${rule.id}:${rule.nextDueDate?.getTime() ?? 0}:${rule.postedCount}` : 'new'}
       accounts={accounts}
       categories={categories}
       payees={payees}
@@ -73,21 +69,17 @@ export function RecurringDialog({
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? t("recurring.editTitle") : t("recurring.newTitle")}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? t('recurring.editTitle') : t('recurring.newTitle')}</DialogTitle>
           <DialogDescription>
-            {isEdit ? t("recurring.editDesc") : t("recurring.newDesc")}
+            {isEdit ? t('recurring.editDesc') : t('recurring.newDesc')}
           </DialogDescription>
         </DialogHeader>
 
         {isEdit ? (
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="edit">{t("recurring.tabEdit")}</TabsTrigger>
-              <TabsTrigger value="history">
-                {t("recurring.tabHistory")}
-              </TabsTrigger>
+              <TabsTrigger value="edit">{t('recurring.tabEdit')}</TabsTrigger>
+              <TabsTrigger value="history">{t('recurring.tabHistory')}</TabsTrigger>
             </TabsList>
             {/* keepMounted the form so typed edits survive a tab switch; the
                 history remounts (and refetches) each time it's opened. */}

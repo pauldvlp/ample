@@ -1,5 +1,5 @@
-import "server-only";
-import { db } from "@/db";
+import 'server-only';
+import { db } from '@/db';
 import {
   transactions,
   accounts,
@@ -9,19 +9,8 @@ import {
   type Transaction,
   type TransactionType,
   type TransactionStatus,
-} from "@/db/schema";
-import {
-  and,
-  or,
-  eq,
-  gte,
-  lte,
-  like,
-  desc,
-  inArray,
-  sql,
-  type SQL,
-} from "drizzle-orm";
+} from '@/db/schema';
+import { and, or, eq, gte, lte, like, desc, inArray, sql, type SQL } from 'drizzle-orm';
 
 export interface TxAccountRef {
   id: string;
@@ -83,15 +72,15 @@ function buildConditions(f: TransactionFilters): SQL[] {
         db
           .select({ id: transactionTags.transactionId })
           .from(transactionTags)
-          .where(eq(transactionTags.tagId, f.tagId))
-      )
+          .where(eq(transactionTags.tagId, f.tagId)),
+      ),
     );
   }
   return conds;
 }
 
 async function attachTags(
-  rows: Omit<TransactionEnriched, "tags">[]
+  rows: Omit<TransactionEnriched, 'tags'>[],
 ): Promise<TransactionEnriched[]> {
   if (rows.length === 0) return [];
   const ids = rows.map((r) => r.id);
@@ -117,7 +106,7 @@ async function attachTags(
 const transferAccounts = () => accounts;
 
 export async function listTransactions(
-  f: TransactionFilters = {}
+  f: TransactionFilters = {},
 ): Promise<{ items: TransactionEnriched[]; total: number }> {
   const conds = buildConditions(f);
   const where = conds.length ? and(...conds) : undefined;
@@ -146,9 +135,7 @@ export async function listTransactions(
     .offset(f.offset ?? 0);
 
   // transfer account names (small set, resolve in one pass)
-  const transferIds = rows
-    .map((r) => r.tx.transferAccountId)
-    .filter((x): x is string => !!x);
+  const transferIds = rows.map((r) => r.tx.transferAccountId).filter((x): x is string => !!x);
   const transferNameMap = new Map<string, string>();
   if (transferIds.length) {
     const trows = await db
@@ -158,7 +145,7 @@ export async function listTransactions(
     for (const t of trows) transferNameMap.set(t.id, t.name);
   }
 
-  const base: Omit<TransactionEnriched, "tags">[] = rows.map((r) => ({
+  const base: Omit<TransactionEnriched, 'tags'>[] = rows.map((r) => ({
     ...r.tx,
     account: r.accId
       ? {
@@ -179,7 +166,7 @@ export async function listTransactions(
         }
       : null,
     transferAccountName: r.tx.transferAccountId
-      ? transferNameMap.get(r.tx.transferAccountId) ?? null
+      ? (transferNameMap.get(r.tx.transferAccountId) ?? null)
       : null,
   }));
 
@@ -194,16 +181,12 @@ export async function listTransactions(
   return { items, total: Number(totalRow?.count ?? 0) };
 }
 
-export async function getRecentTransactions(
-  limit = 8
-): Promise<TransactionEnriched[]> {
+export async function getRecentTransactions(limit = 8): Promise<TransactionEnriched[]> {
   const { items } = await listTransactions({ limit });
   return items;
 }
 
-export async function getTransaction(
-  id: string
-): Promise<TransactionEnriched | null> {
+export async function getTransaction(id: string): Promise<TransactionEnriched | null> {
   const row = await db
     .select({
       tx: transactions,
@@ -224,7 +207,7 @@ export async function getTransaction(
     .where(eq(transactions.id, id))
     .get();
   if (!row) return null;
-  const base: Omit<TransactionEnriched, "tags"> = {
+  const base: Omit<TransactionEnriched, 'tags'> = {
     ...row.tx,
     account: row.accId
       ? {

@@ -1,14 +1,14 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
-import { tags } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { revalidateFinance, type ActionResult } from "./shared";
+import { z } from 'zod';
+import { db } from '@/db';
+import { tags } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { revalidateFinance, type ActionResult } from './shared';
 
 export async function getOrCreateTag(
   name: string,
-  color?: string
+  color?: string,
 ): Promise<{ id: string; name: string; color: string | null }> {
   const clean = name.trim().toLowerCase();
   const existing = await db.select().from(tags).where(eq(tags.name, clean)).get();
@@ -23,10 +23,10 @@ export async function getOrCreateTag(
 
 export async function createTag(
   name: string,
-  color?: string
+  color?: string,
 ): Promise<ActionResult<{ id: string }>> {
   const parsed = z.string().trim().min(1).max(40).safeParse(name);
-  if (!parsed.success) return { ok: false, error: "Invalid tag name" };
+  if (!parsed.success) return { ok: false, error: 'Invalid tag name' };
   const tag = await getOrCreateTag(parsed.data, color);
   revalidateFinance();
   return { ok: true, data: { id: tag.id } };
