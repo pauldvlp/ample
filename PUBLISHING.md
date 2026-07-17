@@ -49,8 +49,8 @@ tokenless CI workflow take over for every release after that.
      --allow-publish
    ```
 
-   (Equivalent manual path: npmjs.com → the package → *Settings* → *Trusted
-   Publisher* → GitHub Actions → same repo/workflow filename.)
+   (Equivalent manual path: npmjs.com → the package → _Settings_ → _Trusted
+   Publisher_ → GitHub Actions → same repo/workflow filename.)
 
 That's it — steps 2–4 never need to be repeated. Every release from here on is
 tokenless: no `NPM_TOKEN` secret ever needs to exist in the GitHub repo.

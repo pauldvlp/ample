@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { IconDisc } from "@/components/shared/badges";
-import { Amount } from "@/components/shared/amount";
-import { formatPercent } from "@/lib/money";
+import { cn } from '@/lib/utils';
+import { IconDisc } from '@/components/shared/badges';
+import { Amount } from '@/components/shared/amount';
+import { formatPercent } from '@/lib/money';
 
 export interface CategoryBarItem {
   name: string;
@@ -24,10 +24,10 @@ export function CategoryBarList({
 }) {
   const max = Math.max(...items.map((i) => i.amount), 1);
   return (
-    <ul className={cn("space-y-0.5", className)}>
+    <ul className={cn('space-y-0.5', className)}>
       {items.map((c, i) => {
         const width = Math.max(2, (c.amount / max) * 100);
-        const color = c.color ?? "var(--chart-1)";
+        const color = c.color ?? 'var(--chart-1)';
         return (
           <li
             key={`${c.name}-${i}`}

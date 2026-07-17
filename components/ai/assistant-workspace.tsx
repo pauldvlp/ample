@@ -1,32 +1,32 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { AiMarkdown } from "./ai-markdown";
-import { useSettings } from "@/components/providers/settings-provider";
-import { PROVIDER_LABELS, type AiProviderId } from "@/lib/ai/models";
-import type { ExecutedAction } from "@/lib/ai/agent-tools";
-import type { ThreadSummary, ThreadMessage } from "@/lib/ai/threads";
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { AiMarkdown } from './ai-markdown';
+import { useSettings } from '@/components/providers/settings-provider';
+import { PROVIDER_LABELS, type AiProviderId } from '@/lib/ai/models';
+import type { ExecutedAction } from '@/lib/ai/agent-tools';
+import type { ThreadSummary, ThreadMessage } from '@/lib/ai/threads';
 import {
   loadThread as loadThreadAction,
   deleteThread as deleteThreadAction,
   renameThread as renameThreadAction,
   clearAllThreads as clearAllThreadsAction,
-} from "@/lib/actions/threads";
-import { HugeiconsIcon } from "@hugeicons/react";
+} from '@/lib/actions/threads';
+import { HugeiconsIcon } from '@hugeicons/react';
 import {
   PieChartIcon,
   PlusSignIcon,
   Wallet01Icon,
   Agreement01Icon,
   SparklesIcon,
-} from "@hugeicons/core-free-icons";
+} from '@hugeicons/core-free-icons';
 import {
   ArrowUp,
   Copy,
@@ -37,7 +37,7 @@ import {
   SquarePen,
   History,
   Settings2,
-} from "lucide-react";
+} from 'lucide-react';
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                     */
@@ -45,7 +45,7 @@ import {
 
 interface ChatMsg {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   actions?: ExecutedAction[] | null;
   pending?: boolean;
@@ -53,11 +53,11 @@ interface ChatMsg {
 }
 
 type StreamEvent =
-  | { type: "thread"; threadId: string; title: string }
-  | { type: "actions"; actions: ExecutedAction[] }
-  | { type: "delta"; text: string }
-  | { type: "error"; message: string }
-  | { type: "done" };
+  | { type: 'thread'; threadId: string; title: string }
+  | { type: 'actions'; actions: ExecutedAction[] }
+  | { type: 'delta'; text: string }
+  | { type: 'error'; message: string }
+  | { type: 'done' };
 
 export interface AssistantWorkspaceProps {
   threads: ThreadSummary[];
@@ -66,10 +66,10 @@ export interface AssistantWorkspaceProps {
 }
 
 const EXAMPLES = [
-  { key: "assistant.exSpend", icon: PieChartIcon },
-  { key: "assistant.exLog", icon: PlusSignIcon },
-  { key: "assistant.exSavings", icon: Wallet01Icon },
-  { key: "assistant.exDebts", icon: Agreement01Icon },
+  { key: 'assistant.exSpend', icon: PieChartIcon },
+  { key: 'assistant.exLog', icon: PlusSignIcon },
+  { key: 'assistant.exSavings', icon: Wallet01Icon },
+  { key: 'assistant.exDebts', icon: Agreement01Icon },
 ] as const;
 
 /* -------------------------------------------------------------------------- */
@@ -89,12 +89,12 @@ function toChatMsg(m: ThreadMessage): ChatMsg {
 /** When the model returns actions but no prose, synthesize a one-line reply. */
 function fallbackReply(
   actions: ExecutedAction[],
-  t: (k: string, v?: Record<string, string | number>) => string
+  t: (k: string, v?: Record<string, string | number>) => string,
 ): string {
-  if (!actions.length) return t("agent.nothing");
+  if (!actions.length) return t('agent.nothing');
   const ok = actions.filter((a) => a.ok).length;
-  if (ok === 0) return t("agent.failed");
-  return t("agent.done", { n: ok });
+  if (ok === 0) return t('agent.failed');
+  return t('agent.done', { n: ok });
 }
 
 /** Short, localized "updated N ago" (falls back to a date past a week). */
@@ -106,29 +106,26 @@ function relativeTime(ms: number, locale: string): string {
     DAY = 86_400_000,
     WEEK = 7 * DAY;
   try {
-    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
-    if (abs < MIN) return rtf.format(0, "minute");
-    if (abs < HR) return rtf.format(Math.round(diff / MIN), "minute");
-    if (abs < DAY) return rtf.format(Math.round(diff / HR), "hour");
-    if (abs < WEEK) return rtf.format(Math.round(diff / DAY), "day");
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+    if (abs < MIN) return rtf.format(0, 'minute');
+    if (abs < HR) return rtf.format(Math.round(diff / MIN), 'minute');
+    if (abs < DAY) return rtf.format(Math.round(diff / HR), 'hour');
+    if (abs < WEEK) return rtf.format(Math.round(diff / DAY), 'day');
     return new Intl.DateTimeFormat(locale, {
-      day: "numeric",
-      month: "short",
+      day: 'numeric',
+      month: 'short',
     }).format(new Date(ms));
   } catch {
-    return "";
+    return '';
   }
 }
 
-function greeting(
-  t: (k: string) => string,
-  mounted: boolean
-): string {
-  if (!mounted) return t("assistant.greetGeneric");
+function greeting(t: (k: string) => string, mounted: boolean): string {
+  if (!mounted) return t('assistant.greetGeneric');
   const h = new Date().getHours();
-  if (h < 12) return t("assistant.greetMorning");
-  if (h < 19) return t("assistant.greetAfternoon");
-  return t("assistant.greetEvening");
+  if (h < 12) return t('assistant.greetMorning');
+  if (h < 19) return t('assistant.greetAfternoon');
+  return t('assistant.greetEvening');
 }
 
 /* -------------------------------------------------------------------------- */
@@ -143,18 +140,14 @@ function ActionResultList({ actions }: { actions: ExecutedAction[] }) {
         <div
           key={i}
           className={cn(
-            "flex items-start gap-2 rounded-lg border px-2.5 py-1.5 text-xs",
-            a.ok
-              ? "border-positive/25 bg-positive/8"
-              : "border-negative/25 bg-negative/8"
+            'flex items-start gap-2 rounded-lg border px-2.5 py-1.5 text-xs',
+            a.ok ? 'border-positive/25 bg-positive/8' : 'border-negative/25 bg-negative/8',
           )}
         >
           <span
             className={cn(
-              "mt-0.5 grid size-4 shrink-0 place-items-center rounded-full",
-              a.ok
-                ? "bg-positive/15 text-positive"
-                : "bg-negative/15 text-negative"
+              'mt-0.5 grid size-4 shrink-0 place-items-center rounded-full',
+              a.ok ? 'bg-positive/15 text-positive' : 'bg-negative/15 text-negative',
             )}
           >
             {a.ok ? <Check className="size-3" /> : <span className="text-[10px]">!</span>}
@@ -162,9 +155,7 @@ function ActionResultList({ actions }: { actions: ExecutedAction[] }) {
           <span className="min-w-0">
             <span className="font-medium text-foreground">{a.label}</span>
             {a.ok
-              ? a.detail && (
-                  <span className="text-muted-foreground"> · {a.detail}</span>
-                )
+              ? a.detail && <span className="text-muted-foreground"> · {a.detail}</span>
               : a.error && <span className="text-negative/90"> · {a.error}</span>}
           </span>
         </div>
@@ -198,14 +189,14 @@ function AssistantMessage({
           {msg.content ? (
             <AiMarkdown text={msg.content} />
           ) : msg.error ? (
-            <p className="text-sm text-negative">{t("agent.error")}</p>
+            <p className="text-sm text-negative">{t('agent.error')}</p>
           ) : null}
         </div>
         {msg.actions && <ActionResultList actions={msg.actions} />}
         {msg.pending && !msg.content && (
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
-            {t("assistant.thinking")}
+            {t('assistant.thinking')}
           </span>
         )}
       </div>
@@ -218,12 +209,12 @@ function AssistantMessage({
           {copied ? (
             <>
               <Check className="size-3.5 text-positive" />
-              {t("assistant.copied")}
+              {t('assistant.copied')}
             </>
           ) : (
             <>
               <Copy className="size-3.5" />
-              {t("assistant.copy")}
+              {t('assistant.copy')}
             </>
           )}
         </button>
@@ -254,10 +245,10 @@ function RenameInput({
       autoFocus
       onChange={(e) => setDraft(e.target.value)}
       onKeyDown={(e) => {
-        if (e.key === "Enter") {
+        if (e.key === 'Enter') {
           e.preventDefault();
           onSubmit(draft);
-        } else if (e.key === "Escape") {
+        } else if (e.key === 'Escape') {
           e.preventDefault();
           onCancel();
         }
@@ -291,21 +282,17 @@ function ThreadRow({
   onCancelRename: () => void;
   t: (k: string, v?: Record<string, string | number>) => string;
 }) {
-  const title = thread.title || t("assistant.threadUntitled");
+  const title = thread.title || t('assistant.threadUntitled');
 
   return (
     <div
       className={cn(
-        "group/row relative flex items-center gap-0.5 rounded-lg pr-1 transition-colors",
-        active ? "bg-primary/10" : "hover:bg-muted/60"
+        'group/row relative flex items-center gap-0.5 rounded-lg pr-1 transition-colors',
+        active ? 'bg-primary/10' : 'hover:bg-muted/60',
       )}
     >
       {editing ? (
-        <RenameInput
-          initial={thread.title}
-          onSubmit={onSubmitRename}
-          onCancel={onCancelRename}
-        />
+        <RenameInput initial={thread.title} onSubmit={onSubmitRename} onCancel={onCancelRename} />
       ) : (
         <button
           type="button"
@@ -314,16 +301,13 @@ function ThreadRow({
         >
           <span
             className={cn(
-              "w-full truncate text-sm",
-              active ? "font-medium text-foreground" : "text-foreground/90"
+              'w-full truncate text-sm',
+              active ? 'font-medium text-foreground' : 'text-foreground/90',
             )}
           >
             {title}
           </span>
-          <span
-            suppressHydrationWarning
-            className="text-[11px] text-muted-foreground"
-          >
+          <span suppressHydrationWarning className="text-[11px] text-muted-foreground">
             {relativeTime(thread.updatedAt, locale)}
           </span>
         </button>
@@ -339,8 +323,8 @@ function ThreadRow({
             type="button"
             variant="ghost"
             size="icon-xs"
-            aria-label={t("assistant.rename")}
-            title={t("assistant.rename")}
+            aria-label={t('assistant.rename')}
+            title={t('assistant.rename')}
             onClick={onStartRename}
           >
             <Pencil className="size-3.5" />
@@ -351,15 +335,15 @@ function ThreadRow({
                 type="button"
                 variant="ghost"
                 size="icon-xs"
-                aria-label={t("action.delete")}
-                title={t("action.delete")}
+                aria-label={t('action.delete')}
+                title={t('action.delete')}
               >
                 <Trash2 className="size-3.5" />
               </Button>
             }
-            title={t("assistant.deleteTitle")}
-            description={t("assistant.deleteBody")}
-            confirmLabel={t("action.delete")}
+            title={t('assistant.deleteTitle')}
+            description={t('assistant.deleteBody')}
+            confirmLabel={t('action.delete')}
             onConfirm={onDelete}
           />
         </div>
@@ -405,13 +389,13 @@ function HistoryPanel({
           onClick={onNew}
         >
           <SquarePen className="size-4" />
-          {t("assistant.newChat")}
+          {t('assistant.newChat')}
         </Button>
       </div>
 
       <div className="flex items-center justify-between px-3 pt-1 pb-1.5">
         <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-          {t("assistant.history")}
+          {t('assistant.history')}
         </span>
         {threads.length > 0 && (
           <ConfirmDialog
@@ -420,12 +404,12 @@ function HistoryPanel({
                 type="button"
                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                {t("assistant.clearAll")}
+                {t('assistant.clearAll')}
               </button>
             }
-            title={t("assistant.clearAllTitle")}
-            description={t("assistant.clearAllBody")}
-            confirmLabel={t("assistant.clearAll")}
+            title={t('assistant.clearAllTitle')}
+            description={t('assistant.clearAllBody')}
+            confirmLabel={t('assistant.clearAll')}
             onConfirm={onClearAll}
           />
         )}
@@ -434,12 +418,8 @@ function HistoryPanel({
       <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2 pb-2">
         {threads.length === 0 ? (
           <div className="px-3 py-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              {t("assistant.noHistory")}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground/80">
-              {t("assistant.historyHint")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t('assistant.noHistory')}</p>
+            <p className="mt-1 text-xs text-muted-foreground/80">{t('assistant.historyHint')}</p>
           </div>
         ) : (
           threads.map((thread) => (
@@ -494,7 +474,7 @@ function Composer({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+            if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
               e.preventDefault();
               onSend();
             }
@@ -502,9 +482,9 @@ function Composer({
           placeholder={placeholder}
           rows={hero ? 2 : 1}
           className={cn(
-            "resize-none border-0 bg-transparent px-3.5 pr-12 shadow-none focus-visible:border-0 focus-visible:ring-0",
-            hero ? "min-h-[3.5rem] py-3.5 text-base" : "min-h-[2.75rem] py-3",
-            "max-h-44"
+            'resize-none border-0 bg-transparent px-3.5 pr-12 shadow-none focus-visible:border-0 focus-visible:ring-0',
+            hero ? 'min-h-[3.5rem] py-3.5 text-base' : 'min-h-[2.75rem] py-3',
+            'max-h-44',
           )}
         />
         <Button
@@ -515,11 +495,7 @@ function Composer({
           className="absolute right-2 bottom-2 rounded-lg"
           aria-label={sendLabel}
         >
-          {pending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <ArrowUp className="size-4" />
-          )}
+          {pending ? <Loader2 className="size-4 animate-spin" /> : <ArrowUp className="size-4" />}
         </Button>
       </div>
     </div>
@@ -551,7 +527,7 @@ function EmptyHero({
   composerRef: React.RefObject<HTMLTextAreaElement | null>;
   t: (k: string, v?: Record<string, string | number>) => string;
 }) {
-  const name = displayName && displayName !== "Ample" ? displayName : "";
+  const name = displayName && displayName !== 'Ample' ? displayName : '';
   return (
     <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-4 py-8">
       <div className="w-full max-w-2xl">
@@ -571,10 +547,10 @@ function EmptyHero({
             className="mt-5 font-display text-2xl text-foreground sm:text-[1.75rem]"
           >
             {greeting(t, mounted)}
-            {name ? `, ${name}` : ""}
+            {name ? `, ${name}` : ''}
           </h2>
           <p className="font-display text-2xl text-muted-foreground sm:text-[1.75rem]">
-            {t("assistant.heroSubtitle")}
+            {t('assistant.heroSubtitle')}
           </p>
         </div>
 
@@ -585,13 +561,13 @@ function EmptyHero({
           onSend={onSend}
           pending={pending}
           hero
-          placeholder={t("agent.placeholder")}
-          sendLabel={t("assistant.send")}
+          placeholder={t('agent.placeholder')}
+          sendLabel={t('assistant.send')}
         />
 
         <div className="mt-6">
           <p className="mb-2 px-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            {t("assistant.examplesTitle")}
+            {t('assistant.examplesTitle')}
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {EXAMPLES.map((ex) => (
@@ -632,16 +608,12 @@ function DisabledState({
         <HugeiconsIcon icon={SparklesIcon} className="hg-icon size-6 text-brass" />
       </span>
       <div className="space-y-1.5">
-        <p className="font-display text-lg text-foreground">
-          {t("assistant.offTitle")}
-        </p>
-        <p className="mx-auto max-w-xs text-sm text-muted-foreground">
-          {t("assistant.offBody")}
-        </p>
+        <p className="font-display text-lg text-foreground">{t('assistant.offTitle')}</p>
+        <p className="mx-auto max-w-xs text-sm text-muted-foreground">{t('assistant.offBody')}</p>
       </div>
       <Button onClick={onEnable}>
         <Settings2 className="size-4" />
-        {t("assistant.enable")}
+        {t('assistant.enable')}
       </Button>
     </div>
   );
@@ -661,10 +633,8 @@ export function AssistantWorkspace({
 
   const [threads, setThreads] = React.useState<ThreadSummary[]>(initialThreads);
   const [activeId, setActiveId] = React.useState<string | null>(activeThreadId);
-  const [messages, setMessages] = React.useState<ChatMsg[]>(() =>
-    initialMessages.map(toChatMsg)
-  );
-  const [input, setInput] = React.useState("");
+  const [messages, setMessages] = React.useState<ChatMsg[]>(() => initialMessages.map(toChatMsg));
+  const [input, setInput] = React.useState('');
   const [pending, setPending] = React.useState(false);
   const [loadingThread, setLoadingThread] = React.useState(false);
   const [historyOpen, setHistoryOpen] = React.useState(false);
@@ -690,10 +660,10 @@ export function AssistantWorkspace({
   }, [messages]);
 
   const setUrl = React.useCallback((id: string | null) => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     // Shallow URL update so refresh/bookmark reopens the right thread without a
     // full navigation that would remount mid-stream.
-    window.history.replaceState(null, "", id ? `/assistant?t=${id}` : "/assistant");
+    window.history.replaceState(null, '', id ? `/assistant?t=${id}` : '/assistant');
   }, []);
 
   const patchAssistant = React.useCallback((patch: Partial<ChatMsg>) => {
@@ -710,7 +680,7 @@ export function AssistantWorkspace({
       setActiveId(threadId);
       setThreads((prev) => {
         const now = Date.now();
-        const label = title || t("assistant.threadUntitled");
+        const label = title || t('assistant.threadUntitled');
         const idx = prev.findIndex((x) => x.id === threadId);
         if (idx >= 0) {
           const copy = [...prev];
@@ -721,7 +691,7 @@ export function AssistantWorkspace({
       });
       setUrl(threadId);
     },
-    [t, setUrl]
+    [t, setUrl],
   );
 
   const send = React.useCallback(
@@ -732,33 +702,33 @@ export function AssistantWorkspace({
       const history = messages
         .filter((m) => !m.error && !m.pending)
         .map((m) => ({ role: m.role, content: m.content }));
-      const outgoing = [...history, { role: "user" as const, content }];
+      const outgoing = [...history, { role: 'user' as const, content }];
 
       setMessages((m) => [
         ...m,
-        { id: nextId(), role: "user", content },
-        { id: nextId(), role: "assistant", content: "", pending: true },
+        { id: nextId(), role: 'user', content },
+        { id: nextId(), role: 'assistant', content: '', pending: true },
       ]);
-      setInput("");
+      setInput('');
       setPending(true);
 
       const ctrl = new AbortController();
       abortRef.current = ctrl;
-      let acc = "";
+      let acc = '';
       let actions: ExecutedAction[] | undefined;
       let sawError = false;
 
       try {
-        const res = await fetch("/api/ai/agent", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('/api/ai/agent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: outgoing, threadId: activeId }),
           signal: ctrl.signal,
         });
 
         if (!res.ok || !res.body) {
           patchAssistant({
-            content: res.status === 403 ? t("ai.disabledShort") : t("agent.error"),
+            content: res.status === 403 ? t('ai.disabledShort') : t('agent.error'),
             pending: false,
             error: true,
           });
@@ -767,14 +737,14 @@ export function AssistantWorkspace({
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
-        let buffer = "";
+        let buffer = '';
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
           let nl: number;
-          while ((nl = buffer.indexOf("\n")) >= 0) {
+          while ((nl = buffer.indexOf('\n')) >= 0) {
             const lineStr = buffer.slice(0, nl).trim();
             buffer = buffer.slice(nl + 1);
             if (!lineStr) continue;
@@ -784,15 +754,15 @@ export function AssistantWorkspace({
             } catch {
               continue;
             }
-            if (ev.type === "thread") {
+            if (ev.type === 'thread') {
               onThread(ev.threadId, ev.title);
-            } else if (ev.type === "actions") {
+            } else if (ev.type === 'actions') {
               actions = ev.actions;
               patchAssistant({ actions, pending: acc.length === 0 });
-            } else if (ev.type === "delta") {
+            } else if (ev.type === 'delta') {
               acc += ev.text;
               patchAssistant({ content: acc, actions, pending: false });
-            } else if (ev.type === "error") {
+            } else if (ev.type === 'error') {
               sawError = true;
             }
           }
@@ -808,7 +778,7 @@ export function AssistantWorkspace({
           });
         } else {
           patchAssistant({
-            content: sawError ? t("agent.error") : t("agent.nothing"),
+            content: sawError ? t('agent.error') : t('agent.nothing'),
             pending: false,
             error: sawError,
           });
@@ -816,17 +786,17 @@ export function AssistantWorkspace({
 
         if (actions?.some((a) => a.ok)) router.refresh();
       } catch (e) {
-        if ((e as Error)?.name === "AbortError") {
+        if ((e as Error)?.name === 'AbortError') {
           patchAssistant({ content: acc, pending: false });
           return;
         }
-        patchAssistant({ content: t("agent.error"), pending: false, error: true });
+        patchAssistant({ content: t('agent.error'), pending: false, error: true });
       } finally {
         if (abortRef.current === ctrl) abortRef.current = null;
         setPending(false);
       }
     },
-    [input, pending, messages, activeId, patchAssistant, onThread, router, t, nextId]
+    [input, pending, messages, activeId, patchAssistant, onThread, router, t, nextId],
   );
 
   const newChat = React.useCallback(() => {
@@ -834,7 +804,7 @@ export function AssistantWorkspace({
     setMessages([]);
     setActiveId(null);
     setPending(false);
-    setInput("");
+    setInput('');
     setHistoryOpen(false);
     setEditingId(null);
     setUrl(null);
@@ -860,7 +830,7 @@ export function AssistantWorkspace({
         setUrl(id);
       }
     },
-    [activeId, loadingThread, setUrl]
+    [activeId, loadingThread, setUrl],
   );
 
   const removeThread = React.useCallback(
@@ -869,7 +839,7 @@ export function AssistantWorkspace({
       if (id === activeId) newChat();
       await deleteThreadAction(id);
     },
-    [activeId, newChat]
+    [activeId, newChat],
   );
 
   const clearAll = React.useCallback(async () => {
@@ -878,58 +848,40 @@ export function AssistantWorkspace({
     await clearAllThreadsAction();
   }, [newChat]);
 
-  const submitRename = React.useCallback(
-    async (id: string, title: string) => {
-      const clean = title.trim();
-      setEditingId(null);
-      if (!clean) return;
-      setThreads((prev) =>
-        prev.map((x) => (x.id === id ? { ...x, title: clean } : x))
-      );
-      await renameThreadAction(id, clean);
-    },
-    []
-  );
+  const submitRename = React.useCallback(async (id: string, title: string) => {
+    const clean = title.trim();
+    setEditingId(null);
+    if (!clean) return;
+    setThreads((prev) => prev.map((x) => (x.id === id ? { ...x, title: clean } : x)));
+    await renameThreadAction(id, clean);
+  }, []);
 
-  const copyMessage = React.useCallback(
-    async (msg: ChatMsg, node: HTMLElement | null) => {
-      const md = msg.content;
-      try {
-        if (
-          node &&
-          typeof ClipboardItem !== "undefined" &&
-          navigator.clipboard?.write
-        ) {
-          // Rich copy: markdown as text/plain (formatting characters preserved)
-          // + the already-rendered HTML as text/html (bold/lists survive a paste
-          // into rich editors). Falls back to plain text where unsupported.
-          await navigator.clipboard.write([
-            new ClipboardItem({
-              "text/plain": new Blob([md], { type: "text/plain" }),
-              "text/html": new Blob([node.innerHTML], { type: "text/html" }),
-            }),
-          ]);
-        } else {
-          await navigator.clipboard.writeText(md);
-        }
-        setCopiedId(msg.id);
-        window.setTimeout(
-          () => setCopiedId((c) => (c === msg.id ? null : c)),
-          1600
-        );
-      } catch {
-        /* clipboard blocked / unavailable */
+  const copyMessage = React.useCallback(async (msg: ChatMsg, node: HTMLElement | null) => {
+    const md = msg.content;
+    try {
+      if (node && typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+        // Rich copy: markdown as text/plain (formatting characters preserved)
+        // + the already-rendered HTML as text/html (bold/lists survive a paste
+        // into rich editors). Falls back to plain text where unsupported.
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': new Blob([md], { type: 'text/plain' }),
+            'text/html': new Blob([node.innerHTML], { type: 'text/html' }),
+          }),
+        ]);
+      } else {
+        await navigator.clipboard.writeText(md);
       }
-    },
-    []
-  );
+      setCopiedId(msg.id);
+      window.setTimeout(() => setCopiedId((c) => (c === msg.id ? null : c)), 1600);
+    } catch {
+      /* clipboard blocked / unavailable */
+    }
+  }, []);
 
-  const activeTitle =
-    threads.find((x) => x.id === activeId)?.title || t("assistant.title");
+  const activeTitle = threads.find((x) => x.id === activeId)?.title || t('assistant.title');
   const providerLabel =
-    aiEnabled && aiProvider
-      ? PROVIDER_LABELS[aiProvider as AiProviderId] ?? aiProvider
-      : null;
+    aiEnabled && aiProvider ? (PROVIDER_LABELS[aiProvider as AiProviderId] ?? aiProvider) : null;
 
   const historyProps = {
     threads,
@@ -962,19 +914,15 @@ export function AssistantWorkspace({
             variant="ghost"
             size="icon-sm"
             className="lg:hidden"
-            aria-label={t("assistant.history")}
+            aria-label={t('assistant.history')}
             onClick={() => setHistoryOpen(true)}
           >
             <History className="size-4" />
           </Button>
           <div className="min-w-0 flex-1 px-1">
-            <p className="truncate font-display text-sm text-foreground">
-              {activeTitle}
-            </p>
+            <p className="truncate font-display text-sm text-foreground">{activeTitle}</p>
             {providerLabel && (
-              <p className="truncate text-[11px] text-muted-foreground">
-                {providerLabel}
-              </p>
+              <p className="truncate text-[11px] text-muted-foreground">{providerLabel}</p>
             )}
           </div>
           <Button
@@ -982,8 +930,8 @@ export function AssistantWorkspace({
             variant="ghost"
             size="icon-sm"
             className="lg:hidden"
-            aria-label={t("assistant.newChat")}
-            title={t("assistant.newChat")}
+            aria-label={t('assistant.newChat')}
+            title={t('assistant.newChat')}
             onClick={newChat}
           >
             <SquarePen className="size-4" />
@@ -992,10 +940,7 @@ export function AssistantWorkspace({
 
         {/* body */}
         {!aiEnabled ? (
-          <DisabledState
-            t={t}
-            onEnable={() => router.push("/settings#ai-settings")}
-          />
+          <DisabledState t={t} onEnable={() => router.push('/settings#ai-settings')} />
         ) : messages.length === 0 ? (
           <EmptyHero
             displayName={displayName}
@@ -1013,7 +958,7 @@ export function AssistantWorkspace({
             <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
               <div className="mx-auto w-full max-w-2xl space-y-5 px-4 py-5">
                 {messages.map((m) =>
-                  m.role === "user" ? (
+                  m.role === 'user' ? (
                     <div key={m.id} className="flex justify-end">
                       <div className="max-w-[85%] rounded-2xl bg-primary px-3.5 py-2 text-sm break-words whitespace-pre-wrap text-primary-foreground">
                         {m.content}
@@ -1027,7 +972,7 @@ export function AssistantWorkspace({
                       onCopy={copyMessage}
                       t={t}
                     />
-                  )
+                  ),
                 )}
               </div>
             </div>
@@ -1039,8 +984,8 @@ export function AssistantWorkspace({
                   onChange={setInput}
                   onSend={() => void send()}
                   pending={pending}
-                  placeholder={t("agent.placeholder")}
-                  sendLabel={t("assistant.send")}
+                  placeholder={t('agent.placeholder')}
+                  sendLabel={t('assistant.send')}
                 />
               </div>
             </div>
@@ -1051,7 +996,7 @@ export function AssistantWorkspace({
       {/* history panel — mobile sheet */}
       <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
         <SheetContent side="left" className="w-80 gap-0 p-0">
-          <SheetTitle className="sr-only">{t("assistant.history")}</SheetTitle>
+          <SheetTitle className="sr-only">{t('assistant.history')}</SheetTitle>
           <div className="h-full pt-2">
             <HistoryPanel {...historyProps} />
           </div>

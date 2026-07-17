@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 /**
@@ -14,10 +14,10 @@ export function cn(...inputs: ClassValue[]) {
  * Hugeicons 1.8, lucide 2. Used identically on the server (root <html> style,
  * no FOUC) and the client (live change in the settings provider).
  */
-export function iconStrokeVars(scale: number): Record<"--hg-stroke" | "--lucide-stroke", string> {
-  const r = (n: number) => String(Math.round(n * 1000) / 1000)
+export function iconStrokeVars(scale: number): Record<'--hg-stroke' | '--lucide-stroke', string> {
+  const r = (n: number) => String(Math.round(n * 1000) / 1000);
   return {
-    "--hg-stroke": r(1.8 * scale),
-    "--lucide-stroke": r(2 * scale),
-  }
+    '--hg-stroke': r(1.8 * scale),
+    '--lucide-stroke': r(2 * scale),
+  };
 }

@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import * as React from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { IconSelect } from "@/components/shared/icon-select";
-import { DatePicker } from "@/components/shared/date-picker";
-import { useT } from "@/components/providers/settings-provider";
-import type { AccountOption, CategoryOption } from "@/lib/types";
-import { Search, X } from "lucide-react";
+} from '@/components/ui/select';
+import { IconSelect } from '@/components/shared/icon-select';
+import { DatePicker } from '@/components/shared/date-picker';
+import { useT } from '@/components/providers/settings-provider';
+import type { AccountOption, CategoryOption } from '@/lib/types';
+import { Search, X } from 'lucide-react';
 
 export interface FilterState {
   q: string;
@@ -27,9 +27,9 @@ export interface FilterState {
 }
 
 /** Sentinel value for the "all" option (Base UI Select forbids empty values). */
-const ALL = "all";
+const ALL = 'all';
 
-const TYPE_VALUES = ["income", "expense", "transfer"] as const;
+const TYPE_VALUES = ['income', 'expense', 'transfer'] as const;
 
 export function TransactionFilters({
   filters,
@@ -62,18 +62,18 @@ export function TransactionFilters({
     () => () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     },
-    []
+    [],
   );
 
   const pushParams = React.useCallback(
     (mutate: (params: URLSearchParams) => void) => {
       const params = new URLSearchParams(searchParams.toString());
       mutate(params);
-      params.delete("page"); // any filter change resets pagination
+      params.delete('page'); // any filter change resets pagination
       const qs = params.toString();
       router.push(qs ? `${pathname}?${qs}` : pathname);
     },
-    [router, pathname, searchParams]
+    [router, pathname, searchParams],
   );
 
   const setParam = React.useCallback(
@@ -83,7 +83,7 @@ export function TransactionFilters({
         else p.delete(key);
       });
     },
-    [pushParams]
+    [pushParams],
   );
 
   function onSearchChange(value: string) {
@@ -91,21 +91,21 @@ export function TransactionFilters({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       lastPushed.current = value.trim();
-      setParam("q", value.trim());
+      setParam('q', value.trim());
     }, 300);
   }
 
   function clearSearch() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    setQ("");
-    lastPushed.current = "";
-    setParam("q", "");
+    setQ('');
+    lastPushed.current = '';
+    setParam('q', '');
   }
 
   function clearAll() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    setQ("");
-    lastPushed.current = "";
+    setQ('');
+    lastPushed.current = '';
     router.push(pathname);
   }
 
@@ -129,15 +129,15 @@ export function TransactionFilters({
         <Input
           value={q}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={t("transactions.searchPlaceholder")}
+          placeholder={t('transactions.searchPlaceholder')}
           className="pl-8"
-          aria-label={t("transactions.searchAria")}
+          aria-label={t('transactions.searchAria')}
         />
         {q && (
           <button
             type="button"
             onClick={clearSearch}
-            aria-label={t("transactions.clearSearchAria")}
+            aria-label={t('transactions.clearSearchAria')}
             className="absolute top-1/2 right-2 grid size-5 -translate-y-1/2 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <X className="size-3.5" />
@@ -154,8 +154,8 @@ export function TransactionFilters({
           color: a.color,
         }))}
         value={filters.accountId || ALL}
-        onChange={(v) => setParam("accountId", v && v !== ALL ? v : "")}
-        none={{ value: ALL, label: t("transactions.allAccounts") }}
+        onChange={(v) => setParam('accountId', v && v !== ALL ? v : '')}
+        none={{ value: ALL, label: t('transactions.allAccounts') }}
         fallbackIcon="Wallet"
         className="md:w-[160px]"
       />
@@ -169,8 +169,8 @@ export function TransactionFilters({
           color: c.color,
         }))}
         value={filters.categoryId || ALL}
-        onChange={(v) => setParam("categoryId", v && v !== ALL ? v : "")}
-        none={{ value: ALL, label: t("transactions.allCategories") }}
+        onChange={(v) => setParam('categoryId', v && v !== ALL ? v : '')}
+        none={{ value: ALL, label: t('transactions.allCategories') }}
         fallbackIcon="Tag"
         className="md:w-[170px]"
       />
@@ -178,19 +178,19 @@ export function TransactionFilters({
       {/* Type */}
       <Select
         value={filters.type || ALL}
-        onValueChange={(v) => setParam("type", v && v !== ALL ? v : "")}
+        onValueChange={(v) => setParam('type', v && v !== ALL ? v : '')}
         items={{
-          [ALL]: t("transactions.allTypes"),
-          income: t("common.income"),
-          expense: t("common.expense"),
-          transfer: t("common.transfer"),
+          [ALL]: t('transactions.allTypes'),
+          income: t('common.income'),
+          expense: t('common.expense'),
+          transfer: t('common.transfer'),
         }}
       >
         <SelectTrigger className="w-full md:w-[130px]">
-          <SelectValue placeholder={t("transactions.allTypes")} />
+          <SelectValue placeholder={t('transactions.allTypes')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={ALL}>{t("transactions.allTypes")}</SelectItem>
+          <SelectItem value={ALL}>{t('transactions.allTypes')}</SelectItem>
           {TYPE_VALUES.map((v) => (
             <SelectItem key={v} value={v}>
               {t(`common.${v}`)}
@@ -204,31 +204,26 @@ export function TransactionFilters({
         <div className="w-full md:w-[150px]">
           <DatePicker
             value={filters.from}
-            onChange={(v) => setParam("from", v)}
+            onChange={(v) => setParam('from', v)}
             clearable
-            placeholder={t("transactions.fromDate")}
+            placeholder={t('transactions.fromDate')}
           />
         </div>
         <span className="shrink-0 text-xs text-muted-foreground">–</span>
         <div className="w-full md:w-[150px]">
           <DatePicker
             value={filters.to}
-            onChange={(v) => setParam("to", v)}
+            onChange={(v) => setParam('to', v)}
             clearable
-            placeholder={t("transactions.toDate")}
+            placeholder={t('transactions.toDate')}
           />
         </div>
       </div>
 
       {hasFilters && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={clearAll}
-          className="text-muted-foreground"
-        >
+        <Button variant="ghost" size="sm" onClick={clearAll} className="text-muted-foreground">
           <X className="size-3.5" />
-          {t("action.clear")}
+          {t('action.clear')}
         </Button>
       )}
     </div>

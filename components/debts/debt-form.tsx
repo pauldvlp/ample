@@ -1,55 +1,55 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Field, AmountInput } from "@/components/shared/form-fields";
-import { IconSelect } from "@/components/shared/icon-select";
-import { PayeeCombobox } from "@/components/shared/payee-combobox";
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Field, AmountInput } from '@/components/shared/form-fields';
+import { IconSelect } from '@/components/shared/icon-select';
+import { PayeeCombobox } from '@/components/shared/payee-combobox';
 import {
   InstallmentsEditor,
   draftKey,
   type PlanMode,
   type InstallmentDraft,
-} from "./installments-editor";
-import { useSettings } from "@/components/providers/settings-provider";
-import { createDebt, updateDebt, type DebtInput } from "@/lib/actions/debts";
-import { toDateInputValue, fromDateInputValue } from "@/lib/format";
-import { fromCents, toCents, formatMoney } from "@/lib/money";
-import { CURRENCIES } from "@/lib/constants";
-import type { AccountOption, PayeeOption } from "@/lib/types";
-import type { DebtWithOutstanding } from "@/lib/data/debts";
-import type { DebtKind } from "@/db/schema";
-import { HandCoins, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+} from './installments-editor';
+import { useSettings } from '@/components/providers/settings-provider';
+import { createDebt, updateDebt, type DebtInput } from '@/lib/actions/debts';
+import { toDateInputValue, fromDateInputValue } from '@/lib/format';
+import { fromCents, toCents, formatMoney } from '@/lib/money';
+import { CURRENCIES } from '@/lib/constants';
+import type { AccountOption, PayeeOption } from '@/lib/types';
+import type { DebtWithOutstanding } from '@/lib/data/debts';
+import type { DebtKind } from '@/db/schema';
+import { HandCoins, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 
-const NO_ACCOUNT = "__none__";
+const NO_ACCOUNT = '__none__';
 
 const KIND_META: Record<
   DebtKind,
   { labelKey: string; icon: React.ElementType; tone: string; defaultIcon: string }
 > = {
   receivable: {
-    labelKey: "debts.owedToMe",
+    labelKey: 'debts.owedToMe',
     icon: ArrowDownLeft,
-    tone: "text-positive",
-    defaultIcon: "HandHeart",
+    tone: 'text-positive',
+    defaultIcon: 'HandHeart',
   },
   payable: {
-    labelKey: "debts.iOwe",
+    labelKey: 'debts.iOwe',
     icon: ArrowUpRight,
-    tone: "text-negative",
-    defaultIcon: "CreditCard",
+    tone: 'text-negative',
+    defaultIcon: 'CreditCard',
   },
 };
 
@@ -57,7 +57,7 @@ export function DebtForm({
   accounts,
   payees = [],
   debt,
-  defaultKind = "receivable",
+  defaultKind = 'receivable',
   onDone,
 }: {
   accounts: AccountOption[];
@@ -70,16 +70,14 @@ export function DebtForm({
   const isEdit = !!debt;
 
   const [kind, setKind] = React.useState<DebtKind>(debt?.kind ?? defaultKind);
-  const [counterparty, setCounterparty] = React.useState(debt?.counterparty ?? "");
-  const [name, setName] = React.useState(debt?.name ?? "");
+  const [counterparty, setCounterparty] = React.useState(debt?.counterparty ?? '');
+  const [name, setName] = React.useState(debt?.name ?? '');
   const [currency, setCurrency] = React.useState(debt?.originalCurrency ?? base);
   const [amount, setAmount] = React.useState(
-    debt ? String(Math.abs(fromCents(debt.originalAmount ?? debt.principal))) : ""
+    debt ? String(Math.abs(fromCents(debt.originalAmount ?? debt.principal))) : '',
   );
-  const [accountId, setAccountId] = React.useState<string>(
-    debt?.accountId ?? NO_ACCOUNT
-  );
-  const [notes, setNotes] = React.useState(debt?.notes ?? "");
+  const [accountId, setAccountId] = React.useState<string>(debt?.accountId ?? NO_ACCOUNT);
+  const [notes, setNotes] = React.useState(debt?.notes ?? '');
   const [recordMovement, setRecordMovement] = React.useState(true);
   const [pending, setPending] = React.useState(false);
 
@@ -87,10 +85,10 @@ export function DebtForm({
   // legacy dueDate as a single full-amount installment.
   const pendingInstallments = React.useMemo(
     () => (debt?.installments ?? []).filter((i) => !i.paidPaymentId),
-    [debt]
+    [debt],
   );
   const [planMode, setPlanMode] = React.useState<PlanMode>(
-    pendingInstallments.length > 0 || debt?.dueDate ? "scheduled" : "none"
+    pendingInstallments.length > 0 || debt?.dueDate ? 'scheduled' : 'none',
   );
   const [rows, setRows] = React.useState<InstallmentDraft[]>(() =>
     pendingInstallments.length > 0
@@ -107,13 +105,11 @@ export function DebtForm({
               amount: String(fromCents(debt.outstanding || debt.principal)),
             },
           ]
-        : []
+        : [],
   );
 
   const linkedAccount =
-    accountId !== NO_ACCOUNT
-      ? accounts.find((a) => a.id === accountId) ?? null
-      : null;
+    accountId !== NO_ACCOUNT ? (accounts.find((a) => a.id === accountId) ?? null) : null;
   // Only new debts post an opening movement; editing never re-posts cash.
   const canRecord = !isEdit && !!linkedAccount;
 
@@ -124,17 +120,17 @@ export function DebtForm({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!counterparty.trim()) {
-      toast.error(t("debts.errCounterparty"));
+      toast.error(t('debts.errCounterparty'));
       return;
     }
     const amt = Number(amount);
     if (!amt || amt <= 0) {
-      toast.error(t("debts.errAmount"));
+      toast.error(t('debts.errAmount'));
       return;
     }
 
     const installments =
-      planMode === "scheduled"
+      planMode === 'scheduled'
         ? rows
             .filter((r) => r.date && Number(r.amount) > 0)
             .map((r) => ({
@@ -153,19 +149,17 @@ export function DebtForm({
       dueDate: null,
       installments,
       icon: KIND_META[kind].defaultIcon,
-      color: kind === "receivable" ? "#2C6152" : "#B5674C",
+      color: kind === 'receivable' ? '#2C6152' : '#B5674C',
       notes: notes.trim() || null,
       recordTransaction: canRecord && recordMovement,
     };
 
     setPending(true);
-    const res = isEdit
-      ? await updateDebt(debt!.id, input)
-      : await createDebt(input);
+    const res = isEdit ? await updateDebt(debt!.id, input) : await createDebt(input);
     setPending(false);
 
     if (res.ok) {
-      toast.success(isEdit ? t("debts.toastUpdated") : t("debts.toastCreated"));
+      toast.success(isEdit ? t('debts.toastUpdated') : t('debts.toastCreated'));
       onDone?.();
     } else {
       toast.error(res.error);
@@ -185,39 +179,39 @@ export function DebtForm({
               type="button"
               onClick={() => setKind(k)}
               className={cn(
-                "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium transition-all",
+                'flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium transition-all',
                 active
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              <M.icon className={cn("size-3.5", active && M.tone)} />
+              <M.icon className={cn('size-3.5', active && M.tone)} />
               {t(M.labelKey)}
             </button>
           );
         })}
       </div>
 
-      <Field label={t("debts.counterparty")} htmlFor="debt-who">
+      <Field label={t('debts.counterparty')} htmlFor="debt-who">
         <PayeeCombobox
           id="debt-who"
           value={counterparty}
           onChange={setCounterparty}
           payees={payees}
-          placeholder={t("debts.counterpartyPlaceholder")}
+          placeholder={t('debts.counterpartyPlaceholder')}
         />
       </Field>
 
-      <Field label={t("debts.reason")} htmlFor="debt-name" hint={t("common.optional")}>
+      <Field label={t('debts.reason')} htmlFor="debt-name" hint={t('common.optional')}>
         <Input
           id="debt-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder={t("debts.reasonPlaceholder")}
+          placeholder={t('debts.reasonPlaceholder')}
         />
       </Field>
 
-      <Field label={t("debts.amount")} htmlFor="debt-amount">
+      <Field label={t('debts.amount')} htmlFor="debt-amount">
         <div className="flex gap-2">
           <AmountInput
             id="debt-amount"
@@ -245,14 +239,14 @@ export function DebtForm({
         </div>
         {currency !== base && Number(amount) > 0 && (
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {t("fx.approx")}{" "}
+            {t('fx.approx')}{' '}
             <span className="font-medium text-foreground">
               {money(toBase(toCents(Number(amount)), currency))}
             </span>
             {rates[currency] && (
               <>
-                {" · "}
-                {t("fx.rateLine", {
+                {' · '}
+                {t('fx.rateLine', {
                   q: currency,
                   v: formatMoney(Math.round(rates[currency] * 100), {
                     currency: base,
@@ -265,7 +259,7 @@ export function DebtForm({
         )}
       </Field>
 
-      <Field label={t("debts.linkedAccount")} hint={t("debts.linkedHint")}>
+      <Field label={t('debts.linkedAccount')} hint={t('debts.linkedHint')}>
         <IconSelect
           options={accounts.map((a) => ({
             value: a.id,
@@ -275,12 +269,12 @@ export function DebtForm({
           }))}
           value={accountId}
           onChange={(v) => setAccountId(v || NO_ACCOUNT)}
-          none={{ value: NO_ACCOUNT, label: t("debts.noAccount") }}
+          none={{ value: NO_ACCOUNT, label: t('debts.noAccount') }}
           fallbackIcon="Wallet"
         />
       </Field>
 
-      <Field label={t("debts.plan")} hint={t("debts.planHint")}>
+      <Field label={t('debts.plan')} hint={t('debts.planHint')}>
         <InstallmentsEditor
           mode={planMode}
           onModeChange={setPlanMode}
@@ -293,24 +287,22 @@ export function DebtForm({
       {canRecord && (
         <label className="flex items-center justify-between gap-3 rounded-xl bg-muted/40 px-3.5 py-3">
           <span className="min-w-0">
-            <span className="block text-sm font-medium">
-              {t("debts.recordOpening")}
-            </span>
+            <span className="block text-sm font-medium">{t('debts.recordOpening')}</span>
             <span className="block text-xs text-muted-foreground">
-              {kind === "payable"
-                ? t("debts.recordOpeningIn", { account: linkedAccount!.name })
-                : t("debts.recordOpeningOut", { account: linkedAccount!.name })}
+              {kind === 'payable'
+                ? t('debts.recordOpeningIn', { account: linkedAccount!.name })
+                : t('debts.recordOpeningOut', { account: linkedAccount!.name })}
             </span>
           </span>
           <Switch checked={recordMovement} onCheckedChange={setRecordMovement} />
         </label>
       )}
 
-      <Field label={t("common.notes")}>
+      <Field label={t('common.notes')}>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder={t("debts.notesPlaceholder")}
+          placeholder={t('debts.notesPlaceholder')}
           rows={2}
         />
       </Field>
@@ -318,11 +310,11 @@ export function DebtForm({
       <div className="flex justify-end gap-2 pt-1">
         <Button type="submit" disabled={pending}>
           {pending ? (
-            t("action.saving")
+            t('action.saving')
           ) : (
             <>
               <HandCoins className="size-4" />
-              {isEdit ? t("action.saveChanges") : t("debts.add")}
+              {isEdit ? t('action.saveChanges') : t('debts.add')}
             </>
           )}
         </Button>

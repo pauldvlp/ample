@@ -1,22 +1,63 @@
+import { HugeiconsIcon, type HugeiconsIconProps, type IconSvgElement } from '@hugeicons/react';
+import { cn } from '@/lib/utils';
 import {
-  HugeiconsIcon,
-  type HugeiconsIconProps,
-  type IconSvgElement,
-} from "@hugeicons/react";
-import { cn } from "@/lib/utils";
-import {
-  Wallet01Icon, PiggyBankIcon, CreditCardIcon, BanknoteIcon, Coins01Icon,
-  AnalyticsUpIcon, TradeDownIcon, BankIcon, Briefcase01Icon, LaptopIcon,
-  ChartLineData01Icon, PercentIcon, GiftIcon, ShoppingCart01Icon,
-  ShoppingBag01Icon, Restaurant01Icon, Coffee01Icon, Home01Icon, EnergyIcon,
-  Wifi01Icon, Bus01Icon, Car01Icon, FuelStationIcon, Airplane01Icon, Train01Icon,
-  FavouriteIcon, HealthIcon, SecurityCheckIcon, Film01Icon, MusicNote01Icon,
-  GameController01Icon, RepeatIcon, MortarboardIcon, DumbbellIcon, SparklesIcon,
-  CatIcon, BabyBottleIcon, Invoice01Icon, SmartPhone01Icon, TShirtIcon,
-  ScissorIcon, TreeIcon, Sun01Icon, UmbrellaIcon, Wrench01Icon, Book02Icon,
-  Camera01Icon, PaintBoardIcon, Rocket01Icon, StarIcon, MoreHorizontalIcon,
-  PlusSignIcon, CircleIcon, DollarCircleIcon, Plant01Icon, Tag01Icon,
-} from "@hugeicons/core-free-icons";
+  Wallet01Icon,
+  PiggyBankIcon,
+  CreditCardIcon,
+  BanknoteIcon,
+  Coins01Icon,
+  AnalyticsUpIcon,
+  TradeDownIcon,
+  BankIcon,
+  Briefcase01Icon,
+  LaptopIcon,
+  ChartLineData01Icon,
+  PercentIcon,
+  GiftIcon,
+  ShoppingCart01Icon,
+  ShoppingBag01Icon,
+  Restaurant01Icon,
+  Coffee01Icon,
+  Home01Icon,
+  EnergyIcon,
+  Wifi01Icon,
+  Bus01Icon,
+  Car01Icon,
+  FuelStationIcon,
+  Airplane01Icon,
+  Train01Icon,
+  FavouriteIcon,
+  HealthIcon,
+  SecurityCheckIcon,
+  Film01Icon,
+  MusicNote01Icon,
+  GameController01Icon,
+  RepeatIcon,
+  MortarboardIcon,
+  DumbbellIcon,
+  SparklesIcon,
+  CatIcon,
+  BabyBottleIcon,
+  Invoice01Icon,
+  SmartPhone01Icon,
+  TShirtIcon,
+  ScissorIcon,
+  TreeIcon,
+  Sun01Icon,
+  UmbrellaIcon,
+  Wrench01Icon,
+  Book02Icon,
+  Camera01Icon,
+  PaintBoardIcon,
+  Rocket01Icon,
+  StarIcon,
+  MoreHorizontalIcon,
+  PlusSignIcon,
+  CircleIcon,
+  DollarCircleIcon,
+  Plant01Icon,
+  Tag01Icon,
+} from '@hugeicons/core-free-icons';
 
 /**
  * Dynamic icon component backed by Hugeicons. Keys are stable strings (also
@@ -90,14 +131,14 @@ export function Icon({
   className,
   strokeWidth = 1.8,
   ...props
-}: { name?: string | null } & Omit<HugeiconsIconProps, "icon" | "name">) {
+}: { name?: string | null } & Omit<HugeiconsIconProps, 'icon' | 'name'>) {
   const el = (name && REGISTRY[name]) || CircleIcon;
   return (
     <HugeiconsIcon
       icon={el}
       color="currentColor"
       strokeWidth={strokeWidth}
-      className={cn("hg-icon", className)}
+      className={cn('hg-icon', className)}
       {...props}
     />
   );

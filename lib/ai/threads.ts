@@ -1,9 +1,9 @@
-import "server-only";
+import 'server-only';
 
-import { db } from "@/db";
-import { chatThreads, chatMessages, type ChatMessage } from "@/db/schema";
-import { asc, desc, eq } from "drizzle-orm";
-import type { ExecutedAction } from "@/lib/ai/agent-tools";
+import { db } from '@/db';
+import { chatThreads, chatMessages, type ChatMessage } from '@/db/schema';
+import { asc, desc, eq } from 'drizzle-orm';
+import type { ExecutedAction } from '@/lib/ai/agent-tools';
 
 /**
  * Persistence for the AI assistant's conversation history. Reads power the
@@ -24,7 +24,7 @@ export interface ThreadSummary {
 
 export interface ThreadMessage {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   actions: ExecutedAction[] | null;
   error: boolean;
@@ -33,8 +33,8 @@ export interface ThreadMessage {
 
 /** First line of a message, collapsed + trimmed to a thread-title length. */
 function deriveTitle(text: string): string {
-  const clean = text.replace(/\s+/g, " ").trim();
-  if (!clean) return "";
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
   return clean.length > TITLE_MAX ? `${clean.slice(0, TITLE_MAX - 1)}…` : clean;
 }
 
@@ -53,7 +53,7 @@ export async function listThreads(limit = 60): Promise<ThreadSummary[]> {
     .limit(limit);
   return rows.map((r) => ({
     id: r.id,
-    title: r.title?.trim() || "",
+    title: r.title?.trim() || '',
     updatedAt: r.updatedAt.getTime(),
   }));
 }
@@ -63,8 +63,7 @@ function toMessage(r: ChatMessage): ThreadMessage {
   if (r.actions) {
     try {
       const parsed = JSON.parse(r.actions) as unknown;
-      if (Array.isArray(parsed) && parsed.length)
-        actions = parsed as ExecutedAction[];
+      if (Array.isArray(parsed) && parsed.length) actions = parsed as ExecutedAction[];
     } catch {
       actions = null;
     }
@@ -80,9 +79,7 @@ function toMessage(r: ChatMessage): ThreadMessage {
 }
 
 /** All messages in a thread, oldest first. Empty when the thread is unknown. */
-export async function getThreadMessages(
-  threadId: string
-): Promise<ThreadMessage[]> {
+export async function getThreadMessages(threadId: string): Promise<ThreadMessage[]> {
   const rows = await db
     .select()
     .from(chatMessages)
@@ -104,16 +101,12 @@ export async function threadExists(id: string): Promise<boolean> {
 
 /** Create an empty thread and return its id. */
 export async function createThread(): Promise<string> {
-  const row = await db
-    .insert(chatThreads)
-    .values({})
-    .returning({ id: chatThreads.id })
-    .get();
+  const row = await db.insert(chatThreads).values({}).returning({ id: chatThreads.id }).get();
   return row.id;
 }
 
 export interface AppendInput {
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   actions?: ExecutedAction[] | null;
   error?: boolean;
@@ -126,10 +119,9 @@ export interface AppendInput {
  */
 export async function appendMessage(
   threadId: string,
-  msg: AppendInput
+  msg: AppendInput,
 ): Promise<{ title: string }> {
-  const actions =
-    msg.actions && msg.actions.length ? JSON.stringify(msg.actions) : null;
+  const actions = msg.actions && msg.actions.length ? JSON.stringify(msg.actions) : null;
 
   await db.insert(chatMessages).values({
     threadId,
@@ -145,8 +137,8 @@ export async function appendMessage(
     .where(eq(chatThreads.id, threadId))
     .get();
 
-  let title = current?.title?.trim() ?? "";
-  if (!title && msg.role === "user") title = deriveTitle(msg.content);
+  let title = current?.title?.trim() ?? '';
+  if (!title && msg.role === 'user') title = deriveTitle(msg.content);
 
   await db
     .update(chatThreads)

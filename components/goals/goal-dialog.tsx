@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,11 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { GoalForm } from "./goal-form";
-import { useT } from "@/components/providers/settings-provider";
-import type { GoalWithProgress } from "@/lib/data/goals";
-import type { AccountWithBalance } from "@/lib/data/accounts";
+} from '@/components/ui/dialog';
+import { GoalForm } from './goal-form';
+import { useT } from '@/components/providers/settings-provider';
+import type { GoalWithProgress } from '@/lib/data/goals';
+import type { AccountWithBalance } from '@/lib/data/accounts';
 
 export function GoalDialog({
   goal,
@@ -38,11 +38,9 @@ export function GoalDialog({
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? t("goals.editTitle") : t("goals.newTitle")}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? t('goals.editTitle') : t('goals.newTitle')}</DialogTitle>
           <DialogDescription>
-            {isEdit ? t("goals.editDescription") : t("goals.newDescription")}
+            {isEdit ? t('goals.editDescription') : t('goals.newDescription')}
           </DialogDescription>
         </DialogHeader>
         <GoalForm goal={goal} accounts={accounts} onDone={() => setOpen(false)} />

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Amount } from "@/components/shared/amount";
-import { Meter } from "@/components/charts/meter";
-import { IconDisc } from "@/components/shared/badges";
-import { EmptyState } from "@/components/shared/empty-state";
-import { Button } from "@/components/ui/button";
-import { formatPercent } from "@/lib/money";
-import { useT } from "@/components/providers/settings-provider";
-import type { BudgetSummary } from "@/lib/data/budgets";
+import Link from 'next/link';
+import { Amount } from '@/components/shared/amount';
+import { Meter } from '@/components/charts/meter';
+import { IconDisc } from '@/components/shared/badges';
+import { EmptyState } from '@/components/shared/empty-state';
+import { Button } from '@/components/ui/button';
+import { formatPercent } from '@/lib/money';
+import { useT } from '@/components/providers/settings-provider';
+import type { BudgetSummary } from '@/lib/data/budgets';
 
 export function BudgetMini({ budget }: { budget: BudgetSummary }) {
   const t = useT();
@@ -16,11 +16,11 @@ export function BudgetMini({ budget }: { budget: BudgetSummary }) {
     return (
       <EmptyState
         icon="PieChart"
-        title={t("dashboard.noBudgets")}
-        description={t("dashboard.noBudgetsDesc")}
+        title={t('dashboard.noBudgets')}
+        description={t('dashboard.noBudgetsDesc')}
         action={
           <Button size="sm" variant="outline" render={<Link href="/budgets" />}>
-            {t("dashboard.setupBudgets")}
+            {t('dashboard.setupBudgets')}
           </Button>
         }
       />
@@ -32,7 +32,7 @@ export function BudgetMini({ budget }: { budget: BudgetSummary }) {
       <div className="rounded-xl bg-muted/40 p-3">
         <div className="flex items-end justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">{t("dashboard.spentThisMonth")}</p>
+            <p className="text-xs text-muted-foreground">{t('dashboard.spentThisMonth')}</p>
             <Amount
               value={budget.totalSpent}
               decimals={false}
@@ -40,7 +40,7 @@ export function BudgetMini({ budget }: { budget: BudgetSummary }) {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            {t("common.of")} <Amount value={budget.totalBudget} decimals={false} /> ·{" "}
+            {t('common.of')} <Amount value={budget.totalBudget} decimals={false} /> ·{' '}
             {formatPercent(budget.pct)}
           </p>
         </div>
@@ -55,7 +55,7 @@ export function BudgetMini({ budget }: { budget: BudgetSummary }) {
                 <span className="truncate">{l.categoryName}</span>
               </span>
               <span className="shrink-0 text-xs text-muted-foreground">
-                <Amount value={l.spent} decimals={false} /> /{" "}
+                <Amount value={l.spent} decimals={false} /> /{' '}
                 <Amount value={l.amount} decimals={false} />
               </span>
             </div>

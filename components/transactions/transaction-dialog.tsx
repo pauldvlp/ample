@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,16 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { TransactionForm } from "./transaction-form";
-import { useT } from "@/components/providers/settings-provider";
-import type {
-  AccountOption,
-  CategoryOption,
-  TagOption,
-  PayeeOption,
-} from "@/lib/types";
-import type { TransactionEnriched } from "@/lib/data/transactions";
+} from '@/components/ui/dialog';
+import { TransactionForm } from './transaction-form';
+import { useT } from '@/components/providers/settings-provider';
+import type { AccountOption, CategoryOption, TagOption, PayeeOption } from '@/lib/types';
+import type { TransactionEnriched } from '@/lib/data/transactions';
 
 export function TransactionDialog({
   accounts,
@@ -49,9 +44,9 @@ export function TransactionDialog({
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? t("transactions.editTitle") : t("transactions.new")}</DialogTitle>
+          <DialogTitle>{isEdit ? t('transactions.editTitle') : t('transactions.new')}</DialogTitle>
           <DialogDescription>
-            {isEdit ? t("transactions.editDesc") : t("transactions.newDesc")}
+            {isEdit ? t('transactions.editDesc') : t('transactions.newDesc')}
           </DialogDescription>
         </DialogHeader>
         <TransactionForm

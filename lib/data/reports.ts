@@ -1,14 +1,9 @@
-import "server-only";
-import { db } from "@/db";
-import { transactions, categories, netWorthSnapshots } from "@/db/schema";
-import { and, eq, gte, lte, sql, asc, isNull } from "drizzle-orm";
-import {
-  startOfMonth,
-  endOfMonth,
-  addMonths,
-  format,
-} from "date-fns";
-import { getNow } from "./clock";
+import 'server-only';
+import { db } from '@/db';
+import { transactions, categories, netWorthSnapshots } from '@/db/schema';
+import { and, eq, gte, lte, sql, asc, isNull } from 'drizzle-orm';
+import { startOfMonth, endOfMonth, addMonths, format } from 'date-fns';
+import { getNow } from './clock';
 
 const monthExpr = sql<string>`strftime('%Y-%m', ${transactions.date} / 1000, 'unixepoch')`;
 
@@ -20,9 +15,7 @@ export interface MonthlyFlow {
   net: number;
 }
 
-export async function incomeVsExpenseMonthly(
-  monthsBack = 6
-): Promise<MonthlyFlow[]> {
+export async function incomeVsExpenseMonthly(monthsBack = 6): Promise<MonthlyFlow[]> {
   const now = await getNow();
   const from = startOfMonth(addMonths(now, -(monthsBack - 1)));
   const rows = await db
@@ -38,18 +31,18 @@ export async function incomeVsExpenseMonthly(
 
   const buckets = new Map<string, { income: number; expense: number }>();
   for (let i = 0; i < monthsBack; i++) {
-    const key = format(addMonths(now, -(monthsBack - 1) + i), "yyyy-MM");
+    const key = format(addMonths(now, -(monthsBack - 1) + i), 'yyyy-MM');
     buckets.set(key, { income: 0, expense: 0 });
   }
   for (const r of rows) {
     const b = buckets.get(r.month);
     if (!b) continue;
-    if (r.type === "income") b.income += Number(r.total);
-    else if (r.type === "expense") b.expense += -Number(r.total);
+    if (r.type === 'income') b.income += Number(r.total);
+    else if (r.type === 'expense') b.expense += -Number(r.total);
   }
   return [...buckets.entries()].map(([month, b]) => ({
     month,
-    label: format(new Date(`${month}-01T00:00:00`), "MMM"),
+    label: format(new Date(`${month}-01T00:00:00`), 'MMM'),
     income: b.income,
     expense: b.expense,
     net: b.income - b.expense,
@@ -68,7 +61,7 @@ export interface CategorySpend {
 export async function spendingByCategory(
   from: Date,
   to: Date,
-  limit?: number
+  limit?: number,
 ): Promise<CategorySpend[]> {
   const rows = await db
     .select({
@@ -82,19 +75,19 @@ export async function spendingByCategory(
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .where(
       and(
-        eq(transactions.type, "expense"),
+        eq(transactions.type, 'expense'),
         isNull(transactions.debtId),
         gte(transactions.date, from),
-        lte(transactions.date, to)
-      )
+        lte(transactions.date, to),
+      ),
     )
     .groupBy(transactions.categoryId)
     .orderBy(sql`SUM(-${transactions.amount}) DESC`);
 
   const clean = rows
     .map((r) => ({
-      categoryId: r.categoryId ?? "uncategorized",
-      name: r.name ?? "Uncategorized",
+      categoryId: r.categoryId ?? 'uncategorized',
+      name: r.name ?? 'Uncategorized',
       color: r.color,
       icon: r.icon,
       amount: Number(r.amount),
@@ -122,18 +115,14 @@ export async function cashFlow(from: Date, to: Date): Promise<CashFlow> {
     })
     .from(transactions)
     .where(
-      and(
-        gte(transactions.date, from),
-        lte(transactions.date, to),
-        isNull(transactions.debtId)
-      )
+      and(gte(transactions.date, from), lte(transactions.date, to), isNull(transactions.debtId)),
     )
     .groupBy(transactions.type);
   let income = 0;
   let expense = 0;
   for (const r of rows) {
-    if (r.type === "income") income += Number(r.total);
-    else if (r.type === "expense") expense += -Number(r.total);
+    if (r.type === 'income') income += Number(r.total);
+    else if (r.type === 'expense') expense += -Number(r.total);
   }
   return { income, expense, net: income - expense };
 }
@@ -151,13 +140,10 @@ export interface NetWorthPoint {
 }
 
 export async function netWorthSeries(): Promise<NetWorthPoint[]> {
-  const rows = await db
-    .select()
-    .from(netWorthSnapshots)
-    .orderBy(asc(netWorthSnapshots.date));
+  const rows = await db.select().from(netWorthSnapshots).orderBy(asc(netWorthSnapshots.date));
   return rows.map((r) => ({
     date: r.date.getTime(),
-    label: format(r.date, "MMM"),
+    label: format(r.date, 'MMM'),
     netWorth: r.netWorth,
     assets: r.totalAssets,
     liabilities: r.totalLiabilities,
@@ -165,10 +151,7 @@ export async function netWorthSeries(): Promise<NetWorthPoint[]> {
 }
 
 /** Daily spending for a calendar heatmap over a month. */
-export async function dailySpending(
-  from: Date,
-  to: Date
-): Promise<Record<string, number>> {
+export async function dailySpending(from: Date, to: Date): Promise<Record<string, number>> {
   const dayExpr = sql<string>`strftime('%Y-%m-%d', ${transactions.date} / 1000, 'unixepoch')`;
   const rows = await db
     .select({
@@ -178,11 +161,11 @@ export async function dailySpending(
     .from(transactions)
     .where(
       and(
-        eq(transactions.type, "expense"),
+        eq(transactions.type, 'expense'),
         isNull(transactions.debtId),
         gte(transactions.date, from),
-        lte(transactions.date, to)
-      )
+        lte(transactions.date, to),
+      ),
     )
     .groupBy(dayExpr);
   const map: Record<string, number> = {};

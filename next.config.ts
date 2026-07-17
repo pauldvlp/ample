@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // NOTE: better-sqlite3 (a native addon) is already in Next.js's built-in
@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
   },
   // Self-contained production build (`.next/standalone/server.js`) for Docker.
   // Only affects `next build`, not `next dev`.
-  output: "standalone",
+  output: 'standalone',
   // Make sure the native better-sqlite3 binding is traced into the standalone
   // output (it's required dynamically, so belt-and-suspenders).
   // drizzle-orm is bundled into the server chunks by Turbopack, so Next never
@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
   // pnpm-symlinked deps don't flatten into a resolvable layout. The Dockerfile
   // stages its full runtime closure instead — see the "runner" stage.
   outputFileTracingIncludes: {
-    "/**/*": ["./node_modules/drizzle-orm/**/*"],
+    '/**/*': ['./node_modules/drizzle-orm/**/*'],
   },
   // Hide the dev-only overlay indicator (it floats over the sidebar footer).
   devIndicators: false,

@@ -1,10 +1,7 @@
-import "server-only";
-import { addMonths } from "date-fns";
-import { getNow } from "./clock";
-import {
-  getNetWorthSummary,
-  type AccountWithBalance,
-} from "./accounts";
+import 'server-only';
+import { addMonths } from 'date-fns';
+import { getNow } from './clock';
+import { getNetWorthSummary, type AccountWithBalance } from './accounts';
 import {
   netWorthSeries,
   incomeVsExpenseMonthly,
@@ -15,12 +12,12 @@ import {
   type MonthlyFlow,
   type CategorySpend,
   type CashFlow,
-} from "./reports";
-import { getBudgetSummary, type BudgetSummary } from "./budgets";
-import { getGoalsWithProgress, type GoalWithProgress } from "./goals";
-import { getUpcomingBills, type UpcomingBill } from "./recurring";
-import { getRecentTransactions } from "./transactions";
-import type { TransactionEnriched } from "./transactions";
+} from './reports';
+import { getBudgetSummary, type BudgetSummary } from './budgets';
+import { getGoalsWithProgress, type GoalWithProgress } from './goals';
+import { getUpcomingBills, type UpcomingBill } from './recurring';
+import { getRecentTransactions } from './transactions';
+import type { TransactionEnriched } from './transactions';
 
 export interface CreditUtil {
   id: string;
@@ -91,16 +88,12 @@ export async function getDashboardData(): Promise<DashboardData> {
   };
 
   const savingsRate =
-    thisMonth.income > 0
-      ? (thisMonth.income - thisMonth.expense) / thisMonth.income
-      : 0;
+    thisMonth.income > 0 ? (thisMonth.income - thisMonth.expense) / thisMonth.income : 0;
   const spendingDeltaPct =
-    lastMonth.expense > 0
-      ? (thisMonth.expense - lastMonth.expense) / lastMonth.expense
-      : 0;
+    lastMonth.expense > 0 ? (thisMonth.expense - lastMonth.expense) / lastMonth.expense : 0;
 
   const creditUtilization: CreditUtil[] = nw.accounts
-    .filter((a) => a.type === "credit" && a.creditLimit && a.creditLimit > 0)
+    .filter((a) => a.type === 'credit' && a.creditLimit && a.creditLimit > 0)
     .map((a) => {
       const used = Math.max(0, -a.balance);
       const limit = a.creditLimit!;

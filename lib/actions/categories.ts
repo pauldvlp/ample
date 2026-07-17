@@ -1,13 +1,13 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
-import { categories, CATEGORY_KINDS } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { revalidateFinance, type ActionResult } from "./shared";
+import { z } from 'zod';
+import { db } from '@/db';
+import { categories, CATEGORY_KINDS } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { revalidateFinance, type ActionResult } from './shared';
 
 const categorySchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(60),
+  name: z.string().trim().min(1, 'Name is required').max(60),
   kind: z.enum(CATEGORY_KINDS),
   icon: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
@@ -16,12 +16,10 @@ const categorySchema = z.object({
 
 export type CategoryInput = z.input<typeof categorySchema>;
 
-export async function createCategory(
-  input: CategoryInput
-): Promise<ActionResult<{ id: string }>> {
+export async function createCategory(input: CategoryInput): Promise<ActionResult<{ id: string }>> {
   const parsed = categorySchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   const row = await db
     .insert(categories)
@@ -38,13 +36,10 @@ export async function createCategory(
   return { ok: true, data: { id: row.id } };
 }
 
-export async function updateCategory(
-  id: string,
-  input: CategoryInput
-): Promise<ActionResult> {
+export async function updateCategory(id: string, input: CategoryInput): Promise<ActionResult> {
   const parsed = categorySchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   await db
     .update(categories)
@@ -68,10 +63,7 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function setCategoryArchived(
-  id: string,
-  isArchived: boolean
-): Promise<ActionResult> {
+export async function setCategoryArchived(id: string, isArchived: boolean): Promise<ActionResult> {
   await db
     .update(categories)
     .set({ isArchived, updatedAt: new Date() })

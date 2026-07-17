@@ -1,18 +1,12 @@
-import {
-  format,
-  formatDistanceToNowStrict,
-  isToday,
-  isYesterday,
-  parse,
-} from "date-fns";
+import { format, formatDistanceToNowStrict, isToday, isYesterday, parse } from 'date-fns';
 
 /** 'YYYY-MM' month key used for budgets and monthly grouping. */
 export function monthKey(date: Date): string {
-  return format(date, "yyyy-MM");
+  return format(date, 'yyyy-MM');
 }
 
 export function monthKeyToDate(key: string): Date {
-  return parse(key, "yyyy-MM", new Date());
+  return parse(key, 'yyyy-MM', new Date());
 }
 
 export function currentMonthKey(): string {
@@ -20,25 +14,22 @@ export function currentMonthKey(): string {
 }
 
 export function formatMonthLabel(key: string): string {
-  return format(monthKeyToDate(key), "MMMM yyyy");
+  return format(monthKeyToDate(key), 'MMMM yyyy');
 }
 
 export function formatMonthShort(key: string): string {
-  return format(monthKeyToDate(key), "MMM");
+  return format(monthKeyToDate(key), 'MMM');
 }
 
-export function formatDate(
-  date: Date | number,
-  pattern = "MMM d, yyyy"
-): string {
+export function formatDate(date: Date | number, pattern = 'MMM d, yyyy'): string {
   return format(new Date(date), pattern);
 }
 
 export function formatDateSmart(date: Date | number): string {
   const d = new Date(date);
-  if (isToday(d)) return "Today";
-  if (isYesterday(d)) return "Yesterday";
-  return format(d, "MMM d");
+  if (isToday(d)) return 'Today';
+  if (isYesterday(d)) return 'Yesterday';
+  return format(d, 'MMM d');
 }
 
 export function formatRelative(date: Date | number): string {
@@ -48,15 +39,15 @@ export function formatRelative(date: Date | number): string {
 /** Group key for a transaction date shown as section headers. */
 export function dateGroupLabel(date: Date | number): string {
   const d = new Date(date);
-  if (isToday(d)) return "Today";
-  if (isYesterday(d)) return "Yesterday";
-  return format(d, "EEEE, MMM d");
+  if (isToday(d)) return 'Today';
+  if (isYesterday(d)) return 'Yesterday';
+  return format(d, 'EEEE, MMM d');
 }
 
 export function toDateInputValue(date: Date | number): string {
-  return format(new Date(date), "yyyy-MM-dd");
+  return format(new Date(date), 'yyyy-MM-dd');
 }
 
 export function fromDateInputValue(value: string): Date {
-  return parse(value, "yyyy-MM-dd", new Date());
+  return parse(value, 'yyyy-MM-dd', new Date());
 }

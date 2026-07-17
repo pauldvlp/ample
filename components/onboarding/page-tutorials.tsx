@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useT } from "@/components/providers/settings-provider";
-import { PageTourButton } from "./page-tour-button";
-import { PAGE_TOUR_IDS, PAGE_TOUR_NAV_KEY } from "./page-tours";
+import { useT } from '@/components/providers/settings-provider';
+import { PageTourButton } from './page-tour-button';
+import { PAGE_TOUR_IDS, PAGE_TOUR_NAV_KEY } from './page-tours';
 
 /**
  * Compact grid of per-page tutorial launchers, shown in Settings so any page's

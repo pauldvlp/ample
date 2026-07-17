@@ -1,9 +1,9 @@
-import "server-only";
-import { db } from "@/db";
-import { accounts, transactions, type Account } from "@/db/schema";
-import { sql, eq, asc } from "drizzle-orm";
-import { ACCOUNT_TYPE_META, type AccountGroup } from "@/lib/constants";
-import { getDebtsSummary } from "./debts";
+import 'server-only';
+import { db } from '@/db';
+import { accounts, transactions, type Account } from '@/db/schema';
+import { sql, eq, asc } from 'drizzle-orm';
+import { ACCOUNT_TYPE_META, type AccountGroup } from '@/lib/constants';
+import { getDebtsSummary } from './debts';
 
 export interface AccountWithBalance extends Account {
   balance: number;
@@ -25,7 +25,7 @@ export async function balanceDeltas(): Promise<Map<string, number>> {
 }
 
 export async function getAccountsWithBalances(
-  includeArchived = false
+  includeArchived = false,
 ): Promise<AccountWithBalance[]> {
   const rows = await db
     .select()
@@ -41,9 +41,7 @@ export async function getAccountsWithBalances(
     }));
 }
 
-export async function getAccountWithBalance(
-  id: string
-): Promise<AccountWithBalance | null> {
+export async function getAccountWithBalance(id: string): Promise<AccountWithBalance | null> {
   const a = await db.select().from(accounts).where(eq(accounts.id, id)).get();
   if (!a) return null;
   const delta = await db

@@ -1,30 +1,26 @@
-import "server-only";
-import { db } from "@/db";
-import { recurringRules, transactions, type RecurringRule } from "@/db/schema";
-import { and, asc, eq, lte } from "drizzle-orm";
-import { addDays, addWeeks, addMonths, addYears } from "date-fns";
-import { convertToBase } from "@/lib/money";
-import { getLiveConversionContext } from "@/lib/data/rates";
-import { newId } from "@/lib/ids";
+import 'server-only';
+import { db } from '@/db';
+import { recurringRules, transactions, type RecurringRule } from '@/db/schema';
+import { and, asc, eq, lte } from 'drizzle-orm';
+import { addDays, addWeeks, addMonths, addYears } from 'date-fns';
+import { convertToBase } from '@/lib/money';
+import { getLiveConversionContext } from '@/lib/data/rates';
+import { newId } from '@/lib/ids';
 
 /** Advance a due date by one period of the given frequency/interval. */
-export function advanceDue(
-  date: Date,
-  frequency: string,
-  interval: number
-): Date {
+export function advanceDue(date: Date, frequency: string, interval: number): Date {
   switch (frequency) {
-    case "daily":
+    case 'daily':
       return addDays(date, interval);
-    case "weekly":
+    case 'weekly':
       return addWeeks(date, interval);
-    case "biweekly":
+    case 'biweekly':
       return addWeeks(date, 2 * interval);
-    case "monthly":
+    case 'monthly':
       return addMonths(date, interval);
-    case "quarterly":
+    case 'quarterly':
       return addMonths(date, 3 * interval);
-    case "yearly":
+    case 'yearly':
       return addYears(date, interval);
     default:
       return addMonths(date, interval);
@@ -42,19 +38,16 @@ export interface ConversionCtx {
  * priced rules re-convert the sticker price at the current rate. Does NOT
  * revalidate — the caller decides when to. Returns the new next-due date.
  */
-export async function postRuleOnce(
-  rule: RecurringRule,
-  ctx: ConversionCtx
-): Promise<Date> {
+export async function postRuleOnce(rule: RecurringRule, ctx: ConversionCtx): Promise<Date> {
   let amount = rule.amount;
   if (rule.originalAmount != null && rule.originalCurrency) {
     const magnitude = convertToBase(
       Math.abs(rule.originalAmount),
       rule.originalCurrency,
       ctx.base,
-      ctx.rates
+      ctx.rates,
     );
-    amount = rule.type === "income" ? magnitude : -magnitude;
+    amount = rule.type === 'income' ? magnitude : -magnitude;
   }
 
   await db.insert(transactions).values({
@@ -68,7 +61,7 @@ export async function postRuleOnce(
     date: rule.nextDueDate,
     payee: rule.payee ?? rule.name,
     notes: rule.notes,
-    status: "cleared",
+    status: 'cleared',
     recurringRuleId: rule.id,
   });
 
@@ -95,12 +88,7 @@ export async function postDueRulesUpTo(until: Date): Promise<number> {
   const rules = await db
     .select()
     .from(recurringRules)
-    .where(
-      and(
-        eq(recurringRules.isActive, true),
-        lte(recurringRules.nextDueDate, until)
-      )
-    )
+    .where(and(eq(recurringRules.isActive, true), lte(recurringRules.nextDueDate, until)))
     .orderBy(asc(recurringRules.nextDueDate));
 
   const MAX = 2000; // runaway guard across all rules

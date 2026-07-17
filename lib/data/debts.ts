@@ -1,5 +1,5 @@
-import "server-only";
-import { db } from "@/db";
+import 'server-only';
+import { db } from '@/db';
 import {
   debts,
   debtPayments,
@@ -7,8 +7,8 @@ import {
   type Debt,
   type DebtPayment,
   type DebtInstallment,
-} from "@/db/schema";
-import { asc, desc, eq, sql } from "drizzle-orm";
+} from '@/db/schema';
+import { asc, desc, eq, sql } from 'drizzle-orm';
 
 export interface DebtWithOutstanding extends Debt {
   /** total paid so far (base cents) */
@@ -63,7 +63,7 @@ async function installmentsByDebt(): Promise<Map<string, DebtInstallment[]>> {
 function withOutstanding(
   d: Debt,
   paid: number,
-  installments: DebtInstallment[]
+  installments: DebtInstallment[],
 ): DebtWithOutstanding {
   return { ...d, paid, outstanding: Math.max(0, d.principal - paid), installments };
 }
@@ -73,13 +73,8 @@ export async function getDebts(): Promise<DebtWithOutstanding[]> {
     .select()
     .from(debts)
     .orderBy(asc(debts.status), asc(debts.dueDate), desc(debts.createdAt));
-  const [totals, insts] = await Promise.all([
-    paymentTotals(),
-    installmentsByDebt(),
-  ]);
-  return rows.map((d) =>
-    withOutstanding(d, totals.get(d.id) ?? 0, insts.get(d.id) ?? [])
-  );
+  const [totals, insts] = await Promise.all([paymentTotals(), installmentsByDebt()]);
+  return rows.map((d) => withOutstanding(d, totals.get(d.id) ?? 0, insts.get(d.id) ?? []));
 }
 
 export async function getDebt(id: string): Promise<DebtDetail | null> {
@@ -110,9 +105,8 @@ export async function getDebtsSummary(): Promise<DebtsSummary> {
     counts: { receivable: 0, payable: 0 },
   };
   for (const d of list) {
-    if (d.status !== "open" || !d.includeInNetWorth || d.outstanding <= 0)
-      continue;
-    if (d.kind === "receivable") {
+    if (d.status !== 'open' || !d.includeInNetWorth || d.outstanding <= 0) continue;
+    if (d.kind === 'receivable') {
       summary.receivable += d.outstanding;
       summary.counts.receivable += 1;
     } else {

@@ -1,17 +1,17 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
-import { settings, type AiProvider } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { db } from '@/db';
+import { settings, type AiProvider } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
 
 const SINGLETON_ID = 1;
 
 export interface SettingsPatch {
   baseCurrency?: string;
   locale?: string;
-  language?: "es" | "en";
-  theme?: "light" | "dark" | "system";
+  language?: 'es' | 'en';
+  theme?: 'light' | 'dark' | 'system';
   firstDayOfWeek?: number;
   budgetStartDay?: number;
   hideAmounts?: boolean;
@@ -35,7 +35,7 @@ export async function updateSettings(patch: SettingsPatch) {
       target: settings.id,
       set: { ...patch, updatedAt: new Date() },
     });
-  revalidatePath("/", "layout");
+  revalidatePath('/', 'layout');
   return { ok: true };
 }
 

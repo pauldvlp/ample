@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Moon02Icon, Sun01Icon } from "@hugeicons/core-free-icons";
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useT } from "@/components/providers/settings-provider";
-import { useIsClient } from "@/hooks/use-is-client";
+import * as React from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Moon02Icon, Sun01Icon } from '@hugeicons/core-free-icons';
+import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useT } from '@/components/providers/settings-provider';
+import { useIsClient } from '@/hooks/use-is-client';
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const t = useT();
   const mounted = useIsClient();
 
-  const isDark = mounted && resolvedTheme === "dark";
+  const isDark = mounted && resolvedTheme === 'dark';
 
   return (
     <Tooltip>
@@ -23,8 +23,8 @@ export function ThemeToggle() {
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            aria-label={t("theme.toggle")}
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            aria-label={t('theme.toggle')}
           />
         }
       >
@@ -37,7 +37,7 @@ export function ThemeToggle() {
           className="hg-icon absolute size-4 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0"
         />
       </TooltipTrigger>
-      <TooltipContent>{isDark ? t("theme.light") : t("theme.dark")}</TooltipContent>
+      <TooltipContent>{isDark ? t('theme.light') : t('theme.dark')}</TooltipContent>
     </Tooltip>
   );
 }

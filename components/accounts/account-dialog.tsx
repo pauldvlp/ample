@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,10 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { AccountForm } from "./account-form";
-import { useT } from "@/components/providers/settings-provider";
-import type { Account } from "@/db/schema";
+} from '@/components/ui/dialog';
+import { AccountForm } from './account-form';
+import { useT } from '@/components/providers/settings-provider';
+import type { Account } from '@/db/schema';
 
 export function AccountDialog({
   account,
@@ -35,11 +35,9 @@ export function AccountDialog({
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? t("accounts.editTitle") : t("accounts.newTitle")}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? t('accounts.editTitle') : t('accounts.newTitle')}</DialogTitle>
           <DialogDescription>
-            {isEdit ? t("accounts.editDesc") : t("accounts.newDesc")}
+            {isEdit ? t('accounts.editDesc') : t('accounts.newDesc')}
           </DialogDescription>
         </DialogHeader>
         <AccountForm account={account} onDone={() => setOpen(false)} />

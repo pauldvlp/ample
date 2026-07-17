@@ -1,19 +1,14 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
-import {
-  debts,
-  debtPayments,
-  debtInstallments,
-  transactions,
-} from "@/db/schema";
-import { and, eq, isNull, sql } from "drizzle-orm";
-import { toCents, convertToBase } from "@/lib/money";
-import { getConversionContext } from "@/lib/data/rates";
-import { newId } from "@/lib/ids";
-import { postDebtPaymentCore } from "@/lib/debt-engine";
-import { revalidateFinance, type ActionResult } from "./shared";
+import { z } from 'zod';
+import { db } from '@/db';
+import { debts, debtPayments, debtInstallments, transactions } from '@/db/schema';
+import { and, eq, isNull, sql } from 'drizzle-orm';
+import { toCents, convertToBase } from '@/lib/money';
+import { getConversionContext } from '@/lib/data/rates';
+import { newId } from '@/lib/ids';
+import { postDebtPaymentCore } from '@/lib/debt-engine';
+import { revalidateFinance, type ActionResult } from './shared';
 
 /** One planned installment ("cuota"). Amount is in BASE-currency major units. */
 const installmentInputSchema = z.object({
@@ -24,10 +19,10 @@ const installmentInputSchema = z.object({
 });
 
 const debtSchema = z.object({
-  kind: z.enum(["receivable", "payable"]),
-  counterparty: z.string().trim().min(1, "Counterparty is required").max(120),
+  kind: z.enum(['receivable', 'payable']),
+  counterparty: z.string().trim().min(1, 'Counterparty is required').max(120),
   name: z.string().trim().max(120).nullable().optional(),
-  amount: z.number().positive("Amount must be greater than zero"),
+  amount: z.number().positive('Amount must be greater than zero'),
   currency: z.string().nullable().optional(),
   accountId: z.string().nullable().optional(),
   openedDate: z.number().nullable().optional(),
@@ -48,7 +43,7 @@ export type DebtInput = z.input<typeof debtSchema>;
  *  `dueDate` field (informal debts with no plan). */
 function scheduleDueDate(
   installments: { dueDate: number }[] | undefined,
-  fallback: number | null | undefined
+  fallback: number | null | undefined,
 ): Date | null {
   if (installments && installments.length > 0) {
     return new Date(Math.max(...installments.map((i) => i.dueDate)));
@@ -56,12 +51,10 @@ function scheduleDueDate(
   return fallback ? new Date(fallback) : null;
 }
 
-export async function createDebt(
-  input: DebtInput
-): Promise<ActionResult<{ id: string }>> {
+export async function createDebt(input: DebtInput): Promise<ActionResult<{ id: string }>> {
   const parsed = debtSchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   const { base, rates } = await getConversionContext();
   const isForeign = !!v.currency && v.currency !== base;
@@ -100,7 +93,7 @@ export async function createDebt(
         amount: toCents(i.amount),
         dueDate: new Date(i.dueDate),
         note: i.note || null,
-      }))
+      })),
     );
   }
 
@@ -110,24 +103,20 @@ export async function createDebt(
   // The debt itself carries the offsetting liability/asset, so net worth is flat
   // at creation and the account balance reflects the real cash you got/gave.
   if (v.recordTransaction && v.accountId) {
-    const signed = v.kind === "payable" ? principal : -principal;
+    const signed = v.kind === 'payable' ? principal : -principal;
     await db.insert(transactions).values({
       id: newId(),
       accountId: v.accountId,
       categoryId: null,
-      type: v.kind === "payable" ? "income" : "expense",
+      type: v.kind === 'payable' ? 'income' : 'expense',
       amount: signed,
       currency: base,
-      originalAmount: isForeign
-        ? v.kind === "payable"
-          ? enteredCents
-          : -enteredCents
-        : null,
+      originalAmount: isForeign ? (v.kind === 'payable' ? enteredCents : -enteredCents) : null,
       originalCurrency: isForeign ? v.currency! : null,
       date: when,
       payee: v.counterparty,
       notes: v.name || null,
-      status: "cleared",
+      status: 'cleared',
       debtId: row.id,
     });
   }
@@ -136,13 +125,10 @@ export async function createDebt(
   return { ok: true, data: { id: row.id } };
 }
 
-export async function updateDebt(
-  id: string,
-  input: DebtInput
-): Promise<ActionResult> {
+export async function updateDebt(id: string, input: DebtInput): Promise<ActionResult> {
   const parsed = debtSchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   const { base, rates } = await getConversionContext();
   const isForeign = !!v.currency && v.currency !== base;
@@ -155,12 +141,7 @@ export async function updateDebt(
   // history and stay untouched; the incoming list replaces the PENDING ones.
   await db
     .delete(debtInstallments)
-    .where(
-      and(
-        eq(debtInstallments.debtId, id),
-        isNull(debtInstallments.paidPaymentId)
-      )
-    );
+    .where(and(eq(debtInstallments.debtId, id), isNull(debtInstallments.paidPaymentId)));
   if (v.installments && v.installments.length > 0) {
     await db.insert(debtInstallments).values(
       v.installments.map((i) => ({
@@ -169,7 +150,7 @@ export async function updateDebt(
         amount: toCents(i.amount),
         dueDate: new Date(i.dueDate),
         note: i.note || null,
-      }))
+      })),
     );
   }
 
@@ -236,23 +217,19 @@ export type DebtPaymentInput = z.input<typeof paymentSchema>;
  *  `recordTransaction` is set (and the debt has a linked account) it also posts
  *  the matching cash movement so net worth stays consistent. Auto-settles when
  *  fully paid. */
-export async function addDebtPayment(
-  input: DebtPaymentInput
-): Promise<ActionResult> {
+export async function addDebtPayment(input: DebtPaymentInput): Promise<ActionResult> {
   const parsed = paymentSchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
 
   const debt = await db.select().from(debts).where(eq(debts.id, v.debtId)).get();
-  if (!debt) return { ok: false, error: "Debt not found" };
+  if (!debt) return { ok: false, error: 'Debt not found' };
 
   const { base, rates } = await getConversionContext();
   const isForeign = !!v.currency && v.currency !== base;
   const enteredCents = toCents(v.amount);
-  const amount = isForeign
-    ? convertToBase(enteredCents, v.currency!, base, rates)
-    : enteredCents;
+  const amount = isForeign ? convertToBase(enteredCents, v.currency!, base, rates) : enteredCents;
   const when = v.date ? new Date(v.date) : new Date();
 
   await postDebtPaymentCore({
@@ -270,14 +247,8 @@ export async function addDebtPayment(
   return { ok: true };
 }
 
-export async function setDebtStatus(
-  id: string,
-  status: "open" | "settled"
-): Promise<ActionResult> {
-  await db
-    .update(debts)
-    .set({ status, updatedAt: new Date() })
-    .where(eq(debts.id, id));
+export async function setDebtStatus(id: string, status: 'open' | 'settled'): Promise<ActionResult> {
+  await db.update(debts).set({ status, updatedAt: new Date() }).where(eq(debts.id, id));
   revalidateFinance();
   return { ok: true };
 }
@@ -285,23 +256,17 @@ export async function setDebtStatus(
 /** Post a specific pending installment now (manual, outside the simulation).
  *  Reduces the debt's outstanding, moves cash if linked, and links the
  *  installment to its payment. Amount is clamped to the remaining outstanding. */
-export async function markInstallmentPaid(
-  installmentId: string
-): Promise<ActionResult> {
+export async function markInstallmentPaid(installmentId: string): Promise<ActionResult> {
   const inst = await db
     .select()
     .from(debtInstallments)
     .where(eq(debtInstallments.id, installmentId))
     .get();
-  if (!inst) return { ok: false, error: "Installment not found" };
+  if (!inst) return { ok: false, error: 'Installment not found' };
   if (inst.paidPaymentId) return { ok: true }; // already paid, no-op
 
-  const debt = await db
-    .select()
-    .from(debts)
-    .where(eq(debts.id, inst.debtId))
-    .get();
-  if (!debt) return { ok: false, error: "Debt not found" };
+  const debt = await db.select().from(debts).where(eq(debts.id, inst.debtId)).get();
+  if (!debt) return { ok: false, error: 'Debt not found' };
 
   const { base } = await getConversionContext();
   const paidRow = await db
@@ -310,8 +275,7 @@ export async function markInstallmentPaid(
     .where(eq(debtPayments.debtId, debt.id))
     .get();
   const outstanding = Math.max(0, debt.principal - Number(paidRow?.paid ?? 0));
-  if (outstanding <= 0)
-    return { ok: false, error: "Debt already settled" };
+  if (outstanding <= 0) return { ok: false, error: 'Debt already settled' };
 
   const { paymentId } = await postDebtPaymentCore({
     debt,
@@ -332,15 +296,13 @@ export async function markInstallmentPaid(
 
 /** Undo a posted installment: delete its payment and the linked cash movement,
  *  return the installment to pending, and reopen the debt if it had settled. */
-export async function revertInstallment(
-  installmentId: string
-): Promise<ActionResult> {
+export async function revertInstallment(installmentId: string): Promise<ActionResult> {
   const inst = await db
     .select()
     .from(debtInstallments)
     .where(eq(debtInstallments.id, installmentId))
     .get();
-  if (!inst) return { ok: false, error: "Installment not found" };
+  if (!inst) return { ok: false, error: 'Installment not found' };
   if (!inst.paidPaymentId) return { ok: true }; // already pending, no-op
 
   const paymentId = inst.paidPaymentId;
@@ -352,12 +314,8 @@ export async function revertInstallment(
     .where(eq(debtInstallments.id, installmentId));
 
   // reopen the debt if it was settled and is now under-paid again
-  const debt = await db
-    .select()
-    .from(debts)
-    .where(eq(debts.id, inst.debtId))
-    .get();
-  if (debt && debt.status === "settled") {
+  const debt = await db.select().from(debts).where(eq(debts.id, inst.debtId)).get();
+  if (debt && debt.status === 'settled') {
     const paidRow = await db
       .select({ paid: sql<number>`COALESCE(SUM(${debtPayments.amount}), 0)` })
       .from(debtPayments)
@@ -366,7 +324,7 @@ export async function revertInstallment(
     if (Number(paidRow?.paid ?? 0) < debt.principal) {
       await db
         .update(debts)
-        .set({ status: "open", updatedAt: new Date() })
+        .set({ status: 'open', updatedAt: new Date() })
         .where(eq(debts.id, debt.id));
     }
   }
@@ -375,10 +333,7 @@ export async function revertInstallment(
   return { ok: true };
 }
 
-export async function deleteDebtPayment(
-  id: string,
-  debtId: string
-): Promise<ActionResult> {
+export async function deleteDebtPayment(id: string, debtId: string): Promise<ActionResult> {
   // reclaim the payment's linked cash movement and unlink any installment it
   // settled, so outstanding, net worth and the schedule all stay consistent.
   await db.delete(transactions).where(eq(transactions.debtPaymentId, id));
@@ -395,10 +350,10 @@ export async function deleteDebtPayment(
       .from(debtPayments)
       .where(eq(debtPayments.debtId, debtId))
       .get();
-    if (Number(paidRow?.paid ?? 0) < debt.principal && debt.status === "settled") {
+    if (Number(paidRow?.paid ?? 0) < debt.principal && debt.status === 'settled') {
       await db
         .update(debts)
-        .set({ status: "open", updatedAt: new Date() })
+        .set({ status: 'open', updatedAt: new Date() })
         .where(eq(debts.id, debtId));
     }
   }

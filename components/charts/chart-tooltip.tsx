@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useSettings } from "@/components/providers/settings-provider";
+import * as React from 'react';
+import { useSettings } from '@/components/providers/settings-provider';
 
 export interface TooltipEntry {
   name?: string | number;
@@ -46,17 +46,13 @@ export function ChartTooltip({
                 className="h-[3px] w-3 rounded-full"
                 style={{
                   background:
-                    row.color ??
-                    (row.payload?.fill as string) ??
-                    "var(--muted-foreground)",
+                    row.color ?? (row.payload?.fill as string) ?? 'var(--muted-foreground)',
                 }}
               />
               {row.name}
             </span>
             <span className="tnum font-medium text-foreground">
-              {money && typeof row.value === "number"
-                ? fmt(row.value)
-                : row.value}
+              {money && typeof row.value === 'number' ? fmt(row.value) : row.value}
             </span>
           </div>
         ))}

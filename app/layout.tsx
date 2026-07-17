@@ -1,36 +1,34 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
-import { fontVariables } from "./fonts";
-import { cn, iconStrokeVars } from "@/lib/utils";
-import { ThemeProvider } from "@/components/providers/theme-provider";
-import { SettingsProvider } from "@/components/providers/settings-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
-import { getSettings } from "@/lib/data/settings";
-import { getRatesMap } from "@/lib/data/rates";
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
+import { fontVariables } from './fonts';
+import { cn, iconStrokeVars } from '@/lib/utils';
+import { ThemeProvider } from '@/components/providers/theme-provider';
+import { SettingsProvider } from '@/components/providers/settings-provider';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/sonner';
+import { getSettings } from '@/lib/data/settings';
+import { getRatesMap } from '@/lib/data/rates';
 
 export const metadata: Metadata = {
   title: {
-    default: "Ample — personal finance",
-    template: "%s · Ample",
+    default: 'Ample — personal finance',
+    template: '%s · Ample',
   },
   description:
-    "Ample — a beautifully-printed wealth statement you actually enjoy opening. Track accounts, budgets, goals and net worth.",
-  applicationName: "Ample",
+    'Ample — a beautifully-printed wealth statement you actually enjoy opening. Track accounts, budgets, goals and net worth.',
+  applicationName: 'Ample',
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f3ea" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1712" },
+    { media: '(prefers-color-scheme: light)', color: '#f7f3ea' },
+    { media: '(prefers-color-scheme: dark)', color: '#1a1712' },
   ],
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const settings = await getSettings();
   const rates = await getRatesMap(settings.baseCurrency);
 
@@ -45,7 +43,7 @@ export default async function RootLayout({
           ...iconStrokeVars(settings.iconStroke),
         } as React.CSSProperties
       }
-      className={cn(fontVariables, settings.hideAmounts && "privacy-on")}
+      className={cn(fontVariables, settings.hideAmounts && 'privacy-on')}
     >
       <body className="min-h-dvh antialiased">
         <ThemeProvider

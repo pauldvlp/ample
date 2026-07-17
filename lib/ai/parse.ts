@@ -8,7 +8,7 @@
  * when an API key is present without changing any callers.
  */
 
-import { currencySymbol } from "@/lib/money";
+import { currencySymbol } from '@/lib/money';
 
 export interface ParseCategory {
   id: string;
@@ -23,7 +23,7 @@ export interface ParseContext {
 }
 
 export interface ParsedTransaction {
-  type: "income" | "expense";
+  type: 'income' | 'expense';
   /** major units (e.g. 50.0) */
   amount: number;
   currency: string;
@@ -37,24 +37,24 @@ export interface ParsedTransaction {
 }
 
 const SYMBOL_TO_CODE: Record<string, string> = {
-  L: "HNL",
-  Q: "GTQ",
-  "€": "EUR",
-  "£": "GBP",
-  "¥": "JPY",
-  "₡": "CRC",
-  "R$": "BRL",
-  Fr: "CHF",
+  L: 'HNL',
+  Q: 'GTQ',
+  '€': 'EUR',
+  '£': 'GBP',
+  '¥': 'JPY',
+  '₡': 'CRC',
+  R$: 'BRL',
+  Fr: 'CHF',
 };
 
 const WORD_TO_CODE: Array<[RegExp, string]> = [
-  [/\b(usd|d[oó]lares?|dollars?|bucks?)\b/i, "USD"],
-  [/\b(hnl|lempiras?|lps?)\b/i, "HNL"],
-  [/\b(eur|euros?)\b/i, "EUR"],
-  [/\b(gbp|pounds?|libras?)\b/i, "GBP"],
-  [/\b(gtq|quetzales?)\b/i, "GTQ"],
-  [/\b(crc|colones?)\b/i, "CRC"],
-  [/\b(mxn|pesos?)\b/i, "MXN"],
+  [/\b(usd|d[oó]lares?|dollars?|bucks?)\b/i, 'USD'],
+  [/\b(hnl|lempiras?|lps?)\b/i, 'HNL'],
+  [/\b(eur|euros?)\b/i, 'EUR'],
+  [/\b(gbp|pounds?|libras?)\b/i, 'GBP'],
+  [/\b(gtq|quetzales?)\b/i, 'GTQ'],
+  [/\b(crc|colones?)\b/i, 'CRC'],
+  [/\b(mxn|pesos?)\b/i, 'MXN'],
 ];
 
 const INCOME_HINT =
@@ -62,23 +62,51 @@ const INCOME_HINT =
 
 // keyword -> canonical category name (matched case-insensitively against the
 // user's actual categories of the resolved kind)
-const CATEGORY_HINTS: Array<{ re: RegExp; name: string; kind: "expense" | "income" }> = [
-  { re: /\b(super|supermercado|mercado|groceries?|abarrotes)\b/i, name: "Groceries", kind: "expense" },
-  { re: /\b(comida|restaurante|almuerzo|cena|desayuno|dining|lunch|dinner|caf[eé]|coffee|pizza|burger)\b/i, name: "Dining", kind: "expense" },
-  { re: /\b(gasolina|combustible|fuel|gas|nafta)\b/i, name: "Fuel", kind: "expense" },
-  { re: /\b(uber|taxi|bus|transporte|transport|pasaje|metro)\b/i, name: "Transport", kind: "expense" },
-  { re: /\b(renta|alquiler|rent|housing|hogar|casa)\b/i, name: "Housing", kind: "expense" },
-  { re: /\b(luz|agua|internet|utilities|servicios|electricidad|cable)\b/i, name: "Utilities", kind: "expense" },
-  { re: /\b(ropa|clothes|shopping|compras?|zapatos|tienda)\b/i, name: "Shopping", kind: "expense" },
-  { re: /\b(salud|doctor|m[eé]dico|farmacia|health|pharmacy|medicina)\b/i, name: "Health", kind: "expense" },
-  { re: /\b(netflix|spotify|subscription|suscripci[oó]n|hbo|disney|prime)\b/i, name: "Subscriptions", kind: "expense" },
-  { re: /\b(gym|gimnasio|fitness|ejercicio)\b/i, name: "Fitness", kind: "expense" },
-  { re: /\b(cine|movie|pel[íi]cula|entertainment|juego|game)\b/i, name: "Entertainment", kind: "expense" },
-  { re: /\b(viaje|travel|vuelo|flight|hotel|airbnb)\b/i, name: "Travel", kind: "expense" },
-  { re: /\b(salario|sueldo|salary|payroll|n[oó]mina)\b/i, name: "Salary", kind: "income" },
-  { re: /\b(freelance|proyecto|gig|cliente)\b/i, name: "Freelance", kind: "income" },
-  { re: /\b(inter[eé]s|interest|dividendo|dividend)\b/i, name: "Interest", kind: "income" },
-  { re: /\b(regalo|gift|bono|bonus)\b/i, name: "Gifts", kind: "income" },
+const CATEGORY_HINTS: Array<{ re: RegExp; name: string; kind: 'expense' | 'income' }> = [
+  {
+    re: /\b(super|supermercado|mercado|groceries?|abarrotes)\b/i,
+    name: 'Groceries',
+    kind: 'expense',
+  },
+  {
+    re: /\b(comida|restaurante|almuerzo|cena|desayuno|dining|lunch|dinner|caf[eé]|coffee|pizza|burger)\b/i,
+    name: 'Dining',
+    kind: 'expense',
+  },
+  { re: /\b(gasolina|combustible|fuel|gas|nafta)\b/i, name: 'Fuel', kind: 'expense' },
+  {
+    re: /\b(uber|taxi|bus|transporte|transport|pasaje|metro)\b/i,
+    name: 'Transport',
+    kind: 'expense',
+  },
+  { re: /\b(renta|alquiler|rent|housing|hogar|casa)\b/i, name: 'Housing', kind: 'expense' },
+  {
+    re: /\b(luz|agua|internet|utilities|servicios|electricidad|cable)\b/i,
+    name: 'Utilities',
+    kind: 'expense',
+  },
+  { re: /\b(ropa|clothes|shopping|compras?|zapatos|tienda)\b/i, name: 'Shopping', kind: 'expense' },
+  {
+    re: /\b(salud|doctor|m[eé]dico|farmacia|health|pharmacy|medicina)\b/i,
+    name: 'Health',
+    kind: 'expense',
+  },
+  {
+    re: /\b(netflix|spotify|subscription|suscripci[oó]n|hbo|disney|prime)\b/i,
+    name: 'Subscriptions',
+    kind: 'expense',
+  },
+  { re: /\b(gym|gimnasio|fitness|ejercicio)\b/i, name: 'Fitness', kind: 'expense' },
+  {
+    re: /\b(cine|movie|pel[íi]cula|entertainment|juego|game)\b/i,
+    name: 'Entertainment',
+    kind: 'expense',
+  },
+  { re: /\b(viaje|travel|vuelo|flight|hotel|airbnb)\b/i, name: 'Travel', kind: 'expense' },
+  { re: /\b(salario|sueldo|salary|payroll|n[oó]mina)\b/i, name: 'Salary', kind: 'income' },
+  { re: /\b(freelance|proyecto|gig|cliente)\b/i, name: 'Freelance', kind: 'income' },
+  { re: /\b(inter[eé]s|interest|dividendo|dividend)\b/i, name: 'Interest', kind: 'income' },
+  { re: /\b(regalo|gift|bono|bonus)\b/i, name: 'Gifts', kind: 'income' },
 ];
 
 function parseAmount(text: string): { amount: number; matchIndex: number } | null {
@@ -87,18 +115,18 @@ function parseAmount(text: string): { amount: number; matchIndex: number } | nul
   const m = re.exec(text);
   if (!m) return null;
   let raw = m[2];
-  const hasComma = raw.includes(",");
-  const hasDot = raw.includes(".");
+  const hasComma = raw.includes(',');
+  const hasDot = raw.includes('.');
   if (hasComma && hasDot) {
     // the last separator is the decimal one
-    const dec = raw.lastIndexOf(",") > raw.lastIndexOf(".") ? "," : ".";
-    const thou = dec === "," ? "." : ",";
-    raw = raw.split(thou).join("").replace(dec, ".");
+    const dec = raw.lastIndexOf(',') > raw.lastIndexOf('.') ? ',' : '.';
+    const thou = dec === ',' ? '.' : ',';
+    raw = raw.split(thou).join('').replace(dec, '.');
   } else if (hasComma) {
     // "1,50" -> decimal; "1,500" -> thousands
-    raw = /,\d{3}\b/.test(raw) ? raw.replace(/,/g, "") : raw.replace(",", ".");
+    raw = /,\d{3}\b/.test(raw) ? raw.replace(/,/g, '') : raw.replace(',', '.');
   } else if (hasDot) {
-    raw = /\.\d{3}\b/.test(raw) ? raw.replace(/\./g, "") : raw;
+    raw = /\.\d{3}\b/.test(raw) ? raw.replace(/\./g, '') : raw;
   }
   const amount = Number(raw);
   if (!Number.isFinite(amount) || amount <= 0) return null;
@@ -112,7 +140,7 @@ function detectCurrency(text: string, base: string): string {
   // prefer the user's base currency whenever it shares that symbol. Only fall
   // back to the "canonical" code (USD, HNL…) when the base uses a different one.
   const baseSym = currencySymbol(base);
-  if (/\$/.test(text)) return baseSym === "$" ? base : "USD";
+  if (/\$/.test(text)) return baseSym === '$' ? base : 'USD';
   for (const [sym, code] of Object.entries(SYMBOL_TO_CODE)) {
     if (text.includes(sym)) return baseSym === sym ? base : code;
   }
@@ -131,22 +159,19 @@ function detectPayee(text: string): string | null {
   if (!m) return null;
   // stop at connectors and trim trailing filler
   let p = m[1].split(/\b(?:por|for|con|and|y|el|la|los|las|de)\b/i)[0].trim();
-  p = p.replace(/[.,;:]+$/, "").trim();
+  p = p.replace(/[.,;:]+$/, '').trim();
   if (p.length < 2) return null;
   // Title-case single-word brands
   return p.length <= 30 ? p : p.slice(0, 30);
 }
 
-export function parseTransaction(
-  text: string,
-  ctx: ParseContext
-): ParsedTransaction | null {
+export function parseTransaction(text: string, ctx: ParseContext): ParsedTransaction | null {
   const trimmed = text.trim();
   if (!trimmed) return null;
   const amt = parseAmount(trimmed);
   if (!amt) return null;
 
-  const type: "income" | "expense" = INCOME_HINT.test(trimmed) ? "income" : "expense";
+  const type: 'income' | 'expense' = INCOME_HINT.test(trimmed) ? 'income' : 'expense';
   const currency = detectCurrency(trimmed, ctx.baseCurrency);
   const date = detectDate(trimmed, ctx.now);
 
@@ -157,9 +182,7 @@ export function parseTransaction(
   for (const hint of CATEGORY_HINTS) {
     if (hint.kind !== type) continue;
     if (!hint.re.test(trimmed)) continue;
-    const match = ofKind.find(
-      (c) => c.name.toLowerCase() === hint.name.toLowerCase()
-    );
+    const match = ofKind.find((c) => c.name.toLowerCase() === hint.name.toLowerCase());
     if (match) {
       categoryId = match.id;
       categoryName = match.name;
@@ -169,9 +192,7 @@ export function parseTransaction(
   // fallback: a category name appears verbatim in the text
   if (!categoryId) {
     const direct = ofKind.find((c) =>
-      new RegExp(`\\b${c.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(
-        trimmed
-      )
+      new RegExp(`\\b${c.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(trimmed),
     );
     if (direct) {
       categoryId = direct.id;

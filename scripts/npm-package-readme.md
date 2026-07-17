@@ -28,11 +28,11 @@ assistant's provider/API key — is configured **in the app**, under Settings.
 The only things configurable outside the app are where it listens and where
 it stores data:
 
-| Flag | Env var | Default | Purpose |
-| --- | --- | --- | --- |
-| `--port <n>` | `PORT` / `AMPLE_PORT` | `4211` | HTTP port |
-| `--host <addr>` | `HOSTNAME` | `127.0.0.1` | Bind address — pass `--host 0.0.0.0` for LAN/phone access |
-| `--data-dir <dir>` | `DB_FILE_NAME` (full file path, not a directory) | per-OS app-data dir | Where the SQLite database lives |
+| Flag               | Env var                                          | Default             | Purpose                                                   |
+| ------------------ | ------------------------------------------------ | ------------------- | --------------------------------------------------------- |
+| `--port <n>`       | `PORT` / `AMPLE_PORT`                            | `4211`              | HTTP port                                                 |
+| `--host <addr>`    | `HOSTNAME`                                       | `127.0.0.1`         | Bind address — pass `--host 0.0.0.0` for LAN/phone access |
+| `--data-dir <dir>` | `DB_FILE_NAME` (full file path, not a directory) | per-OS app-data dir | Where the SQLite database lives                           |
 
 ```bash
 npx @pauldvlp/ample --port 8080 --host 0.0.0.0

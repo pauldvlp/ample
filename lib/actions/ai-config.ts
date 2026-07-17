@@ -1,13 +1,13 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
-import { settings, AI_PROVIDERS, type AiProvider } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-import { verifyAiKey, listAvailableModels } from "@/lib/ai/provider";
-import { getSettings } from "@/lib/data/settings";
-import type { ActionResult } from "./shared";
+import { z } from 'zod';
+import { db } from '@/db';
+import { settings, AI_PROVIDERS, type AiProvider } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
+import { verifyAiKey, listAvailableModels } from '@/lib/ai/provider';
+import { getSettings } from '@/lib/data/settings';
+import type { ActionResult } from './shared';
 
 const SINGLETON_ID = 1;
 
@@ -26,18 +26,17 @@ export type AiConfigInput = z.infer<typeof configSchema>;
  * never returned to the client. Passing an empty `apiKey` keeps the stored one.
  */
 export async function saveAiConfig(
-  input: AiConfigInput
+  input: AiConfigInput,
 ): Promise<ActionResult<{ enabled: boolean }>> {
   const parsed = configSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "invalid" };
+  if (!parsed.success) return { ok: false, error: 'invalid' };
   const { enabled, provider, apiKey, model } = parsed.data;
 
   const current = await getSettings();
-  const nextKey =
-    apiKey && apiKey.length > 0 ? apiKey : current.aiApiKey ?? null;
+  const nextKey = apiKey && apiKey.length > 0 ? apiKey : (current.aiApiKey ?? null);
 
   if (enabled && (!provider || !nextKey)) {
-    return { ok: false, error: "missing-key" };
+    return { ok: false, error: 'missing-key' };
   }
 
   await db
@@ -51,7 +50,7 @@ export async function saveAiConfig(
     })
     .where(eq(settings.id, SINGLETON_ID));
 
-  revalidatePath("/", "layout");
+  revalidatePath('/', 'layout');
   return { ok: true, data: { enabled } };
 }
 
@@ -62,11 +61,8 @@ export async function testAiConnection(input: {
   model?: string | null;
 }): Promise<ActionResult> {
   const current = await getSettings();
-  const key =
-    input.apiKey && input.apiKey.length > 0
-      ? input.apiKey
-      : current.aiApiKey ?? "";
-  if (!key) return { ok: false, error: "missing-key" };
+  const key = input.apiKey && input.apiKey.length > 0 ? input.apiKey : (current.aiApiKey ?? '');
+  if (!key) return { ok: false, error: 'missing-key' };
   const res = await verifyAiKey(input.provider, key, input.model ?? undefined);
   return res.ok ? { ok: true } : { ok: false, error: res.error };
 }
@@ -77,16 +73,13 @@ export async function fetchAiModels(input: {
   apiKey?: string;
 }): Promise<ActionResult<{ models: string[] }>> {
   const current = await getSettings();
-  const key =
-    input.apiKey && input.apiKey.length > 0
-      ? input.apiKey
-      : current.aiApiKey ?? "";
-  if (!key) return { ok: false, error: "missing-key" };
+  const key = input.apiKey && input.apiKey.length > 0 ? input.apiKey : (current.aiApiKey ?? '');
+  if (!key) return { ok: false, error: 'missing-key' };
   try {
     const models = await listAvailableModels(input.provider, key);
     return { ok: true, data: { models } };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "error" };
+    return { ok: false, error: e instanceof Error ? e.message : 'error' };
   }
 }
 

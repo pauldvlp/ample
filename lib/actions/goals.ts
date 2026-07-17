@@ -1,16 +1,16 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { db } from "@/db";
-import { goals, goalContributions, GOAL_STATUS } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
-import { toCents } from "@/lib/money";
-import { newId } from "@/lib/ids";
-import { revalidateFinance, type ActionResult } from "./shared";
+import { z } from 'zod';
+import { db } from '@/db';
+import { goals, goalContributions, GOAL_STATUS } from '@/db/schema';
+import { eq, sql } from 'drizzle-orm';
+import { toCents } from '@/lib/money';
+import { newId } from '@/lib/ids';
+import { revalidateFinance, type ActionResult } from './shared';
 
 const goalSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(80),
-  targetAmount: z.number().positive("Target must be greater than zero"),
+  name: z.string().trim().min(1, 'Name is required').max(80),
+  targetAmount: z.number().positive('Target must be greater than zero'),
   currentAmount: z.number().min(0).default(0),
   targetDate: z.number().nullable().optional(), // epoch ms
   accountId: z.string().nullable().optional(),
@@ -21,12 +21,10 @@ const goalSchema = z.object({
 
 export type GoalInput = z.input<typeof goalSchema>;
 
-export async function createGoal(
-  input: GoalInput
-): Promise<ActionResult<{ id: string }>> {
+export async function createGoal(input: GoalInput): Promise<ActionResult<{ id: string }>> {
   const parsed = goalSchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   const row = await db
     .insert(goals)
@@ -46,13 +44,10 @@ export async function createGoal(
   return { ok: true, data: { id: row.id } };
 }
 
-export async function updateGoal(
-  id: string,
-  input: GoalInput
-): Promise<ActionResult> {
+export async function updateGoal(id: string, input: GoalInput): Promise<ActionResult> {
   const parsed = goalSchema.safeParse(input);
   if (!parsed.success)
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid data' };
   const v = parsed.data;
   await db
     .update(goals)
@@ -80,12 +75,9 @@ export async function deleteGoal(id: string): Promise<ActionResult> {
 
 export async function setGoalStatus(
   id: string,
-  status: (typeof GOAL_STATUS)[number]
+  status: (typeof GOAL_STATUS)[number],
 ): Promise<ActionResult> {
-  await db
-    .update(goals)
-    .set({ status, updatedAt: new Date() })
-    .where(eq(goals.id, id));
+  await db.update(goals).set({ status, updatedAt: new Date() }).where(eq(goals.id, id));
   revalidateFinance();
   return { ok: true };
 }
@@ -93,10 +85,9 @@ export async function setGoalStatus(
 export async function addContribution(
   goalId: string,
   amount: number,
-  note?: string
+  note?: string,
 ): Promise<ActionResult> {
-  if (!Number.isFinite(amount) || amount === 0)
-    return { ok: false, error: "Enter an amount" };
+  if (!Number.isFinite(amount) || amount === 0) return { ok: false, error: 'Enter an amount' };
   const cents = toCents(amount);
   await db.insert(goalContributions).values({
     id: newId(),
@@ -114,8 +105,8 @@ export async function addContribution(
     .where(eq(goals.id, goalId));
   // auto-complete
   const g = await db.select().from(goals).where(eq(goals.id, goalId)).get();
-  if (g && g.currentAmount >= g.targetAmount && g.status === "active") {
-    await db.update(goals).set({ status: "completed" }).where(eq(goals.id, goalId));
+  if (g && g.currentAmount >= g.targetAmount && g.status === 'active') {
+    await db.update(goals).set({ status: 'completed' }).where(eq(goals.id, goalId));
   }
   revalidateFinance();
   return { ok: true };
@@ -124,11 +115,9 @@ export async function addContribution(
 export async function deleteContribution(
   contributionId: string,
   goalId: string,
-  amount: number
+  amount: number,
 ): Promise<ActionResult> {
-  await db
-    .delete(goalContributions)
-    .where(eq(goalContributions.id, contributionId));
+  await db.delete(goalContributions).where(eq(goalContributions.id, contributionId));
   await db
     .update(goals)
     .set({

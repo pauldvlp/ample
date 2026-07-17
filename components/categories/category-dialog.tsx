@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,11 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { CategoryForm } from "./category-form";
-import { useT } from "@/components/providers/settings-provider";
-import type { Category, CategoryKind } from "@/db/schema";
-import type { CategoryOption } from "@/lib/types";
+} from '@/components/ui/dialog';
+import { CategoryForm } from './category-form';
+import { useT } from '@/components/providers/settings-provider';
+import type { Category, CategoryKind } from '@/db/schema';
+import type { CategoryOption } from '@/lib/types';
 
 export function CategoryDialog({
   category,
@@ -42,11 +42,9 @@ export function CategoryDialog({
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? t("categories.editTitle") : t("categories.newTitle")}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? t('categories.editTitle') : t('categories.newTitle')}</DialogTitle>
           <DialogDescription>
-            {isEdit ? t("categories.editDesc") : t("categories.newDesc")}
+            {isEdit ? t('categories.editDesc') : t('categories.newDesc')}
           </DialogDescription>
         </DialogHeader>
         <CategoryForm

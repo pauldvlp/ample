@@ -1,15 +1,15 @@
-import "server-only";
-import { db } from "@/db";
+import 'server-only';
+import { db } from '@/db';
 import {
   recurringRules,
   accounts,
   categories,
   transactions,
   type RecurringRule,
-} from "@/db/schema";
-import { asc, eq, isNotNull, sql } from "drizzle-orm";
-import { addDays } from "date-fns";
-import { getNow } from "./clock";
+} from '@/db/schema';
+import { asc, eq, isNotNull, sql } from 'drizzle-orm';
+import { addDays } from 'date-fns';
+import { getNow } from './clock';
 
 export interface RecurringWithRefs extends RecurringRule {
   accountName: string | null;
@@ -88,29 +88,17 @@ export interface UpcomingBill extends RecurringWithRefs {
   daysUntil: number;
 }
 
-export async function getUpcomingBills(
-  withinDays = 30
-): Promise<UpcomingBill[]> {
+export async function getUpcomingBills(withinDays = 30): Promise<UpcomingBill[]> {
   const all = await getRecurringRules();
   const now = await getNow();
   const horizon = addDays(now, withinDays);
-  const startOfToday = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate()
-  );
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   return all
-    .filter(
-      (r) =>
-        r.isActive &&
-        r.type !== "income" &&
-        r.nextDueDate <= horizon
-    )
+    .filter((r) => r.isActive && r.type !== 'income' && r.nextDueDate <= horizon)
     .map((r) => ({
       ...r,
       daysUntil: Math.round(
-        (r.nextDueDate.getTime() - startOfToday.getTime()) /
-          (1000 * 60 * 60 * 24)
+        (r.nextDueDate.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24),
       ),
     }))
     .sort((a, b) => a.daysUntil - b.daysUntil);
@@ -133,10 +121,10 @@ export async function getRecurringTotals() {
   const all = await getRecurringRules();
   const active = all.filter((r) => r.isActive);
   const monthlyOut = active
-    .filter((r) => r.type !== "income")
+    .filter((r) => r.type !== 'income')
     .reduce((s, r) => s + r.monthlyEquivalent, 0);
   const monthlyIn = active
-    .filter((r) => r.type === "income")
+    .filter((r) => r.type === 'income')
     .reduce((s, r) => s + r.monthlyEquivalent, 0);
   return { monthlyOut, monthlyIn, count: active.length };
 }

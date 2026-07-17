@@ -1,15 +1,13 @@
-import "server-only";
-import { db } from "@/db";
-import { categories, transactions, type Category, type CategoryKind } from "@/db/schema";
-import { asc, sql, eq } from "drizzle-orm";
+import 'server-only';
+import { db } from '@/db';
+import { categories, transactions, type Category, type CategoryKind } from '@/db/schema';
+import { asc, sql, eq } from 'drizzle-orm';
 
 export interface CategoryWithUsage extends Category {
   txCount: number;
 }
 
-export async function getCategories(
-  includeArchived = false
-): Promise<Category[]> {
+export async function getCategories(includeArchived = false): Promise<Category[]> {
   const rows = await db
     .select()
     .from(categories)
@@ -17,9 +15,7 @@ export async function getCategories(
   return includeArchived ? rows : rows.filter((c) => !c.isArchived);
 }
 
-export async function getCategoriesByKind(
-  kind: CategoryKind
-): Promise<Category[]> {
+export async function getCategoriesByKind(kind: CategoryKind): Promise<Category[]> {
   return (await getCategories()).filter((c) => c.kind === kind);
 }
 
@@ -37,8 +33,5 @@ export async function getCategoriesWithUsage(): Promise<CategoryWithUsage[]> {
 }
 
 export async function getCategory(id: string): Promise<Category | null> {
-  return (
-    (await db.select().from(categories).where(eq(categories.id, id)).get()) ??
-    null
-  );
+  return (await db.select().from(categories).where(eq(categories.id, id)).get()) ?? null;
 }

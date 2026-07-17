@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { toast } from "sonner";
+import * as React from 'react';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -9,25 +9,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { useT } from "@/components/providers/settings-provider";
-import { Field, AmountInput } from "@/components/shared/form-fields";
-import { IconDisc } from "@/components/shared/badges";
-import { Icon } from "@/components/shared/icon";
-import { upsertBudget } from "@/lib/actions/budgets";
-import { fromCents } from "@/lib/money";
-import { formatMonthLabel } from "@/lib/format";
-import type { Category } from "@/db/schema";
-import type { BudgetLine } from "@/lib/data/budgets";
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { useT } from '@/components/providers/settings-provider';
+import { Field, AmountInput } from '@/components/shared/form-fields';
+import { IconDisc } from '@/components/shared/badges';
+import { Icon } from '@/components/shared/icon';
+import { upsertBudget } from '@/lib/actions/budgets';
+import { fromCents } from '@/lib/money';
+import { formatMonthLabel } from '@/lib/format';
+import type { Category } from '@/db/schema';
+import type { BudgetLine } from '@/lib/data/budgets';
 
 /**
  * Reusable budget upsert dialog. Three modes:
@@ -61,12 +61,8 @@ export function BudgetEditor({
   const isFixed = fixedId != null;
   const isEdit = !!line;
 
-  const [categoryId, setCategoryId] = React.useState(
-    fixedId ?? categories[0]?.id ?? ""
-  );
-  const [amount, setAmount] = React.useState(
-    line ? String(fromCents(line.amount)) : ""
-  );
+  const [categoryId, setCategoryId] = React.useState(fixedId ?? categories[0]?.id ?? '');
+  const [amount, setAmount] = React.useState(line ? String(fromCents(line.amount)) : '');
   const [rollover, setRollover] = React.useState(line?.rolloverEnabled ?? false);
   const [pending, setPending] = React.useState(false);
 
@@ -77,8 +73,8 @@ export function BudgetEditor({
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {
-      setCategoryId(fixedId ?? categories[0]?.id ?? "");
-      setAmount(line ? String(fromCents(line.amount)) : "");
+      setCategoryId(fixedId ?? categories[0]?.id ?? '');
+      setAmount(line ? String(fromCents(line.amount)) : '');
       setRollover(line?.rolloverEnabled ?? false);
     }
   }
@@ -89,18 +85,18 @@ export function BudgetEditor({
         const c = categories.find((x) => x.id === fixedId);
         return c
           ? { name: c.name, color: c.color, icon: c.icon }
-          : { name: t("budgets.selectedCategory"), color: null, icon: null };
+          : { name: t('budgets.selectedCategory'), color: null, icon: null };
       })();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!categoryId) {
-      toast.error(t("budgets.chooseCategory"));
+      toast.error(t('budgets.chooseCategory'));
       return;
     }
     const amt = Number(amount);
     if (!amt || amt <= 0) {
-      toast.error(t("budgets.enterAmount"));
+      toast.error(t('budgets.enterAmount'));
       return;
     }
 
@@ -114,7 +110,7 @@ export function BudgetEditor({
     setPending(false);
 
     if (res.ok) {
-      toast.success(isEdit ? t("budgets.updatedToast") : t("budgets.setToast"));
+      toast.success(isEdit ? t('budgets.updatedToast') : t('budgets.setToast'));
       setOpen(false);
     } else {
       toast.error(res.error);
@@ -126,18 +122,16 @@ export function BudgetEditor({
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isEdit ? t("budgets.editBudget") : t("budgets.setBudget")}
-          </DialogTitle>
+          <DialogTitle>{isEdit ? t('budgets.editBudget') : t('budgets.setBudget')}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? t("budgets.editDescription", { month: formatMonthLabel(period) })
-              : t("budgets.setDescription", { month: formatMonthLabel(period) })}
+              ? t('budgets.editDescription', { month: formatMonthLabel(period) })
+              : t('budgets.setDescription', { month: formatMonthLabel(period) })}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={submit} className="space-y-4">
-          <Field label={t("common.category")}>
+          <Field label={t('common.category')}>
             {isFixed ? (
               <div className="flex items-center gap-2.5 rounded-lg border border-border/70 bg-muted/40 px-3 py-2">
                 <IconDisc icon={fixedCat.icon} color={fixedCat.color} size="sm" />
@@ -146,11 +140,11 @@ export function BudgetEditor({
             ) : (
               <Select
                 value={categoryId}
-                onValueChange={(v) => setCategoryId(v ?? "")}
+                onValueChange={(v) => setCategoryId(v ?? '')}
                 items={Object.fromEntries(categories.map((c) => [c.id, c.name]))}
               >
                 <SelectTrigger className="w-full min-w-0">
-                  <SelectValue placeholder={t("budgets.chooseCategory")} />
+                  <SelectValue placeholder={t('budgets.chooseCategory')} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((c) => (
@@ -168,21 +162,14 @@ export function BudgetEditor({
             )}
           </Field>
 
-          <Field label={t("budgets.monthlyBudget")} htmlFor="budget-amount">
-            <AmountInput
-              id="budget-amount"
-              value={amount}
-              onChange={setAmount}
-              autoFocus
-            />
+          <Field label={t('budgets.monthlyBudget')} htmlFor="budget-amount">
+            <AmountInput id="budget-amount" value={amount} onChange={setAmount} autoFocus />
           </Field>
 
           <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/40 px-3.5 py-3">
             <div className="min-w-0">
-              <p className="text-sm font-medium">{t("budgets.rollover")}</p>
-              <p className="text-xs text-muted-foreground">
-                {t("budgets.rolloverDescription")}
-              </p>
+              <p className="text-sm font-medium">{t('budgets.rollover')}</p>
+              <p className="text-xs text-muted-foreground">{t('budgets.rolloverDescription')}</p>
             </div>
             <Switch checked={rollover} onCheckedChange={setRollover} />
           </div>
@@ -190,10 +177,10 @@ export function BudgetEditor({
           <div className="flex justify-end gap-2 pt-1">
             <Button type="submit" disabled={pending}>
               {pending
-                ? t("action.saving")
+                ? t('action.saving')
                 : isEdit
-                  ? t("action.saveChanges")
-                  : t("budgets.setBudget")}
+                  ? t('action.saveChanges')
+                  : t('budgets.setBudget')}
             </Button>
           </div>
         </form>

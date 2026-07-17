@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
-import { useSettings } from "@/components/providers/settings-provider";
-import { formatPercent } from "@/lib/money";
-import { CountUp } from "./count-up";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
+import { useSettings } from '@/components/providers/settings-provider';
+import { formatPercent } from '@/lib/money';
+import { CountUp } from './count-up';
+import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
 
 interface AmountProps {
   value: number; // cents
@@ -41,23 +41,12 @@ export function Amount({
   const text = money(shown, {
     compact,
     cents: decimals,
-    signDisplay: showSign ? "exceptZero" : "auto",
+    signDisplay: showSign ? 'exceptZero' : 'auto',
   });
-  const tone =
-    colored && value !== 0
-      ? value > 0
-        ? "text-positive"
-        : "text-negative"
-      : undefined;
+  const tone = colored && value !== 0 ? (value > 0 ? 'text-positive' : 'text-negative') : undefined;
   return (
     <span
-      className={cn(
-        "tnum",
-        ledger && "font-ledger",
-        tone,
-        sensitive && "sensitive",
-        className
-      )}
+      className={cn('tnum', ledger && 'font-ledger', tone, sensitive && 'sensitive', className)}
     >
       {text}
     </span>
@@ -82,7 +71,7 @@ export function AnimatedAmount({
     <CountUp
       value={value}
       format={(n) => money(n, { compact, cents: decimals })}
-      className={cn("tnum", sensitive && "sensitive", className)}
+      className={cn('tnum', sensitive && 'sensitive', className)}
     />
   );
 }
@@ -90,7 +79,7 @@ export function AnimatedAmount({
 interface DeltaChipProps {
   /** ratio for percent, or cents for currency */
   value: number;
-  kind?: "percent" | "currency";
+  kind?: 'percent' | 'currency';
   /** whether an increase is good (income up = good, spend up = bad) */
   positiveIsGood?: boolean;
   className?: string;
@@ -99,7 +88,7 @@ interface DeltaChipProps {
 
 export function DeltaChip({
   value,
-  kind = "percent",
+  kind = 'percent',
   positiveIsGood = true,
   className,
   showIcon = true,
@@ -109,18 +98,18 @@ export function DeltaChip({
   const flat = value === 0;
   const good = flat ? null : up === positiveIsGood;
   const label =
-    kind === "percent"
-      ? formatPercent(value, { signDisplay: "exceptZero" })
-      : money(value, { signDisplay: "exceptZero", compact: Math.abs(value) > 100000 });
+    kind === 'percent'
+      ? formatPercent(value, { signDisplay: 'exceptZero' })
+      : money(value, { signDisplay: 'exceptZero', compact: Math.abs(value) > 100000 });
   const Arrow = up ? ArrowUpRight : ArrowDownRight;
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium tnum",
-        flat && "bg-muted text-muted-foreground",
-        good === true && "bg-positive/12 text-positive",
-        good === false && "bg-negative/12 text-negative",
-        className
+        'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium tnum',
+        flat && 'bg-muted text-muted-foreground',
+        good === true && 'bg-positive/12 text-positive',
+        good === false && 'bg-negative/12 text-negative',
+        className,
       )}
     >
       {showIcon && !flat && <Arrow className="size-3" />}

@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import fs from "node:fs";
-import { eq } from "drizzle-orm";
-import { db, DB_PATH } from "@/db";
+import fs from 'node:fs';
+import { eq } from 'drizzle-orm';
+import { db, DB_PATH } from '@/db';
 import {
   accounts,
   budgets,
@@ -19,13 +19,13 @@ import {
   tags,
   transactions,
   transactionTags,
-} from "@/db/schema";
-import { DEFAULT_CATEGORIES } from "@/lib/constants";
-import { newId } from "@/lib/ids";
-import { revalidateFinance, type ActionResult } from "./shared";
+} from '@/db/schema';
+import { DEFAULT_CATEGORIES } from '@/lib/constants';
+import { newId } from '@/lib/ids';
+import { revalidateFinance, type ActionResult } from './shared';
 
 const SINGLETON_ID = 1;
-const SIM_BACKUP_PATH = DB_PATH.replace(/\.db$/, ".sim-backup.db");
+const SIM_BACKUP_PATH = DB_PATH.replace(/\.db$/, '.sim-backup.db');
 
 /**
  * Permanently erase every piece of financial data — accounts, transactions,
@@ -38,9 +38,7 @@ const SIM_BACKUP_PATH = DB_PATH.replace(/\.db$/, ".sim-backup.db");
  * active time-machine simulation is force-exited first, because its on-disk
  * snapshot would otherwise point at the data we just deleted.
  */
-export async function resetAllData(): Promise<
-  ActionResult<{ categories: number }>
-> {
+export async function resetAllData(): Promise<ActionResult<{ categories: number }>> {
   try {
     const seedCategories = DEFAULT_CATEGORIES.map((c, i) => ({
       id: newId(),
@@ -57,7 +55,7 @@ export async function resetAllData(): Promise<
     // the default categories are re-inserted before the transaction commits.
     const client = db.$client;
     const run = client.transaction(() => {
-      client.pragma("defer_foreign_keys = ON");
+      client.pragma('defer_foreign_keys = ON');
       db.delete(transactionTags).run();
       db.delete(netWorthSnapshotBalances).run();
       db.delete(netWorthSnapshots).run();
@@ -91,7 +89,7 @@ export async function resetAllData(): Promise<
   } catch (e) {
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "Failed to reset data",
+      error: e instanceof Error ? e.message : 'Failed to reset data',
     };
   }
 }

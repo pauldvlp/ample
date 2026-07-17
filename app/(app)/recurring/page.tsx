@@ -1,34 +1,33 @@
-import { PageHeader } from "@/components/shared/page-header";
-import { StatTile } from "@/components/shared/stat-tile";
-import { Amount } from "@/components/shared/amount";
-import { Button } from "@/components/ui/button";
+import { PageHeader } from '@/components/shared/page-header';
+import { StatTile } from '@/components/shared/stat-tile';
+import { Amount } from '@/components/shared/amount';
+import { Button } from '@/components/ui/button';
 import {
   getRecurringTotals,
   getSubscriptions,
   getUpcomingBills,
   getRecurringRules,
-} from "@/lib/data/recurring";
-import { getAccountsWithBalances } from "@/lib/data/accounts";
-import { getCategories } from "@/lib/data/categories";
-import { getPayeeOptions } from "@/lib/data/payees";
-import { RecurringView } from "@/components/recurring/recurring-view";
-import { RecurringDialog } from "@/components/recurring/recurring-dialog";
-import type { AccountOption, CategoryOption } from "@/lib/types";
-import { getT } from "@/lib/i18n/server";
-import { Plus, Repeat } from "lucide-react";
+} from '@/lib/data/recurring';
+import { getAccountsWithBalances } from '@/lib/data/accounts';
+import { getCategories } from '@/lib/data/categories';
+import { getPayeeOptions } from '@/lib/data/payees';
+import { RecurringView } from '@/components/recurring/recurring-view';
+import { RecurringDialog } from '@/components/recurring/recurring-dialog';
+import type { AccountOption, CategoryOption } from '@/lib/types';
+import { getT } from '@/lib/i18n/server';
+import { Plus, Repeat } from 'lucide-react';
 
 export default async function RecurringPage() {
   const t = await getT();
-  const [totals, subscriptions, upcoming, rules, accounts, categories, payees] =
-    await Promise.all([
-      getRecurringTotals(),
-      getSubscriptions(),
-      getUpcomingBills(30),
-      getRecurringRules(),
-      getAccountsWithBalances(),
-      getCategories(),
-      getPayeeOptions(),
-    ]);
+  const [totals, subscriptions, upcoming, rules, accounts, categories, payees] = await Promise.all([
+    getRecurringTotals(),
+    getSubscriptions(),
+    getUpcomingBills(30),
+    getRecurringRules(),
+    getAccountsWithBalances(),
+    getCategories(),
+    getPayeeOptions(),
+  ]);
 
   const accountOptions: AccountOption[] = accounts.map((a) => ({
     id: a.id,
@@ -50,9 +49,9 @@ export default async function RecurringPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={t("recurring.eyebrow")}
-        title={t("recurring.title")}
-        description={t("recurring.description")}
+        eyebrow={t('recurring.eyebrow')}
+        title={t('recurring.title')}
+        description={t('recurring.description')}
         actions={
           <RecurringDialog
             accounts={accountOptions}
@@ -61,7 +60,7 @@ export default async function RecurringPage() {
             trigger={
               <Button size="sm" data-tour="recurring-add">
                 <Plus className="size-4" />
-                {t("recurring.add")}
+                {t('recurring.add')}
               </Button>
             }
           />
@@ -71,36 +70,34 @@ export default async function RecurringPage() {
       {/* KPI strip */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" data-tour="recurring-kpis">
         <StatTile
-          label={t("recurring.monthlyOut")}
+          label={t('recurring.monthlyOut')}
           value={totals.monthlyOut}
           icon="TrendingDown"
           iconColor="var(--negative)"
-          sub={t("recurring.monthlyOutSub")}
+          sub={t('recurring.monthlyOutSub')}
         />
         <StatTile
-          label={t("recurring.subsPerMonth")}
+          label={t('recurring.subsPerMonth')}
           value={subscriptions.monthlyTotal}
           icon="Repeat"
           iconColor="var(--brass)"
           sub={
             <span>
-              <Amount value={subscriptions.annualTotal} compact decimals={false} />
-              {" "}
-              {t("recurring.perYear")}
+              <Amount value={subscriptions.annualTotal} compact decimals={false} />{' '}
+              {t('recurring.perYear')}
             </span>
           }
         />
         <div className="lift flex flex-col justify-between rounded-2xl border border-border/70 bg-card p-4 shadow-card">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[0.68rem] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              {t("recurring.activeRecurring")}
+              {t('recurring.activeRecurring')}
             </p>
             <span
               className="grid size-7 place-items-center rounded-lg"
               style={{
-                backgroundColor:
-                  "color-mix(in oklch, var(--primary) 14%, transparent)",
-                color: "var(--primary)",
+                backgroundColor: 'color-mix(in oklch, var(--primary) 14%, transparent)',
+                color: 'var(--primary)',
               }}
             >
               <Repeat className="size-3.5" />
@@ -112,7 +109,7 @@ export default async function RecurringPage() {
             </span>
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            {t("recurring.subsCount", { n: subscriptions.items.length })}
+            {t('recurring.subsCount', { n: subscriptions.items.length })}
           </p>
         </div>
       </div>

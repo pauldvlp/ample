@@ -1,24 +1,24 @@
-import "server-only";
+import 'server-only';
 
-import { aiGenerate, parseJsonLoose, type AiConfig } from "@/lib/ai/provider";
-import { buildFinanceContext } from "@/lib/ai/context";
-import { buildAppKnowledge } from "@/lib/ai/app-knowledge";
-import { getSettings } from "@/lib/data/settings";
-import { getNow } from "@/lib/data/clock";
-import { getAccountsWithBalances } from "@/lib/data/accounts";
-import { getCategories } from "@/lib/data/categories";
-import { getDebts } from "@/lib/data/debts";
-import { getGoalsWithProgress } from "@/lib/data/goals";
-import { getRecurringRules } from "@/lib/data/recurring";
-import { formatMoney } from "@/lib/money";
-import { formatDate } from "@/lib/format";
+import { aiGenerate, parseJsonLoose, type AiConfig } from '@/lib/ai/provider';
+import { buildFinanceContext } from '@/lib/ai/context';
+import { buildAppKnowledge } from '@/lib/ai/app-knowledge';
+import { getSettings } from '@/lib/data/settings';
+import { getNow } from '@/lib/data/clock';
+import { getAccountsWithBalances } from '@/lib/data/accounts';
+import { getCategories } from '@/lib/data/categories';
+import { getDebts } from '@/lib/data/debts';
+import { getGoalsWithProgress } from '@/lib/data/goals';
+import { getRecurringRules } from '@/lib/data/recurring';
+import { formatMoney } from '@/lib/money';
+import { formatDate } from '@/lib/format';
 import {
   executeAction,
   toolCatalog,
   type AgentCtx,
   type AgentLang,
   type ExecutedAction,
-} from "@/lib/ai/agent-tools";
+} from '@/lib/ai/agent-tools';
 
 /**
  * The conversational finance agent. Each user turn: assemble the full working
@@ -34,7 +34,7 @@ import {
  */
 
 export interface AgentChatMessage {
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
 }
 
@@ -45,7 +45,7 @@ export interface AgentRunResult {
 
 const MAX_ACTIONS = 30;
 const MAX_HISTORY = 16;
-const LANG_NAME: Record<string, string> = { es: "Spanish", en: "English" };
+const LANG_NAME: Record<string, string> = { es: 'Spanish', en: 'English' };
 
 /** Build the mutable working context from the current database state. */
 export async function buildAgentContext(): Promise<AgentCtx> {
@@ -58,7 +58,7 @@ export async function buildAgentContext(): Promise<AgentCtx> {
     getGoalsWithProgress(),
     getRecurringRules(),
   ]);
-  const lang: AgentLang = s.language === "en" ? "en" : "es";
+  const lang: AgentLang = s.language === 'en' ? 'en' : 'es';
   return {
     base: s.baseCurrency,
     locale: s.locale,
@@ -91,63 +91,52 @@ export async function buildAgentContext(): Promise<AgentCtx> {
 /** A compact, name-only listing of the user's entities so the model can resolve
  *  references without ever seeing raw ids. */
 export function entitiesBlock(ctx: AgentCtx): string {
-  const m = (cents: number) =>
-    formatMoney(cents, { currency: ctx.base, locale: ctx.locale });
+  const m = (cents: number) => formatMoney(cents, { currency: ctx.base, locale: ctx.locale });
   const lines: string[] = [];
 
-  lines.push("## Accounts");
+  lines.push('## Accounts');
   lines.push(
     ctx.accounts.length
-      ? ctx.accounts.map((a) => `- ${a.name} (${a.type}, ${a.currency})`).join("\n")
-      : "- (none — create one first)"
+      ? ctx.accounts.map((a) => `- ${a.name} (${a.type}, ${a.currency})`).join('\n')
+      : '- (none — create one first)',
   );
 
-  const expense = ctx.categories.filter((c) => c.kind === "expense");
-  const income = ctx.categories.filter((c) => c.kind === "income");
-  lines.push("\n## Categories");
-  lines.push(
-    `- expense: ${expense.map((c) => c.name).join(", ") || "(none)"}`
-  );
-  lines.push(`- income: ${income.map((c) => c.name).join(", ") || "(none)"}`);
+  const expense = ctx.categories.filter((c) => c.kind === 'expense');
+  const income = ctx.categories.filter((c) => c.kind === 'income');
+  lines.push('\n## Categories');
+  lines.push(`- expense: ${expense.map((c) => c.name).join(', ') || '(none)'}`);
+  lines.push(`- income: ${income.map((c) => c.name).join(', ') || '(none)'}`);
 
-  const openDebts = ctx.debts.filter((d) => d.status === "open");
+  const openDebts = ctx.debts.filter((d) => d.status === 'open');
   if (openDebts.length) {
-    lines.push("\n## Open debts");
+    lines.push('\n## Open debts');
     for (const d of openDebts) {
-      const dir = d.kind === "receivable" ? "owed to you" : "you owe";
+      const dir = d.kind === 'receivable' ? 'owed to you' : 'you owe';
       lines.push(
-        `- ${d.counterparty}${d.name ? ` (${d.name})` : ""} — ${dir}, ${m(
-          d.outstanding
-        )} outstanding`
+        `- ${d.counterparty}${d.name ? ` (${d.name})` : ''} — ${dir}, ${m(
+          d.outstanding,
+        )} outstanding`,
       );
     }
   }
 
   if (ctx.goals.length) {
-    lines.push("\n## Goals");
-    lines.push(ctx.goals.map((g) => `- ${g.name}`).join("\n"));
+    lines.push('\n## Goals');
+    lines.push(ctx.goals.map((g) => `- ${g.name}`).join('\n'));
   }
 
   if (ctx.recurring.length) {
-    lines.push("\n## Recurring rules");
-    lines.push(
-      ctx.recurring
-        .map((r) => `- ${r.name}${r.isActive ? "" : " (paused)"}`)
-        .join("\n")
-    );
+    lines.push('\n## Recurring rules');
+    lines.push(ctx.recurring.map((r) => `- ${r.name}${r.isActive ? '' : ' (paused)'}`).join('\n'));
   }
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 /** System prompt for the PLANNING step: decide which tools to run (as JSON). */
-function buildSystemPrompt(
-  ctx: AgentCtx,
-  snapshot: string,
-  recall?: string
-): string {
-  const langName = LANG_NAME[ctx.lang] ?? "Spanish";
-  const today = formatDate(ctx.now, "yyyy-MM-dd");
+function buildSystemPrompt(ctx: AgentCtx, snapshot: string, recall?: string): string {
+  const langName = LANG_NAME[ctx.lang] ?? 'Spanish';
+  const today = formatDate(ctx.now, 'yyyy-MM-dd');
   return [
     `You are Amp, Ample's personal-finance agent. You can BOTH answer questions about the`,
     `user's finances AND make changes to their data by calling tools.`,
@@ -205,22 +194,18 @@ function buildSystemPrompt(
     ``,
     `=== FINANCIAL SNAPSHOT ===`,
     snapshot,
-  ].join("\n");
+  ].join('\n');
 }
 
 /** A short, model-facing summary of what the tools actually did this turn. */
 function executedSummary(actions: ExecutedAction[]): string {
-  if (!actions.length) return "none";
+  if (!actions.length) return 'none';
   return actions
     .map((a) => {
-      const tail = a.ok
-        ? a.detail
-          ? ` — ${a.detail}`
-          : ""
-        : ` — FAILED: ${a.error ?? "error"}`;
-      return `[${a.ok ? "OK" : "FAIL"}] ${a.label}${tail}`;
+      const tail = a.ok ? (a.detail ? ` — ${a.detail}` : '') : ` — FAILED: ${a.error ?? 'error'}`;
+      return `[${a.ok ? 'OK' : 'FAIL'}] ${a.label}${tail}`;
     })
-    .join("\n");
+    .join('\n');
 }
 
 /**
@@ -231,10 +216,10 @@ export function buildAnswerSystem(
   ctx: AgentCtx,
   snapshot: string,
   actions: ExecutedAction[],
-  recall?: string
+  recall?: string,
 ): string {
-  const langName = LANG_NAME[ctx.lang] ?? "Spanish";
-  const today = formatDate(ctx.now, "yyyy-MM-dd");
+  const langName = LANG_NAME[ctx.lang] ?? 'Spanish';
+  const today = formatDate(ctx.now, 'yyyy-MM-dd');
   const summary = executedSummary(actions);
   return [
     `You are Amp, Ample's personal-finance assistant — warm, sharp and concrete. Reply in ${langName}.`,
@@ -278,7 +263,7 @@ export function buildAnswerSystem(
     ``,
     `=== FINANCIAL SNAPSHOT ===`,
     snapshot,
-  ].join("\n");
+  ].join('\n');
 }
 
 interface ParsedPlan {
@@ -289,10 +274,10 @@ interface ParsedPlan {
 function isActionLike(v: unknown): v is Record<string, unknown> {
   return (
     !!v &&
-    typeof v === "object" &&
+    typeof v === 'object' &&
     !Array.isArray(v) &&
-    (typeof (v as Record<string, unknown>).tool === "string" ||
-      typeof (v as Record<string, unknown>).action === "string")
+    (typeof (v as Record<string, unknown>).tool === 'string' ||
+      typeof (v as Record<string, unknown>).action === 'string')
   );
 }
 
@@ -302,22 +287,23 @@ function isActionLike(v: unknown): v is Record<string, unknown> {
  *  Exported for unit tests. */
 export function normalizePlan(raw: string): ParsedPlan {
   const parsed = parseJsonLoose<unknown>(raw);
-  if (Array.isArray(parsed)) return { message: "", actions: parsed };
-  if (!parsed || typeof parsed !== "object") return { message: "", actions: [] };
+  if (Array.isArray(parsed)) return { message: '', actions: parsed };
+  if (!parsed || typeof parsed !== 'object') return { message: '', actions: [] };
   const o = parsed as Record<string, unknown>;
   const message =
-    typeof o.message === "string"
+    typeof o.message === 'string'
       ? o.message
-      : typeof o.reply === "string"
-      ? o.reply
-      : typeof o.text === "string"
-      ? o.text
-      : "";
+      : typeof o.reply === 'string'
+        ? o.reply
+        : typeof o.text === 'string'
+          ? o.text
+          : '';
   const rawActions = o.actions ?? o.action ?? o.tools ?? o.tool_calls ?? o.calls;
   let actions: unknown[];
   if (Array.isArray(rawActions)) actions = rawActions;
   else if (isActionLike(rawActions)) actions = [rawActions];
-  else if (rawActions == null && isActionLike(o)) actions = [o]; // flat single-action plan
+  else if (rawActions == null && isActionLike(o))
+    actions = [o]; // flat single-action plan
   else actions = [];
   return { message, actions };
 }
@@ -327,19 +313,19 @@ export function windowMessages(history: AgentChatMessage[]): AiConfigMessage[] {
   const windowed = history
     .filter(
       (m) =>
-        (m.role === "user" || m.role === "assistant") &&
-        typeof m.content === "string" &&
-        m.content.trim()
+        (m.role === 'user' || m.role === 'assistant') &&
+        typeof m.content === 'string' &&
+        m.content.trim(),
     )
     .slice(-MAX_HISTORY);
   // Anthropic (and Gemini) require the first message to be a user turn — a
   // trimmed window can start on an assistant reply, so drop leading assistants.
-  while (windowed.length && windowed[0].role !== "user") windowed.shift();
+  while (windowed.length && windowed[0].role !== 'user') windowed.shift();
   return windowed.map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }));
 }
 
 interface AiConfigMessage {
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
 }
 
@@ -360,24 +346,20 @@ export interface PlanResult {
 export async function planAndExecute(
   history: AgentChatMessage[],
   cfg: AiConfig,
-  opts?: { recall?: string }
+  opts?: { recall?: string },
 ): Promise<PlanResult> {
   const ctx = await buildAgentContext();
   const snapshot = await buildFinanceContext({ recentLimit: 24 });
   const system = buildSystemPrompt(ctx, snapshot, opts?.recall);
   const messages = windowMessages(history);
 
-  if (!messages.length)
-    return { message: "", actions: [], ctx, snapshot, messages, raw: "" };
+  if (!messages.length) return { message: '', actions: [], ctx, snapshot, messages, raw: '' };
 
   // No `temperature`: newer Anthropic (Sonnet 5 / Opus 4.7+ / Fable 5) and
   // OpenAI (GPT-5 / o-series) models reject sampling params. JSON mode + a
   // deterministic prompt are enough. maxTokens is generous so a many-action
   // plan (up to MAX_ACTIONS) and Gemini "thinking" tokens don't truncate it.
-  const raw = await aiGenerate(
-    { system, messages, maxTokens: 4096, json: true },
-    cfg
-  );
+  const raw = await aiGenerate({ system, messages, maxTokens: 4096, json: true }, cfg);
 
   const plan = normalizePlan(raw);
   const executed: ExecutedAction[] = [];
@@ -391,18 +373,18 @@ export async function planAndExecute(
 /** One-shot (non-streaming) agent turn. */
 export async function runAgent(
   history: AgentChatMessage[],
-  cfg: AiConfig
+  cfg: AiConfig,
 ): Promise<AgentRunResult> {
   const { message, actions, raw, ctx } = await planAndExecute(history, cfg);
-  if (!raw && !message && actions.length === 0) return { reply: "", actions: [] };
+  if (!raw && !message && actions.length === 0) return { reply: '', actions: [] };
 
   // Non-empty model output that parsed to nothing usually means a truncated or
   // malformed response — tell the user instead of silently doing nothing.
   if (!message && actions.length === 0 && raw.trim().length > 0) {
     return {
       reply:
-        ctx.lang === "es"
-          ? "No pude procesar la respuesta completa. Intenta de nuevo o divide la petición en partes más pequeñas."
+        ctx.lang === 'es'
+          ? 'No pude procesar la respuesta completa. Intenta de nuevo o divide la petición en partes más pequeñas.'
           : "I couldn't process the full response. Try again or split the request into smaller parts.",
       actions: [],
     };

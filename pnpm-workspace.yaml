@@ -10,12 +10,12 @@
 # package that ships one must be listed here explicitly (true = allow build,
 # false = deny). Only genuine native addons / platform binaries are allowed.
 allowBuilds:
-  better-sqlite3: true    # native SQLite addon — REQUIRED, app dies without it
-  esbuild: true           # platform binary (via tsx / drizzle-kit)
-  sharp: true             # native libvips addon used by next/image optimization
-  unrs-resolver: true     # native napi resolver used by eslint (next lint)
-  '@google/genai': false  # pure-JS SDK; only a no-op preinstall, nothing to build
-  protobufjs: false       # pure-JS; postinstall not needed at runtime
+  better-sqlite3: true # native SQLite addon — REQUIRED, app dies without it
+  esbuild: true # platform binary (via tsx / drizzle-kit)
+  sharp: true # native libvips addon used by next/image optimization
+  unrs-resolver: true # native napi resolver used by eslint (next lint)
+  '@google/genai': false # pure-JS SDK; only a no-op preinstall, nothing to build
+  protobufjs: false # pure-JS; postinstall not needed at runtime
 
 # Auto-run pre/post scripts (predev/prebuild -> db:migrate). Default is already
 # true in pnpm 11, but set explicitly so the migrate hooks are guaranteed.

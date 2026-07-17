@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { addMonths, addWeeks } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import * as React from 'react';
+import { addMonths, addWeeks } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { DatePicker } from "@/components/shared/date-picker";
-import { AmountInput } from "@/components/shared/form-fields";
-import { useSettings } from "@/components/providers/settings-provider";
-import { toDateInputValue, fromDateInputValue } from "@/lib/format";
-import { fromCents, toCents } from "@/lib/money";
-import { CalendarClock, Plus, Sparkles, X } from "lucide-react";
+} from '@/components/ui/select';
+import { DatePicker } from '@/components/shared/date-picker';
+import { AmountInput } from '@/components/shared/form-fields';
+import { useSettings } from '@/components/providers/settings-provider';
+import { toDateInputValue, fromDateInputValue } from '@/lib/format';
+import { fromCents, toCents } from '@/lib/money';
+import { CalendarClock, Plus, Sparkles, X } from 'lucide-react';
 
-export type PlanMode = "none" | "scheduled";
+export type PlanMode = 'none' | 'scheduled';
 
 export interface InstallmentDraft {
   key: string;
@@ -37,15 +37,12 @@ export function draftKey() {
 
 /** Build a draft row for the remaining unscheduled amount. */
 export function remainderRow(rows: InstallmentDraft[], targetCents: number): InstallmentDraft {
-  const scheduled = rows.reduce(
-    (s, r) => s + toCents(Number(r.amount) || 0),
-    0
-  );
+  const scheduled = rows.reduce((s, r) => s + toCents(Number(r.amount) || 0), 0);
   const remaining = Math.max(0, targetCents - scheduled);
   return {
     key: draftKey(),
-    date: "",
-    amount: remaining > 0 ? String(fromCents(remaining)) : "",
+    date: '',
+    amount: remaining > 0 ? String(fromCents(remaining)) : '',
   };
 }
 
@@ -70,20 +67,15 @@ export function InstallmentsEditor({
 }) {
   const { t, money, currency: base } = useSettings();
 
-  const [splitN, setSplitN] = React.useState("2");
-  const [splitFreq, setSplitFreq] = React.useState<
-    "monthly" | "biweekly" | "weekly"
-  >("monthly");
-  const [splitStart, setSplitStart] = React.useState("");
+  const [splitN, setSplitN] = React.useState('2');
+  const [splitFreq, setSplitFreq] = React.useState<'monthly' | 'biweekly' | 'weekly'>('monthly');
+  const [splitStart, setSplitStart] = React.useState('');
 
-  const scheduledCents = rows.reduce(
-    (s, r) => s + toCents(Number(r.amount) || 0),
-    0
-  );
+  const scheduledCents = rows.reduce((s, r) => s + toCents(Number(r.amount) || 0), 0);
   const diff = targetCents - scheduledCents;
 
   function setMode(m: PlanMode) {
-    if (m === "scheduled" && rows.length === 0) {
+    if (m === 'scheduled' && rows.length === 0) {
       // seed a single row for the full amount so a one-off payment is one step
       onRowsChange([remainderRow([], targetCents)]);
     }
@@ -106,9 +98,9 @@ export function InstallmentsEditor({
     const rem = targetCents - per * n;
     const next = Array.from({ length: n }, (_, i) => {
       const d =
-        splitFreq === "monthly"
+        splitFreq === 'monthly'
           ? addMonths(start, i)
-          : splitFreq === "biweekly"
+          : splitFreq === 'biweekly'
             ? addWeeks(start, 2 * i)
             : addWeeks(start, i);
       const cents = per + (i === n - 1 ? rem : 0);
@@ -125,7 +117,7 @@ export function InstallmentsEditor({
     <div className="space-y-3">
       {/* mode toggle */}
       <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-muted/60 p-1">
-        {(["none", "scheduled"] as PlanMode[]).map((m) => {
+        {(['none', 'scheduled'] as PlanMode[]).map((m) => {
           const active = mode === m;
           return (
             <button
@@ -133,24 +125,24 @@ export function InstallmentsEditor({
               type="button"
               onClick={() => setMode(m)}
               className={cn(
-                "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium transition-all",
+                'flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium transition-all',
                 active
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              {m === "scheduled" && <CalendarClock className="size-3.5" />}
-              {m === "none" ? t("debts.planNone") : t("debts.planInstallments")}
+              {m === 'scheduled' && <CalendarClock className="size-3.5" />}
+              {m === 'none' ? t('debts.planNone') : t('debts.planInstallments')}
             </button>
           );
         })}
       </div>
 
-      {mode === "scheduled" && (
+      {mode === 'scheduled' && (
         <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-3">
           {/* split helper */}
           <div className="flex flex-wrap items-end gap-2 text-xs text-muted-foreground">
-            <span className="pb-2">{t("debts.splitLabel")}</span>
+            <span className="pb-2">{t('debts.splitLabel')}</span>
             <Input
               type="number"
               min={1}
@@ -158,29 +150,25 @@ export function InstallmentsEditor({
               value={splitN}
               onChange={(e) => setSplitN(e.target.value)}
               className="h-9 w-16"
-              aria-label={t("debts.splitLabel")}
+              aria-label={t('debts.splitLabel')}
             />
-            <span className="pb-2">{t("debts.splitEvery")}</span>
+            <span className="pb-2">{t('debts.splitEvery')}</span>
             <Select
               value={splitFreq}
-              onValueChange={(v) =>
-                setSplitFreq((v as typeof splitFreq) ?? "monthly")
-              }
+              onValueChange={(v) => setSplitFreq((v as typeof splitFreq) ?? 'monthly')}
               items={{
-                monthly: t("debts.freqMonthly"),
-                biweekly: t("debts.freqBiweekly"),
-                weekly: t("debts.freqWeekly"),
+                monthly: t('debts.freqMonthly'),
+                biweekly: t('debts.freqBiweekly'),
+                weekly: t('debts.freqWeekly'),
               }}
             >
               <SelectTrigger className="h-9 w-[110px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="monthly">{t("debts.freqMonthly")}</SelectItem>
-                <SelectItem value="biweekly">
-                  {t("debts.freqBiweekly")}
-                </SelectItem>
-                <SelectItem value="weekly">{t("debts.freqWeekly")}</SelectItem>
+                <SelectItem value="monthly">{t('debts.freqMonthly')}</SelectItem>
+                <SelectItem value="biweekly">{t('debts.freqBiweekly')}</SelectItem>
+                <SelectItem value="weekly">{t('debts.freqWeekly')}</SelectItem>
               </SelectContent>
             </Select>
             <div className="w-[150px]">
@@ -188,12 +176,12 @@ export function InstallmentsEditor({
                 value={splitStart}
                 onChange={setSplitStart}
                 clearable
-                placeholder={t("debts.installmentDate")}
+                placeholder={t('debts.installmentDate')}
               />
             </div>
             <Button type="button" variant="outline" size="sm" onClick={generate}>
               <Sparkles className="size-3.5" />
-              {t("debts.splitGenerate")}
+              {t('debts.splitGenerate')}
             </Button>
           </div>
 
@@ -208,7 +196,7 @@ export function InstallmentsEditor({
                   <DatePicker
                     value={r.date}
                     onChange={(v) => updateRow(r.key, { date: v })}
-                    placeholder={t("debts.installmentDate")}
+                    placeholder={t('debts.installmentDate')}
                   />
                 </div>
                 <AmountInput
@@ -222,7 +210,7 @@ export function InstallmentsEditor({
                   variant="ghost"
                   size="icon-sm"
                   onClick={() => removeRow(r.key)}
-                  aria-label={t("debts.removeInstallment")}
+                  aria-label={t('debts.removeInstallment')}
                   className="shrink-0"
                 >
                   <X className="size-4" />
@@ -233,26 +221,24 @@ export function InstallmentsEditor({
 
           <Button type="button" variant="outline" size="sm" onClick={addRow}>
             <Plus className="size-3.5" />
-            {t("debts.addInstallment")}
+            {t('debts.addInstallment')}
           </Button>
 
           {/* summary */}
           <p className="text-xs text-muted-foreground">
-            {t("debts.scheduledOf", {
+            {t('debts.scheduledOf', {
               scheduled: money(scheduledCents),
               total: money(targetCents),
             })}
-            {" · "}
+            {' · '}
             {diff > 0 ? (
-              <span className="text-brass">
-                {t("debts.unscheduled", { amount: money(diff) })}
-              </span>
+              <span className="text-brass">{t('debts.unscheduled', { amount: money(diff) })}</span>
             ) : diff < 0 ? (
               <span className="text-negative">
-                {t("debts.overScheduled", { amount: money(-diff) })}
+                {t('debts.overScheduled', { amount: money(-diff) })}
               </span>
             ) : (
-              <span className="text-positive">{t("debts.scheduleBalanced")}</span>
+              <span className="text-positive">{t('debts.scheduleBalanced')}</span>
             )}
           </p>
         </div>

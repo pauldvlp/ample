@@ -10,8 +10,8 @@ import {
   GridIcon,
   Settings02Icon,
   AiChat01Icon,
-} from "@hugeicons/core-free-icons";
-import type { IconSvgElement } from "@hugeicons/react";
+} from '@hugeicons/core-free-icons';
+import type { IconSvgElement } from '@hugeicons/react';
 
 export interface NavItem {
   href: string;
@@ -22,28 +22,28 @@ export interface NavItem {
 }
 
 export const PRIMARY_NAV: NavItem[] = [
-  { href: "/", labelKey: "nav.dashboard", icon: DashboardSquare01Icon },
+  { href: '/', labelKey: 'nav.dashboard', icon: DashboardSquare01Icon },
   {
-    href: "/assistant",
-    labelKey: "nav.assistant",
+    href: '/assistant',
+    labelKey: 'nav.assistant',
     icon: AiChat01Icon,
-    dataTour: "assistant",
+    dataTour: 'assistant',
   },
-  { href: "/accounts", labelKey: "nav.accounts", icon: Wallet01Icon },
-  { href: "/transactions", labelKey: "nav.transactions", icon: ArrowDataTransferHorizontalIcon },
-  { href: "/budgets", labelKey: "nav.budgets", icon: PieChartIcon },
-  { href: "/goals", labelKey: "nav.goals", icon: Target01Icon },
-  { href: "/recurring", labelKey: "nav.recurring", icon: RepeatIcon },
-  { href: "/debts", labelKey: "nav.debts", icon: Agreement01Icon },
-  { href: "/reports", labelKey: "nav.reports", icon: Analytics01Icon },
+  { href: '/accounts', labelKey: 'nav.accounts', icon: Wallet01Icon },
+  { href: '/transactions', labelKey: 'nav.transactions', icon: ArrowDataTransferHorizontalIcon },
+  { href: '/budgets', labelKey: 'nav.budgets', icon: PieChartIcon },
+  { href: '/goals', labelKey: 'nav.goals', icon: Target01Icon },
+  { href: '/recurring', labelKey: 'nav.recurring', icon: RepeatIcon },
+  { href: '/debts', labelKey: 'nav.debts', icon: Agreement01Icon },
+  { href: '/reports', labelKey: 'nav.reports', icon: Analytics01Icon },
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
-  { href: "/categories", labelKey: "nav.categories", icon: GridIcon },
-  { href: "/settings", labelKey: "nav.settings", icon: Settings02Icon },
+  { href: '/categories', labelKey: 'nav.categories', icon: GridIcon },
+  { href: '/settings', labelKey: 'nav.settings', icon: Settings02Icon },
 ];
 
 export function isActivePath(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
+  if (href === '/') return pathname === '/';
   return pathname === href || pathname.startsWith(`${href}/`);
 }

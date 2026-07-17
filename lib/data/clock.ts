@@ -1,5 +1,5 @@
-import "server-only";
-import { getSettings } from "./settings";
+import 'server-only';
+import { getSettings } from './settings';
 
 /**
  * The app's notion of "now".

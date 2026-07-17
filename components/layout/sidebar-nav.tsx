@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { cn } from "@/lib/utils";
-import { useT } from "@/components/providers/settings-provider";
-import { PRIMARY_NAV, SECONDARY_NAV, isActivePath, type NavItem } from "./nav-config";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { cn } from '@/lib/utils';
+import { useT } from '@/components/providers/settings-provider';
+import { PRIMARY_NAV, SECONDARY_NAV, isActivePath, type NavItem } from './nav-config';
 
 function NavLink({
   item,
@@ -24,10 +24,10 @@ function NavLink({
       onClick={onNavigate}
       data-tour={item.dataTour}
       className={cn(
-        "group relative flex items-center gap-3 rounded-[0.7rem] px-3 py-2 text-sm font-medium transition-colors",
+        'group relative flex items-center gap-3 rounded-[0.7rem] px-3 py-2 text-sm font-medium transition-colors',
         active
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+          ? 'bg-primary/10 text-primary'
+          : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground',
       )}
     >
       {active && (
@@ -36,8 +36,8 @@ function NavLink({
       <HugeiconsIcon
         icon={item.icon}
         className={cn(
-          "hg-icon size-[1.15rem] shrink-0 transition-colors",
-          active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+          'hg-icon size-[1.15rem] shrink-0 transition-colors',
+          active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground',
         )}
         strokeWidth={active ? 2 : 1.8}
       />

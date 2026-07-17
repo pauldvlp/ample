@@ -19,25 +19,25 @@
 //   node_modules/better-sqlite3/     (a real dependency — npm install compiles/fetches
 //                                      the right binary for whatever machine this is)
 
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
-import { spawn } from "node:child_process";
-import { parseArgs } from "node:util";
-import { runMigrations } from "../scripts/migrate-lib.mjs";
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import { spawn } from 'node:child_process';
+import { parseArgs } from 'node:util';
+import { runMigrations } from '../scripts/migrate-lib.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(here, "..");
+const root = path.join(here, '..');
 
 const { values } = parseArgs({
   options: {
-    port: { type: "string", short: "p" },
-    host: { type: "string" },
-    "data-dir": { type: "string" },
-    help: { type: "boolean", short: "h" },
-    version: { type: "boolean", short: "v" },
+    port: { type: 'string', short: 'p' },
+    host: { type: 'string' },
+    'data-dir': { type: 'string' },
+    help: { type: 'boolean', short: 'h' },
+    version: { type: 'boolean', short: 'v' },
   },
 });
 
@@ -61,39 +61,39 @@ else needs an environment variable.`);
 }
 
 if (values.version) {
-  const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   console.log(pkg.version);
   process.exit(0);
 }
 
 function defaultDataDir() {
-  if (process.platform === "darwin") {
-    return path.join(os.homedir(), "Library", "Application Support", "ample");
+  if (process.platform === 'darwin') {
+    return path.join(os.homedir(), 'Library', 'Application Support', 'ample');
   }
-  if (process.platform === "win32") {
-    const base = process.env.APPDATA ?? path.join(os.homedir(), "AppData", "Roaming");
-    return path.join(base, "ample");
+  if (process.platform === 'win32') {
+    const base = process.env.APPDATA ?? path.join(os.homedir(), 'AppData', 'Roaming');
+    return path.join(base, 'ample');
   }
-  const base = process.env.XDG_DATA_HOME ?? path.join(os.homedir(), ".local", "share");
-  return path.join(base, "ample");
+  const base = process.env.XDG_DATA_HOME ?? path.join(os.homedir(), '.local', 'share');
+  return path.join(base, 'ample');
 }
 
-const port = values.port ?? process.env.PORT ?? process.env.AMPLE_PORT ?? "4211";
+const port = values.port ?? process.env.PORT ?? process.env.AMPLE_PORT ?? '4211';
 // Binds to localhost only by default — this is a finance app, and unlike the
 // Docker image (where 0.0.0.0 is required just to escape the container's
 // network namespace), a CLI run directly on someone's machine has no such
 // boundary. Pass --host 0.0.0.0 explicitly to allow LAN/phone access.
-const host = values.host ?? process.env.HOSTNAME ?? "127.0.0.1";
+const host = values.host ?? process.env.HOSTNAME ?? '127.0.0.1';
 
 const dbPath =
-  process.env.DB_FILE_NAME ?? path.join(values["data-dir"] ?? defaultDataDir(), "ample.db");
-const migrationsFolder = path.join(root, "drizzle");
-const serverPath = path.join(root, ".next", "standalone", "server.js");
+  process.env.DB_FILE_NAME ?? path.join(values['data-dir'] ?? defaultDataDir(), 'ample.db');
+const migrationsFolder = path.join(root, 'drizzle');
+const serverPath = path.join(root, '.next', 'standalone', 'server.js');
 
 if (!fs.existsSync(serverPath)) {
   console.error(
     `[ample] no build found at ${serverPath}.\n` +
-      `[ample] if you're running this from a source checkout, run \`pnpm build\` first.`
+      `[ample] if you're running this from a source checkout, run \`pnpm build\` first.`,
   );
   process.exit(1);
 }
@@ -116,17 +116,17 @@ function patchNativeAliases() {
   // already relies on.
   let realBinary;
   try {
-    const pkgJsonPath = createRequire(import.meta.url).resolve("better-sqlite3/package.json");
-    realBinary = path.join(path.dirname(pkgJsonPath), "build", "Release");
+    const pkgJsonPath = createRequire(import.meta.url).resolve('better-sqlite3/package.json');
+    realBinary = path.join(path.dirname(pkgJsonPath), 'build', 'Release');
   } catch {
     return; // better-sqlite3 not resolvable — let the server's own require() report it
   }
-  const aliasRoot = path.join(root, ".next", "standalone", ".next", "node_modules");
+  const aliasRoot = path.join(root, '.next', 'standalone', '.next', 'node_modules');
   if (!fs.existsSync(realBinary) || !fs.existsSync(aliasRoot)) return;
 
   for (const name of fs.readdirSync(aliasRoot)) {
-    if (!name.startsWith("better-sqlite3-")) continue;
-    const target = path.join(aliasRoot, name, "build", "Release");
+    if (!name.startsWith('better-sqlite3-')) continue;
+    const target = path.join(aliasRoot, name, 'build', 'Release');
     fs.mkdirSync(target, { recursive: true });
     for (const file of fs.readdirSync(realBinary)) {
       fs.copyFileSync(path.join(realBinary, file), path.join(target, file));
@@ -146,14 +146,14 @@ console.log(`[ample] starting…
 
 const child = spawn(process.execPath, [serverPath], {
   cwd: path.dirname(serverPath),
-  stdio: "inherit",
+  stdio: 'inherit',
   env: { ...process.env, PORT: String(port), HOSTNAME: host, DB_FILE_NAME: dbPath },
 });
 
-for (const signal of ["SIGINT", "SIGTERM"]) {
+for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => child.kill(signal));
 }
 
-child.on("exit", (code, signal) => {
+child.on('exit', (code, signal) => {
   process.exit(code ?? (signal ? 1 : 0));
 });
