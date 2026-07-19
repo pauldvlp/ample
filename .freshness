@@ -3,6 +3,5 @@ last_reviewed: 2026-07-19
 # open items (updated as they land):
 # - [done 2026-07-17] dropped EOL Node 20; added Prettier
 # - [done 2026-07-19] Vitest + integration tests for all three engines (budget/debt/recurring)
-#     against a throwaway migrated SQLite; advanceDue unit-tested. `pnpm test` = vitest.
+# - [done 2026-07-19] Playwright E2E: dashboard/nav smoke + add-transaction write round-trip, gated in CI
 # - follow-up: fold agent-smoke.mts into Vitest + delete the 4 unrun .mts checks (runner unification)
-# - follow-up: Playwright E2E on the core flows (seeded SQLite)

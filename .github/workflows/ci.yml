@@ -74,6 +74,11 @@ jobs:
       - run: pnpm test
       - run: pnpm test:agent
 
+      # E2E: drive the built app (reusing the build above) against a seeded throwaway
+      # DB. Only chromium — the browser deps are the slow part.
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+
       # Stage and tar exactly what `npm publish` would upload, so the smoke job
       # exercises the published artifact rather than the workspace.
       - name: Pack the published package
