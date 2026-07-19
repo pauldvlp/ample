@@ -1,6 +1,8 @@
 # Freshness checkpoint — @pauldvlp/conventions references/freshness.md
-last_reviewed: 2026-07-17
+last_reviewed: 2026-07-19
 # open items (updated as they land):
-# - [done] dropped EOL Node 20: smoke matrix [22,24], engines >=22 (stage-npm script), README
-# - [done] added Prettier (formatter) alongside the existing ESLint flat config; format:check gated in CI
-# - tests: the 4 unused __test/*.mts checks, untested engines (budget/debt/recurring)
+# - [done 2026-07-17] dropped EOL Node 20; added Prettier
+# - [done 2026-07-19] Vitest + integration tests for all three engines (budget/debt/recurring)
+#     against a throwaway migrated SQLite; advanceDue unit-tested. `pnpm test` = vitest.
+# - follow-up: fold agent-smoke.mts into Vitest + delete the 4 unrun .mts checks (runner unification)
+# - follow-up: Playwright E2E on the core flows (seeded SQLite)
