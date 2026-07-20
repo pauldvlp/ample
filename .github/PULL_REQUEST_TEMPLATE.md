@@ -11,6 +11,6 @@
 - [ ] `pnpm lint` passes
 - [ ] `pnpm typecheck` passes
 - [ ] `pnpm build` passes
-- [ ] `pnpm test:agent` passes (if you touched `lib/ai/*` or an engine under `lib/`)
+- [ ] `pnpm test` and `pnpm test:e2e` pass
 - [ ] Commits follow [Conventional Commits](./CONTRIBUTING.md#commit-messages-conventional-commits)
 - [ ] Follows the conventions in [`AGENTS.md`](./AGENTS.md) (money as cents, `lib/data`/`lib/actions` split, Base UI not Radix, design tokens)

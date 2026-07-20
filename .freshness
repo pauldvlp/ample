@@ -2,6 +2,7 @@
 last_reviewed: 2026-07-19
 # open items (updated as they land):
 # - [done 2026-07-17] dropped EOL Node 20; added Prettier
-# - [done 2026-07-19] Vitest + integration tests for all three engines (budget/debt/recurring)
-# - [done 2026-07-19] Playwright E2E: dashboard/nav smoke + add-transaction write round-trip, gated in CI
-# - follow-up: fold agent-smoke.mts into Vitest + delete the 4 unrun .mts checks (runner unification)
+# - [done 2026-07-19] Vitest + engine integration tests; Playwright E2E (dashboard/nav + write round-trip)
+# - [done 2026-07-19] runner unified: the 4 unrun .mts + the agent smoke ported to Vitest;
+#     test:agent / __test/run.sh / tsconfig.test.json removed. One runner now: `pnpm test` (vitest).
+# ample testing is complete — Vitest (engines + AI layer) + Playwright E2E, all gated in CI.

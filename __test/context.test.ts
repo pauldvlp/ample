@@ -1,3 +1,5 @@
+import { test } from 'vitest';
+import { assert, resetDb } from './helpers';
 /**
  * Runtime check for the rich AI finance context. Seeds a realistic throwaway DB
  * (accounts + balances, budgets, goals, recurring rules, and — crucially — a
@@ -233,12 +235,8 @@ async function seed() {
   ]);
 }
 
-function assert(name: string, cond: boolean) {
-  console.log(`${cond ? '  ✓' : '  ✗'} ${name}`);
-  if (!cond) process.exitCode = 1;
-}
-
 async function main() {
+  await resetDb();
   await seed();
   const ctx = await buildFinanceContext();
   console.log('\n========== buildFinanceContext() ==========\n');
@@ -266,11 +264,6 @@ async function main() {
     'includes recent transactions',
     /Recent transactions/.test(ctx) && /Baleadas Express/.test(ctx),
   );
-
-  console.log(process.exitCode ? '\nSOME CHECKS FAILED ❌' : '\nALL CONTEXT CHECKS PASSED ✅');
 }
 
-main().catch((e) => {
-  console.error('FATAL', e);
-  process.exit(2);
-});
+test('buildFinanceContext renders the rich AI context', main);

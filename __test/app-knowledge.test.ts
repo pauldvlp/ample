@@ -10,18 +10,11 @@
 import { buildAppKnowledge, PLANNED_FEATURES } from '@/lib/ai/app-knowledge';
 import { buildAnswerSystem } from '@/lib/ai/agent';
 import type { AgentCtx } from '@/lib/ai/agent-tools';
-
-function assert(name: string, cond: boolean) {
-  console.log(`${cond ? '  ✓' : '  ✗'} ${name}`);
-  if (!cond) process.exitCode = 1;
-}
+import { test } from 'vitest';
+import { assert } from './helpers';
 
 async function main() {
   const guide = buildAppKnowledge();
-  console.log('\n========== buildAppKnowledge() ==========\n');
-  console.log(guide);
-  console.log('\n=========================================\n');
-
   // 1) every sidebar screen is documented (route mentioned) ------------------
   const routes = [
     '(/)',
@@ -92,13 +85,6 @@ async function main() {
     'answer prompt still includes the financial snapshot',
     answerPrompt.includes('SNAPSHOT_PLACEHOLDER'),
   );
-
-  console.log(
-    process.exitCode ? '\nSOME CHECKS FAILED ❌' : '\nALL APP-KNOWLEDGE CHECKS PASSED ✅',
-  );
 }
 
-main().catch((e) => {
-  console.error('FATAL', e);
-  process.exit(2);
-});
+test('assistant product-knowledge layer describes the app and wires into the answer prompt', main);

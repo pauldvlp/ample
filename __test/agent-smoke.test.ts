@@ -1,3 +1,5 @@
+import { test } from 'vitest';
+import { assert, resetDb } from './helpers';
 /**
  * Integration smoke test for the agent tool layer (Task 3). Runs each executor
  * against a REAL (temporary) SQLite DB and asserts the resulting rows. No LLM /
@@ -22,16 +24,6 @@ import { and, eq, sql } from 'drizzle-orm';
 import { executeAction, type AgentCtx } from '@/lib/ai/agent-tools';
 import { normalizePlan } from '@/lib/ai/agent';
 import { monthKey } from '@/lib/format';
-
-let failures = 0;
-function assert(name: string, cond: boolean, extra?: unknown) {
-  if (cond) {
-    console.log(`  ✓ ${name}`);
-  } else {
-    failures++;
-    console.log(`  ✗ ${name}`, extra ?? '');
-  }
-}
 
 async function seed() {
   await db.insert(settings).values({
@@ -67,6 +59,7 @@ async function buildCtx(): Promise<AgentCtx> {
 }
 
 async function main() {
+  await resetDb();
   await seed();
   const ctx = await buildCtx();
 
@@ -333,12 +326,6 @@ async function main() {
   assert('bare array -> actions', p.message === '' && p.actions.length === 1, p);
   p = normalizePlan('not json at all');
   assert('garbage -> empty plan', p.message === '' && p.actions.length === 0, p);
-
-  console.log(`\n${failures === 0 ? 'ALL PASSED ✅' : `${failures} FAILURE(S) ❌`}`);
-  process.exit(failures === 0 ? 0 : 1);
 }
 
-main().catch((e) => {
-  console.error('FATAL', e);
-  process.exit(2);
-});
+test('agent tool layer: resolve-names then action then DB write', main);

@@ -1,3 +1,5 @@
+import { test } from 'vitest';
+import { assert, resetDb } from './helpers';
 /**
  * Integration test for two features, against a REAL (temporary) migrated SQLite
  * DB. No LLM / network.
@@ -20,15 +22,6 @@ import { postBudgetSpendUpTo, SIM_BUDGET_MARKER } from '@/lib/budget-engine';
 import { buildThreadRecall } from '@/lib/ai/recall';
 import { createThread, appendMessage } from '@/lib/ai/threads';
 import { monthKey } from '@/lib/format';
-
-let failures = 0;
-function assert(name: string, cond: boolean, extra?: unknown) {
-  if (cond) console.log(`  ✓ ${name}`);
-  else {
-    failures++;
-    console.log(`  ✗ ${name}`, extra ?? '');
-  }
-}
 
 const noon = (iso: string) => new Date(`${iso}T12:00:00`);
 
@@ -240,16 +233,10 @@ async function testRecall() {
 }
 
 async function main() {
+  await resetDb();
   await seed();
   await testBudget();
   await testRecall();
-  console.log(
-    `\n${failures === 0 ? 'ALL SIM-BUDGET + RECALL CHECKS PASSED ✅' : `${failures} FAILURE(S) ❌`}`,
-  );
-  process.exit(failures === 0 ? 0 : 1);
 }
 
-main().catch((e) => {
-  console.error('FATAL', e);
-  process.exit(2);
-});
+test('sim budget projection + assistant cross-thread recall', main);
