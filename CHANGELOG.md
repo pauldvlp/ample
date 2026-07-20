@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/pauldvlp/ample/compare/v0.2.0...v0.2.1) (2026-07-20)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** bump the npm group across 1 directory with 4 updates ([e7936a2](https://github.com/pauldvlp/ample/commit/e7936a26d5a57987e6cd991059ce1c10bdacdfea))
+
 ## [0.2.0](https://github.com/pauldvlp/ample/compare/ample-v0.1.0...ample-v0.2.0) (2026-07-16)
 
 
