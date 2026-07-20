@@ -1,6 +1,6 @@
 {
   "name": "ample",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "A complete, single-user personal finance app with the feel of a beautifully printed wealth statement — accounts, budgets, goals, debts, net worth and an optional bring-your-own-key AI assistant. Self-hosted, local-first SQLite.",
   "keywords": [
