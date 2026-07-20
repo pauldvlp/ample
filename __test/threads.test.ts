@@ -1,3 +1,5 @@
+import { test } from 'vitest';
+import { assert, resetDb } from './helpers';
 /**
  * Round-trip check for persisted AI chat threads (history). Exercises the
  * lib/ai/threads data layer against a throwaway SQLite DB: create → append a
@@ -17,12 +19,8 @@ import {
 } from '@/lib/ai/threads';
 import type { ExecutedAction } from '@/lib/ai/agent-tools';
 
-function assert(name: string, cond: boolean) {
-  console.log(`${cond ? '  ✓' : '  ✗'} ${name}`);
-  if (!cond) process.exitCode = 1;
-}
-
 async function main() {
+  await resetDb();
   // 1) create + persist a full turn ----------------------------------------
   const t1 = await createThread();
   assert('createThread returns an id', typeof t1 === 'string' && t1.length > 0);
@@ -86,11 +84,6 @@ async function main() {
   // 6) clear all -------------------------------------------------------------
   await deleteAllThreads();
   assert('clear-all empties the history', (await listThreads()).length === 0);
-
-  console.log(process.exitCode ? '\nSOME CHECKS FAILED ❌' : '\nALL THREAD CHECKS PASSED ✅');
 }
 
-main().catch((e) => {
-  console.error('FATAL', e);
-  process.exit(2);
-});
+test('persisted AI chat threads round-trip', main);

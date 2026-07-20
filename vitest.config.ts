@@ -9,8 +9,8 @@ process.env.DB_FILE_NAME = DB_FILE_NAME;
 
 export default defineConfig({
   resolve: {
-    // Mirror tsconfig.test.json: server-only/next/cache are no-ops out of a request
-    // scope, and @/* resolves from the repo root.
+    // server-only/next/cache are no-ops out of a request scope;
+    // @/* resolves from the repo root.
     alias: [
       { find: 'server-only', replacement: path.join(root, '__test/server-only-shim.ts') },
       { find: 'next/cache', replacement: path.join(root, '__test/next-cache-shim.ts') },

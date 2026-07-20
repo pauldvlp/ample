@@ -72,7 +72,6 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm build
       - run: pnpm test
-      - run: pnpm test:agent
 
       # E2E: drive the built app (reusing the build above) against a seeded throwaway
       # DB. Only chromium — the browser deps are the slow part.
