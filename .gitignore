@@ -31,7 +31,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+# secrets-and-mcp.md requires a committed example; a bare .env* swallowed it
 .env*
+!.env.example
 
 # vercel
 .vercel
