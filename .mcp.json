@@ -9,9 +9,7 @@
     },
     "playwright": {
       "command": "pnpx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
+      "args": ["@playwright/mcp@latest"]
     }
   }
 }
